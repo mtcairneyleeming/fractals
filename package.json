@@ -1,0 +1,10 @@
+{
+  "name": "fractals",
+  "version": "1.0.0",
+  "author": "Max Cairney-Leeming <max@cairneyleeming.co.uk>",
+  "license": "MIT",
+  "private": false,
+  "devDependencies": {
+    "typescript": "^3.9.5"
+  }
+}
