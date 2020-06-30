@@ -5,11 +5,14 @@
   "license": "MIT",
   "private": false,
   "devDependencies": {
+    "@types/codemirror": "^0.0.96",
     "typescript": "^3.9.5"
   },
   "dependencies": {
     "@fortawesome/fontawesome-free": "^5.13.1",
+    "@svgdotjs/svg.js": "^3.0.16",
     "bootstrap": "^4.5.0",
+    "codemirror": "^5.55.0",
     "jquery": "^3.5.1",
     "popper.js": "^1.16.1"
   }

@@ -15,8 +15,103 @@
 <h3>L-systems Output:</h3>
 <pre id="output"></pre>
 
+<h3>SVGs</h3>
+<p>Use the table below to set up drawing rules for each symbol in the alphabet you've used. If you don't provide an
+    entry for a symbol, it will be assumed that it has no effect on the drawing. (e.g. the symbol X in the <a
+        href="https://en.wikipedia.org/wiki/L-system#Example_6:_Dragon_curve">Dragon Curve (wiki)</a>) </p>
+
+<p>In the editor below, you should write the body of a function that draws what the corresponding symbol represents. For example, the code that goes where the comment is below: </p>
+<textarea id="example-function" class="edit readonly-edit">
+    function draw(state){
+        // your code here
+    }
+</textarea>
+
+<h5>The State interface:</h5>
+<p>The basic form works rather like the turtle program:
+</p>
+<p>You can move forward 1 step, either drawing or not, adjust the step by a multiplicative factor, turn left or right by
+    an angle, or push/pop (save, restore respectively) the current state (incl position, angle and step).</p>
+
+<p>The more advanced exposes all available relative SVG commands, so there is some duplication in theory, e.g. m for
+    move, but these commands do not use or change any state, so you'll need to pass in the stored angle
+    (from angle()) or step, for example. Alternatively, you can store whatever state you like in the state dictionary. (Note that the basic commands refer to <code>state["angle"]</code> and <code>state["angle"]</code>). </p>
+
+<p>Note 'z' has not been implemented because this is supposed to produce a line, not a closed shape. In addition, the
+    lineA command has been added to the SVG section to save trig calculations. </p>
+<p>Please refer to <a href="https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/d#Path_commands">MDN SVG docs</a>
+    to learn about the SVG commands available.
+</p>
+
+<div>
+<textarea id="state-object" class="edit readonly-edit">
+    interface State {
+        
+        // basic drawing functions:
+        draw()
+        move()
+
+        setStep(factor: number)
+        right(angle: number
+        left(angle: number)
+
+        // state management
+        save()
+        restore()
+
+        // getters:
+        angle(): number
+        step(): number
+
+        // Advanced functions:
+
+        public currentPosition: [number, number]
+        public state: Map&lt;string, object&gt; 
+        
+        // extra
+        lineA(length: number, angle: number)
+        moveA(length: number, angle: number)
+    
+        // SVG commands
+        m(dx: number, dy: number) 
+        l(dx: number, dy: number) 
+        h(length: number) 
+        v(length: number) 
+        c(dx1: number, dy1: number, dx2: number, dy2: number, dx: number, dy: number)
+        s(dx2: number, dy2: number, dx: number, dy: number) 
+        q(dx1: number, dy1: number, dx: number, dy: number) 
+        t(dx: number, dy: number) 
+        a(rx: number, ry: number, angle: number, large: number, sweep: number, dx: number, dy: number) 
+    
+        // NB: close is not allowed as paths must produce a line not a shape
+    
+    }
+</textarea>
+
+</div>
 
 
+<table class="table" id="rules-table">
+    <thead>
+        <th scope="col" class="col-md-1">Symbol</th>
+        <th scope="col" class=col-md-10>Function</th>
+        <th scope="col" class="col-md-1"></th>
+    </thead>
+    <tbody id="rulesBody">
+        <!--<tr>
+            <td><input placeholder="Symbol" class="symbol-input"></td>
+            <td><textarea placeholder="Function" class="edit"></textarea></td>
+            <td><button class="btn btn-link delete-row-button"><i class="fa fa-times" aria-hidden="true"
+                        aria-label="Delete row"></i></button></td>
+        </tr> -->
+    </tbody>
+</table>
+<button class="btn btn-light" id="add-row-button">Add a row</button>
+
+<h3>SVG output:</h3>
+<div id="svg-out"></div>
+
+<button type="button" name="" id="gen-svgs" class="btn btn-primary btn-lg">Generate SVGs</button>
 <script src="../main.ts"></script>
 <script src="./lsystems-test.ts"></script>
  
