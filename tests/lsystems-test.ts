@@ -3,17 +3,21 @@ import * as CodeMirror from "codemirror"
 import "codemirror/lib/codemirror.css"
 import "./tests.css"
 import "codemirror/mode/javascript/javascript"
-import { toSVGCommands, State} from "../lsystems/tosvg"
+import { toSVGCommands, State } from "../lsystems/tosvg"
 import { SVG } from '@svgdotjs/svg.js'
 
 // Add L-systems button
 document.getElementById("run").addEventListener("click", runLSystems, false)
 
-function getParameters() {
-    var axiom = document.getElementById("axiom").value.split(',')
-    var variables = document.getElementById("alphabet").value.split(';')
+function getElById<T>(id: string): T {
+    return document.getElementById(id) as unknown as T
+}
+
+function getParameters(): [Array<string>, Array<string>, Map<string, Array<string>>, number] {
+    var axiom: Array<string> = getElById<HTMLInputElement>("axiom").value.split(',')
+    var variables: Array<string> = getElById<HTMLInputElement>("alphabet").value.split(';')
     var rulesMap = new Map()
-    document.getElementById("rules").value.split(';').forEach((str: string) => {
+    getElById<HTMLInputElement>("rules").value.split(';').forEach((str: string) => {
         var parts = str.split('>')
 
         rulesMap.set(parts[0], parts[1].split(","))
@@ -86,6 +90,7 @@ function getDrawingCommands() {
     for (let child of Array.from(table.children)) {
 
         let symbol = (child.firstElementChild.firstElementChild as HTMLInputElement).value
+        // @ts-ignore 
         let functionStr = child.querySelector(".CodeMirror").CodeMirror.getValue()
         let func = new Function("state", functionStr)
         // @ts-ignore - this is to avoid function typing issues
