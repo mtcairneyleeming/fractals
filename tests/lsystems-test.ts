@@ -148,8 +148,9 @@ function generateSVGs() {
 
         draw.viewbox(bbox)
 
-        let scaleFactor = box.rbox(draw).width / bbox.width
+        let scaleFactor = bbox.width / draw.width()
         path.attr("stroke-width", `${strokeWidth * scaleFactor}px`)
+        box.attr("stroke-width", `${scaleFactor}px`)
 
  
         i++
