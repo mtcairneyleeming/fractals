@@ -4,10 +4,10 @@
 <p>Note: forbidden characters: ; , ></p>
 <label for="axiom">Axiom (starting value), symbols split by ;:</label>
 <input id="axiom" type="text" value="F">
-<label for="variables">Variables used, seperated by ';':</label>
-<input id="variables"  type="text" value="F">
-<label for="rules">Rules, in the form A>B seperated by ;</label>
-<input id="rules" type="text" value="F>F+F-F-F+F;G>G">
+<label for="alphabet">Alphabet used, seperated by ';':</label>
+<input id="alphabet" type="text" value="F;-;+">
+<label for="rules">Rules, in the form A>B,C,D,..., each rule seperated by ;</label>
+<input id="rules" type="text" value="F>F,+,F,-,F,-,F,+,F">
 <label for="n">Number of iterations:</label>
 <input id="n" type="number" min="0" step="1" value="3">
 <button id="run">Run</button>

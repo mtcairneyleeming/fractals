@@ -2,7 +2,7 @@ import { Parser } from "../lsystems/parser";
 
 function onClick(){
     var axiom = document.getElementById("axiom").value.split(',')
-    var variables = document.getElementById("variables").value.split(';')
+    var variables = document.getElementById("alphabet").value.split(';')
     var rulesMap = new Map()
     var rules = document.getElementById("rules").value.split(';').forEach((str:string) => {
         var parts = str.split('>')

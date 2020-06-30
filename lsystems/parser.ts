@@ -33,7 +33,7 @@ export class Parser {
         const state = this.iterations[this.iterations.length - 1] // last
         let next: List = []
         for (const symbol of state) {
-            console.log(symbol, state)
+            //console.log(symbol, state)
             if (this.rules.has(symbol)) {
                 next = next.concat(this.rules.get(symbol)) // apply the rule
                 
@@ -42,7 +42,7 @@ export class Parser {
                 next.push(symbol)
             }
         }
-        console.log(next)
+        //console.log(next)
         this.iterations.push(next)
         return next
     }
