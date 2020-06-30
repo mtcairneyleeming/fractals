@@ -1,118 +1,194 @@
-<h1>L-systems testing</h1>
+<!DOCTYPE html>
+<html lang="en">
 
-<h3>Input L-systems parameters:</h3>
-<p>Note: forbidden characters: ; , ></p>
-<label for="axiom">Axiom (starting value), symbols split by ;:</label>
-<input id="axiom" type="text" value="F">
-<label for="alphabet">Alphabet used, seperated by ';':</label>
-<input id="alphabet" type="text" value="F;-;+">
-<label for="rules">Rules, in the form A>B,C,D,..., each rule seperated by ;</label>
-<input id="rules" type="text" value="F>F,+,F,-,F,-,F,+,F">
-<label for="n">Number of iterations:</label>
-<input id="n" type="number" min="0" step="1" value="3">
-<button id="run">Run</button>
-<hr>
-<h3>L-systems Output:</h3>
-<pre id="output"></pre>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>L-systems testing</title>
+</head>
 
-<h3>SVGs</h3>
-<p>Use the table below to set up drawing rules for each symbol in the alphabet you've used. If you don't provide an
-    entry for a symbol, it will be assumed that it has no effect on the drawing. (e.g. the symbol X in the <a
-        href="https://en.wikipedia.org/wiki/L-system#Example_6:_Dragon_curve">Dragon Curve (wiki)</a>) </p>
+<body>
 
-<p>In the editor below, you should write the body of a function that draws what the corresponding symbol represents. For example, the code that goes where the comment is below: </p>
-<textarea id="example-function" class="edit readonly-edit">
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <a class="navbar-brand" href="#">L-systems in 2D</a>
+    </nav>
+
+    <main class="container" role="main">
+
+        <div class="row">
+            <div class="col-sm-12 col-lg-8">
+                <h3>Input L-systems parameters:</h3>
+
+
+                <div class="form-group row">
+                    <label for="axiom" class="col-sm-3 col-form-label">Axiom (starting value)</label>
+                    <input id="axiom" type="text" value="F" class="col-sm-9">
+
+                </div>
+                <div class="row justify-content-end">
+                    <p id="axiomHelp" class="form-text text-muted col-sm-9">Seperate each symbol with
+                        <code>;</code></p>
+                </div>
+
+                <div class="form-group row">
+                    <label for="alphabet" class="col-sm-3 col-form-label">Alphabet</label>
+                    <input id="alphabet" type="text" value="F;+;-" class="col-sm-9">
+
+                </div>
+                <div class="row justify-content-end">
+                    <p id="alphabetHelp" class="form-text text-muted col-sm-9">Seperate each symbol with
+                        <code>;</code>. You must list every symbol you use in the axiom and rules.</p>
+                </div>
+
+                <div class="form-group row">
+                    <label for="rules" class="col-sm-3 col-form-label">Rules</label>
+                    <input id="rules" type="text" value="F>F,+,F,-,F,-,F,+,F" class="col-sm-9">
+
+                </div>
+                <div class="row justify-content-end">
+                    <p id="axiomHelp" class="form-text text-muted col-sm-9">Seperate each rule with
+                        <code>;</code>. To write a rule, write the predecessor symbol, then <code>></code>, then the list of symbols to replace it with, separated by <code>,</code></p>
+                </div>
+                <div class="form-group row">
+                    <label for="n" class="col-sm-3 col-form-label">No. of iterations</label>
+                    <input id="n" type="text" value="3" class="col-sm-9">
+
+                </div>
+                <button class="btn btn-lg btn-primary" id="run">Run</button>
+
+
+
+            </div>
+            <div class="col-sm-12 col-lg-4" id="input-note-1">
+                <p>NB: you cannot use any of <code>;</code>, <code>,</code> or <code>></code> in your alphabet as these are reserved for processing.</p>
+                <p> For an explanation of the concepts here, the
+                    <a href="https://en.wikipedia.org/wiki/L-system">wikipedia page</a> is a useful resource.</p>
+                <p>To ensure this is a context free grammar, your rules must map each character separately, so a rule must be in the form <code>X>A,B,C...</code>, not <code>XY>A,B,C...</code></p>
+            </div>
+        </div>
+
+        <div class="row mt-3">
+            <div class="col-sm-12">
+                <h5>L-systems Output:</h5>
+                <pre id="output"></pre>
+            </div>
+
+        </div>
+
+        <hr>
+
+        <div class="row">
+            <div class="col-sm-12 col-md-6">
+                <h3>Generating images</h3>
+                <p>Use the table below to set up drawing rules for each symbol in the alphabet you've used. If you don't provide an entry for a symbol, it will be assumed that it has no effect on the drawing. (e.g. the symbol X in the <a href="https://en.wikipedia.org/wiki/L-system#Example_6:_Dragon_curve">Dragon
+                        Curve (wiki)</a>) </p>
+
+                <p>In the editor below, you should write the body of a function that draws what the corresponding symbol represents. For example, the code that goes where the comment is below: </p>
+                <textarea id="example-function" class="edit readonly-edit">
     function draw(state){
         // your code here
     }
 </textarea>
+                <h5 class="mt-3">The <code>State</code> interface:</h5>
+                <p>There are 2 sets of commands available. The simpler works like the turtle drawing system: </p>
 
-<h5>The State interface:</h5>
-<p>The basic form works rather like the turtle program:
-</p>
-<p>You can move forward 1 step, either drawing or not, adjust the step by a multiplicative factor, turn left or right by
-    an angle, or push/pop (save, restore respectively) the current state (incl position, angle and step).</p>
+                <p class="ml-3">
+                    You can move forward 1 step, either drawing or not, adjust the step by a multiplicative factor, turn left or right by an angle, or push/pop (save, restore respectively) the current state (incl position, angle and step). Angles are in degrees.</p>
 
-<p>The more advanced exposes all available relative SVG commands, so there is some duplication in theory, e.g. m for
-    move, but these commands do not use or change any state, so you'll need to pass in the stored angle
-    (from angle()) or step, for example. Alternatively, you can store whatever state you like in the state dictionary. (Note that the basic commands refer to <code>state["angle"]</code> and <code>state["angle"]</code>). </p>
+                <p>And the more advanced set exposes all the sensible relative SVG commands: </p>
+                <p class="ml-3">
+                    These commands do not use or change any state, so you'll need to pass in the stored angle (from angle()) or step(), for example). Also, you can store whatever state you like in the state dictionary. (Note that the basic commands refer to <code>state["angle"]</code> and <code>state["step"]</code>, if you want to mix and match between command sets).
+                </p>
 
-<p>Note 'z' has not been implemented because this is supposed to produce a line, not a closed shape. In addition, the
-    lineA command has been added to the SVG section to save trig calculations. </p>
-<p>Please refer to <a href="https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/d#Path_commands">MDN SVG docs</a>
-    to learn about the SVG commands available.
-</p>
+                <p class="ml-3">
+                    Note 'z' has not been implemented because this is supposed to produce a line, not a closed shape. In addition, the lineA and moveA commands have been added to the SVG section to save trig calculations. </p>
 
-<div>
-<textarea id="state-object" class="edit readonly-edit">
-    interface State {
-        
-        // basic drawing functions:
-        draw()
-        move()
+                <p>Please refer to <a href="https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/d#Path_commands">MDN SVG docs</a> to learn about the SVG commands available.
+                </p>
+            </div>
 
-        setStep(factor: number)
-        right(angle: number
-        left(angle: number)
+            <div class="col-sm-12 col-md-6">
+                <h3 style="visibility: hidden">this is invisible</h3>
+                <textarea id="state-object" class="edit readonly-edit">
+interface State {
+    // basic drawing functions:
+    draw()
+    move()
 
-        // state management
-        save()
-        restore()
+    setStep(factor: number)
+    right(angle: number
+    left(angle: number)
 
-        // getters:
-        angle(): number
-        step(): number
+    // state management
+    save()
+    restore()
 
-        // Advanced functions:
+    // getters:
+    angle(): number
+    step(): number
 
-        public currentPosition: [number, number]
-        public state: Map&lt;string, object&gt; 
-        
-        // extra
-        lineA(length: number, angle: number)
-        moveA(length: number, angle: number)
+    // Advanced functions:
+
+    public currentPosition: [number, number]
+    public state: Map&lt;string, object&gt; 
     
-        // SVG commands
-        m(dx: number, dy: number) 
-        l(dx: number, dy: number) 
-        h(length: number) 
-        v(length: number) 
-        c(dx1: number, dy1: number, dx2: number, dy2: number, dx: number, dy: number)
-        s(dx2: number, dy2: number, dx: number, dy: number) 
-        q(dx1: number, dy1: number, dx: number, dy: number) 
-        t(dx: number, dy: number) 
-        a(rx: number, ry: number, angle: number, large: number, sweep: number, dx: number, dy: number) 
-    
-        // NB: close is not allowed as paths must produce a line not a shape
-    
-    }
-</textarea>
+    // extra
+    lineA(length: number, angle: number)
+    moveA(length: number, angle: number)
 
-</div>
+    // SVG commands
+    m(dx: number, dy: number) 
+    l(dx: number, dy: number) 
+    h(length: number) 
+    v(length: number) 
+    c(dx1: number, dy1: number, dx2: number, dy2: number, dx: number, dy: number)
+    s(dx2: number, dy2: number, dx: number, dy: number) 
+    q(dx1: number, dy1: number, dx: number, dy: number) 
+    t(dx: number, dy: number) 
+    a(rx: number, ry: number, angle: number, large: number, sweep: number, dx: number, dy: number) 
+
+    // NB: close is not allowed as paths must produce a line not a shape
+
+}
+                </textarea>
+            </div>
+        </div>
+
+        <div class="row mt-5">
+            <div class="col-sm-12">
+                <table class="table" id="rules-table">
+                    <thead>
+                        <th scope="col" class="col-md-1">Symbol</th>
+                        <th scope="col" class=col-md-10>Function</th>
+                        <th scope="col" class="col-md-1"></th>
+                    </thead>
+                    <tbody id="rulesBody">
+                        <!--<tr>
+                    <td><input placeholder="Symbol" class="symbol-input"></td>
+                    <td><textarea placeholder="Function" class="edit"></textarea></td>
+                    <td><button class="btn btn-link delete-row-button"><i class="fa fa-times" aria-hidden="true"
+                                aria-label="Delete row"></i></button></td>
+                </tr> -->
+                    </tbody>
+                </table>
+                <button class="btn btn-outline-dark" id="add-row-button">Add a row</button> <button type="button" name="" id="gen-svgs" class="btn btn-primary">Generate SVGs</button>
+
+                <div class="row mt-5">
+                    <div class="col-sm-12">
+
+                        <h5>SVG output:</h5>
+                        <dl id="svg-out" class="row"></dl>
+
+                    </div>
+                </div>
 
 
-<table class="table" id="rules-table">
-    <thead>
-        <th scope="col" class="col-md-1">Symbol</th>
-        <th scope="col" class=col-md-10>Function</th>
-        <th scope="col" class="col-md-1"></th>
-    </thead>
-    <tbody id="rulesBody">
-        <!--<tr>
-            <td><input placeholder="Symbol" class="symbol-input"></td>
-            <td><textarea placeholder="Function" class="edit"></textarea></td>
-            <td><button class="btn btn-link delete-row-button"><i class="fa fa-times" aria-hidden="true"
-                        aria-label="Delete row"></i></button></td>
-        </tr> -->
-    </tbody>
-</table>
-<button class="btn btn-light" id="add-row-button">Add a row</button>
 
-<h3>SVG output:</h3>
-<div id="svg-out"></div>
+    </main>
 
-<button type="button" name="" id="gen-svgs" class="btn btn-primary btn-lg">Generate SVGs</button>
-<script src="../main.ts"></script>
-<script src="./lsystems-test.ts"></script>
- 
-</script>
+    <script src="../main.ts"></script>
+    <script src="./lsystems-test.ts"></script>
+    </script>
+</body>
+
+</html>

@@ -2,3 +2,11 @@
     height: auto;
     font-size: 0.9rem;
 }
+
+main{
+    padding-top: 40px;
+}
+
+#input-note-1 {
+    padding-top: 2.5rem;
+}

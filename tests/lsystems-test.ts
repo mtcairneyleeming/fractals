@@ -114,11 +114,16 @@ function generateSVGs() {
     for (const str of res) {
         let commands = toSVGCommands(str, map)
 
-        let para = document.createElement("p")
+        let para = document.createElement("dt")
+        para.classList.add("col-sm-2")
         para.innerText = `Iteration #${i}`
-        out.appendChild(para)
 
-        let draw = SVG().addTo(out).size(200, 200)
+        out.appendChild(para)
+        let svgHolder = document.createElement("dd")
+        svgHolder.classList.add("col-sm-10")
+        out.appendChild(svgHolder)
+
+        let draw = SVG().addTo(svgHolder).size(200, 200)
 
         let strokeWidth = 2
 
