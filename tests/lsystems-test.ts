@@ -22,7 +22,7 @@ function getParameters(): [Array<string>, Array<string>, Map<string, Array<strin
 
         rulesMap.set(parts[0], parts[1].split(","))
     })
-    
+
     var n = (document.getElementById("n") as HTMLInputElement).value as unknown as number
     return [axiom, variables, rulesMap, n]
 }
@@ -161,8 +161,8 @@ function generateSVGs() {
         let scaleFactor = bbox.width / draw.width()
         path.attr("stroke-width", `${strokeWidth * scaleFactor}px`)
         box.attr("stroke-width", `${scaleFactor}px`)
+        
 
- 
         i++
     }
 
@@ -170,4 +170,86 @@ function generateSVGs() {
 
 document.getElementById("gen-svgs").addEventListener("click", generateSVGs, false)
 
+function toQueryStringInURL() {
+    let params = new URLSearchParams("")
+    let [axiom, alphabet, rules, n] = getParameters()
+    params.set("axiom", getElById<HTMLInputElement>("axiom").value)
+    params.set("alphabet", getElById<HTMLInputElement>("alphabet").value)
+    params.set("rules", getElById<HTMLInputElement>("rules").value)
+    params.set("n", getElById<HTMLInputElement>("n").value)
+    let table = getElById<HTMLTableElement>("rulesBody")
+    let i = 0
+    for (let child of Array.from(table.children)) {
+        let symbol = (child.firstElementChild.firstElementChild as HTMLInputElement).value
+        // @ts-ignore
+        let functionStr = child.querySelector(".CodeMirror").CodeMirror.getValue()
+        params.append("symbol:" + i, symbol)
+        // hopefully this is URL-encoded?
+        params.append("function:" + i, functionStr)
+        i++
+    }
+    let str = params.toString()
+    return [location.protocol, '//', location.host, location.pathname, "?", str, location.hash].join('');
+}
 
+function fromQueryString() {
+    let params = new URLSearchParams(window.location.search)
+    if (params.has("axiom")) {
+        getElById<HTMLInputElement>("axiom").value = params.get("axiom")
+    }
+    if (params.has("alphabet")) {
+        getElById<HTMLInputElement>("alphabet").value = params.get("alphabet")
+    }
+    if (params.has("rules")) {
+        getElById<HTMLInputElement>("rules").value = params.get("rules")
+    }
+    if (params.has("n")) {
+        getElById<HTMLInputElement>("n").value = params.get("n")
+    }
+
+    params.forEach((value, key, _) => {
+        console.log(key)
+        if (key.startsWith("symbol:")) {
+            let index = parseInt(key.replace("symbol:", ""))
+            if (params.has("function:" + index)) {
+                addRow(value, params.get("function:" + index))
+            } else {
+                console.warn("Missing function to go with a symbol!!")
+            }
+        }
+    })
+}
+
+document.getElementById("saveToLinkButton").addEventListener("click", saveToLink, false)
+
+function saveToLink(){
+    // generate new url
+    let newURL = toQueryStringInURL()
+
+    // update current w/o reloading
+    if(history.pushState){
+       window.history.pushState({path:newURL}, '', newURL)
+    }
+    // add to clipboard??
+    copyToClipboard(newURL)
+}
+
+function copyToClipboard(text) {
+    // from https://stackoverflow.com/questions/33855641/copy-output-of-a-javascript-variable-to-the-clipboard
+    var dummy = document.createElement("textarea");
+    // to avoid breaking orgain page when copying more words
+    // cant copy when adding below this code
+    // dummy.style.display = 'none'
+    document.body.appendChild(dummy);
+    //Be careful if you use texarea. setAttribute('value', value), which works with "input" does not work with "textarea". – Eduard
+    dummy.value = text;
+    dummy.select();
+    document.execCommand("copy");
+    document.body.removeChild(dummy);
+}
+
+fromQueryString();
+let table = getElById<HTMLTableElement>("rulesBody")
+if(table.childElementCount == 0){
+    addRow("", "")
+}
