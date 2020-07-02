@@ -101,6 +101,9 @@ function getDrawingCommands() {
 }
 
 function generateSVGs() {
+    // hide errors on new generation
+    document.getElementById("svg-error").style.display = "none"
+
     let out = document.getElementById("svg-out")
     out.textContent = ''
     let [axiom, alphabet, rules, n] = getParameters()
@@ -113,6 +116,13 @@ function generateSVGs() {
     console.log(res, out, map)
     for (const str of res) {
         let commands = toSVGCommands(str, map)
+
+        // display the error
+        if(typeof commands == "string") {
+            document.getElementById("svg-error-body").innerText = commands
+            document.getElementById("svg-error").style.display = "block"
+            return
+        }
 
         let para = document.createElement("dt")
         para.classList.add("col-sm-2")

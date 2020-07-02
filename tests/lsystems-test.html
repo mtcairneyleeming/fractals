@@ -178,6 +178,12 @@ interface State {
                 </table>
                 <button class="btn btn-outline-dark" id="add-row-button">Add a row</button> <button type="button" name="" id="gen-svgs" class="btn btn-primary">Generate SVGs</button>
 
+                <div class="alert alert-danger mt-5" role="alert" id="svg-error" style="display: none;">
+                    <h4 class="alert-heading">Generation failed!</h4>
+                    <p>A JavaScript error occurred while drawing. The error message is below:</p>
+                    <hr>
+                    <p class="mb-0" id="svg-error-body"></p>
+                </div>
                 <div class="row mt-5">
                     <div class="col-sm-12">
 

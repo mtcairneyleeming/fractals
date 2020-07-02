@@ -92,13 +92,18 @@ export class State {
 
 
 }
-export function toSVGCommands(str: Array<string>, drawingCommands: Map<string, Command>): Array<string> {
+export function toSVGCommands(str: Array<string>, drawingCommands: Map<string, Command>): Array<string> | string {
     var state = new State()
 
     for (const symbol of str) {
         console.log(state.state)
         if (drawingCommands.has(symbol)) {
-            drawingCommands.get(symbol)(state)
+            try {
+                drawingCommands.get(symbol)(state)
+            } catch (err) {
+                return err.name + ": " + err.message
+            }
+            
         }
     }
     return state.commands
