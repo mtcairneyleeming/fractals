@@ -232,6 +232,10 @@ function saveToLink(){
     }
     // add to clipboard??
     copyToClipboard(newURL)
+    document.getElementById("saveNotif").style.display = "inline"
+    setTimeout(() => {
+        document.getElementById("saveNotif").style.display = "none"
+    }, 20*1000);
 }
 
 function copyToClipboard(text) {
