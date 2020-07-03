@@ -36,7 +36,7 @@ function runLSystems() {
     document.getElementById("output").innerText = res.join("\n")
 }
 
-function hideLSystemErrors(){
+function hideLSystemErrors() {
     document.getElementById("lsys-error-body").innerText = ""
     document.getElementById("lsys-error").style.display = "none"
 }
@@ -44,7 +44,7 @@ function hideLSystemErrors(){
 function checkLSystemErrors(parser: Parser) {
     let errors = parser.checkErrors()
     if (errors.length > 0) {
-        let errStrings = errors.map(([err, symbol, input, alph], i, arr) => 
+        let errStrings = errors.map(([err, symbol, input, alph], i, arr) =>
             `${err}: you used "${symbol.padStart(1)}" in ${input}, but "${symbol.padStart(1)}" is not in the alphabet ${alph.join(", ")}`
         )
         console.log(errStrings)
@@ -137,7 +137,7 @@ function generateSVGs() {
         let commands = toSVGCommands(str, map)
 
         // display the error
-        if(typeof commands == "string") {
+        if (typeof commands == "string") {
             document.getElementById("svg-error-body").innerText = commands
             document.getElementById("svg-error").style.display = "block"
             return
@@ -190,7 +190,7 @@ function generateSVGs() {
         let scaleFactor = bbox.width / draw.width()
         path.attr("stroke-width", `${strokeWidth * scaleFactor}px`)
         box.attr("stroke-width", `${scaleFactor}px`)
-        
+
 
         i++
     }
@@ -251,20 +251,20 @@ function fromQueryString() {
 
 document.getElementById("saveToLinkButton").addEventListener("click", saveToLink, false)
 
-function saveToLink(){
+function saveToLink() {
     // generate new url
     let newURL = toQueryStringInURL()
 
     // update current w/o reloading
-    if(history.pushState){
-       window.history.pushState({path:newURL}, '', newURL)
+    if (history.pushState) {
+        window.history.pushState({ path: newURL }, '', newURL)
     }
     // add to clipboard??
     copyToClipboard(newURL)
     document.getElementById("saveNotif").style.display = "inline"
     setTimeout(() => {
         document.getElementById("saveNotif").style.display = "none"
-    }, 20*1000);
+    }, 20 * 1000);
 }
 
 function copyToClipboard(text) {
@@ -283,6 +283,6 @@ function copyToClipboard(text) {
 
 fromQueryString();
 let table = getElById<HTMLTableElement>("rulesBody")
-if(table.childElementCount == 0){
+if (table.childElementCount == 0) {
     addRow("", "")
 }

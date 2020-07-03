@@ -43,11 +43,11 @@ export class State {
 
     lineA(length: number, angle: number) {
         console.log(length, angle)
-        this.l(length * Math.cos(angle*Math.PI/180), length * Math.sin(angle*Math.PI/180))
+        this.l(length * Math.cos(angle * Math.PI / 180), length * Math.sin(angle * Math.PI / 180))
     }
 
     moveA(length: number, angle: number) {
-        this.m(length * Math.cos(angle*Math.PI/180), length * Math.sin(angle*Math.PI/180))
+        this.m(length * Math.cos(angle * Math.PI / 180), length * Math.sin(angle * Math.PI / 180))
     }
 
     m(dx: number, dy: number) {
@@ -103,7 +103,7 @@ export function toSVGCommands(str: Array<string>, drawingCommands: Map<string, C
             } catch (err) {
                 return err.name + ": " + err.message
             }
-            
+
         }
     }
     return state.commands
