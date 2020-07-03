@@ -5,102 +5,34 @@ import "./tests.css"
 import "codemirror/mode/javascript/javascript"
 import { toSVGCommands, State, toSVG } from "../lsystems/tosvg"
 
-// Add L-systems button
-document.getElementById("run").addEventListener("click", runLSystems, false)
+
+// Global variables ==========
+let axiom: Array<string>, alphabet: Array<string>, num: number = null
+let rules: Map<string, Array<string>> = new Map()
+let iterations = []
+
+
+// Helper ===================
 
 function getElById<T>(id: string): T {
     return document.getElementById(id) as unknown as T
 }
 
-function getParameters(): [Array<string>, Array<string>, Map<string, Array<string>>, number] {
-    var axiom: Array<string> = getElById<HTMLInputElement>("axiom").value.split(',')
-    var variables: Array<string> = getElById<HTMLInputElement>("alphabet").value.split(';')
-    var rulesMap = new Map()
+
+// Input parsing =============
+
+function getParameters(): void {
+    axiom = getElById<HTMLInputElement>("axiom").value.split(',')
+    alphabet = getElById<HTMLInputElement>("alphabet").value.split(';')
+
     getElById<HTMLInputElement>("rules").value.split(';').forEach((str: string) => {
         var parts = str.split('>')
 
-        rulesMap.set(parts[0], parts[1].split(","))
+        rules.set(parts[0], parts[1].split(","))
     })
 
-    var n = (document.getElementById("n") as HTMLInputElement).value as unknown as number
-    return [axiom, variables, rulesMap, n]
+    num = (document.getElementById("n") as HTMLInputElement).value as unknown as number
 }
-
-function runLSystems() {
-    hideLSystemErrors()
-    let [axiom, alphabet, rules, n] = getParameters()
-    var parser = new Parser(alphabet, axiom, rules)
-    checkLSystemErrors(parser)
-    var res = parser.iterateN(n)
-    document.getElementById("output").innerText = res.join("\n")
-}
-
-function hideLSystemErrors() {
-    document.getElementById("lsys-error-body").innerText = ""
-    document.getElementById("lsys-error").style.display = "none"
-}
-
-function checkLSystemErrors(parser: Parser) {
-    let errors = parser.checkErrors()
-    if (errors.length > 0) {
-        let errStrings = errors.map(([err, symbol, input, alph], i, arr) =>
-            `${err}: you used "${symbol.padStart(1)}" in ${input}, but "${symbol.padStart(1)}" is not in the alphabet ${alph.join(", ")}`
-        )
-        console.log(errStrings)
-        document.getElementById("lsys-error-body").innerText = errStrings.join("\n")
-        document.getElementById("lsys-error").style.display = "block"
-    }
-}
-
-// Add editors
-createAllEditors();
-
-function createAllEditors() {
-    document.querySelectorAll("textarea.edit").forEach(element => {
-        if ((element as HTMLTextAreaElement).style.display != "none") {
-            let code = CodeMirror.fromTextArea(element as HTMLTextAreaElement, {
-                lineNumbers: true,
-                mode: "text/typescript",
-                viewportMargin: Infinity
-            });
-            if (element.classList.contains("readonly-edit")) {
-                code.setOption("readOnly", true);
-            }
-        }
-    });
-}
-
-
-// Add row manipulation
-document.getElementById("add-row-button").addEventListener("click", addRowClick, false)
-
-function addRowClick() { addRow() }
-
-function addRow(symbol: string = "", func: string = "") {
-    let table = document.getElementById("rulesBody")
-    table.insertAdjacentHTML("beforeend", `<tr>
-    <td><input placeholder="Symbol" class="symbol-input" value=${symbol}></td>
-    <td><textarea placeholder="Function" class="edit">${func}</textarea></td>
-    <td><button class="btn btn-link delete-row-button"><i class="fa fa-times" aria-hidden="true"
-                aria-label="Delete row"></i></button></td>
-</tr>`)
-    // note all the rest won't be textareas any more!
-    createAllEditors()
-    var n = table.lastChild as HTMLTableRowElement
-    n.querySelector(".delete-row-button").addEventListener("click", deleteRow, false)
-}
-
-function deleteRow(event: Event) {
-    let btn = event.target as HTMLElement;
-    if (btn.tagName == "I") btn = btn.parentElement
-    let row = btn.parentElement.parentElement as HTMLTableRowElement
-    //console.log(row, row.parentElement)
-    row.parentElement.removeChild(row)
-}
-
-document.querySelectorAll(".delete-row-button").forEach(item => {
-    item.addEventListener("click", deleteRow, false)
-})
 
 function getDrawingCommands() {
     let table = document.getElementById("rulesBody")
@@ -118,51 +50,85 @@ function getDrawingCommands() {
     return map
 }
 
-function generateSVGs() {
-    // hide errors on new generation
+
+// Error handling ============
+
+
+function hideErrors() {
+    document.getElementById("lsys-error-body").innerText = ""
+    document.getElementById("lsys-error").style.display = "none"
     document.getElementById("svg-error").style.display = "none"
-
-    let out = document.getElementById("svg-out")
-    out.textContent = ''
-    let [axiom, alphabet, rules, n] = getParameters()
-    let map = getDrawingCommands()
-
-    var parser = new Parser(alphabet, axiom, rules)
-    var res = parser.iterateN(n)
-
-    let i = 0
-    console.log(res, out, map)
-    for (const str of res) {
-        let commands = toSVGCommands(str, map)
-
-        // display the error
-        if (typeof commands == "string") {
-            document.getElementById("svg-error-body").innerText = commands
-            document.getElementById("svg-error").style.display = "block"
-            return
-        }
-
-        let para = document.createElement("dt")
-        para.classList.add("col-sm-2")
-        para.innerText = `Iteration #${i}`
-
-        out.appendChild(para)
-        let svgHolder = document.createElement("dd")
-        svgHolder.classList.add("col-sm-10")
-        out.appendChild(svgHolder)
-
-        toSVG(commands, svgHolder, 1)
-
-        i++
-    }
-
 }
 
-document.getElementById("gen-svgs").addEventListener("click", generateSVGs, false)
+function checkLSystemErrors(parser: Parser) {
+    let errors = parser.checkErrors()
+    if (errors.length > 0) {
+        let errStrings = errors.map(([err, symbol, input, alph], i, arr) =>
+            `${err}: you used "${symbol.padStart(1)}" in ${input}, but "${symbol.padStart(1)}" is not in the alphabet ${alph.join(", ")}`
+        )
+        console.log(errStrings)
+        document.getElementById("lsys-error-body").innerText = errStrings.join("\n")
+        let warning = document.getElementById("lsys-error")
+        warning.style.display = "block"
+        warning.scrollIntoView({ block: "end", inline: "nearest", behavior: "smooth" })
+    }
+}
+
+function showSVGError(err: string) {
+    document.getElementById("svg-error-body").innerText = err
+    document.getElementById("svg-error").style.display = "block"
+}
+
+
+
+// Editor/table setup ========
+
+function createAllEditors() {
+    document.querySelectorAll("textarea.edit").forEach(element => {
+        if ((element as HTMLTextAreaElement).style.display != "none") {
+            let code = CodeMirror.fromTextArea(element as HTMLTextAreaElement, {
+                lineNumbers: true,
+                mode: "text/typescript",
+                viewportMargin: Infinity
+            });
+            if (element.classList.contains("readonly-edit")) {
+                code.setOption("readOnly", true);
+            }
+        }
+    });
+}
+
+function addRow(symbol: string = "", func: string = "") {
+    let table = document.getElementById("rulesBody")
+    table.insertAdjacentHTML("beforeend", `
+    <tr>
+        <td><input placeholder="Symbol" class="symbol-input" value=${symbol}></td>
+        <td><textarea placeholder="Function" class="edit">${func}</textarea></td>
+        <td>
+            <button class="btn btn-link delete-row-button">
+                <i class="fa fa-times" aria-hidden="true" aria-label="Delete row"></i>
+            </button>
+        </td>
+    </tr>
+    `)
+    // note all the rest won't be textareas any more!
+    createAllEditors()
+    var n = table.lastChild as HTMLTableRowElement
+    n.querySelector(".delete-row-button").addEventListener("click", deleteRow, false)
+}
+
+function deleteRow(event: Event) {
+    let btn = event.target as HTMLElement;
+    if (btn.tagName == "I") btn = btn.parentElement
+    let row = btn.parentElement.parentElement as HTMLTableRowElement
+    //console.log(row, row.parentElement)
+    row.parentElement.removeChild(row)
+}
+
+// Querystring save/load =====
 
 function toQueryStringInURL() {
     let params = new URLSearchParams("")
-    let [axiom, alphabet, rules, n] = getParameters()
     params.set("axiom", getElById<HTMLInputElement>("axiom").value)
     params.set("alphabet", getElById<HTMLInputElement>("alphabet").value)
     params.set("rules", getElById<HTMLInputElement>("rules").value)
@@ -210,7 +176,8 @@ function fromQueryString() {
     })
 }
 
-document.getElementById("saveToLinkButton").addEventListener("click", saveToLink, false)
+
+// Save/load =================
 
 function saveToLink() {
     // generate new url
@@ -228,7 +195,7 @@ function saveToLink() {
     }, 20 * 1000);
 }
 
-function copyToClipboard(text) {
+function copyToClipboard(text: string) {
     // from https://stackoverflow.com/questions/33855641/copy-output-of-a-javascript-variable-to-the-clipboard
     var dummy = document.createElement("textarea");
     // to avoid breaking orgain page when copying more words
@@ -241,6 +208,79 @@ function copyToClipboard(text) {
     document.execCommand("copy");
     document.body.removeChild(dummy);
 }
+
+// Main logic ================
+
+function getParser(): Parser {
+    hideErrors()
+    getParameters()
+    var parser = new Parser(alphabet, axiom, rules)
+    checkLSystemErrors(parser)
+    return parser
+}
+
+function runLSystems() {
+    let parser = getParser()
+    iterations = parser.iterateN(num)
+    document.getElementById("output").innerText = iterations.join("\n")
+}
+
+function generateSVGs() {
+
+    let out = document.getElementById("svg-out")
+    out.textContent = ''
+
+    runLSystems()
+
+    let map = getDrawingCommands()
+
+
+    let i = 0
+    console.log(iterations, out, map)
+    for (const str of iterations) {
+        let commands = toSVGCommands(str, map)
+
+        // display the error
+        if (typeof commands == "string") {
+            showSVGError(commands)
+            return
+        }
+
+        let para = document.createElement("dt")
+        para.classList.add("col-sm-2")
+        para.innerText = `Iteration #${i}`
+
+        out.appendChild(para)
+        let svgHolder = document.createElement("dd")
+        svgHolder.classList.add("col-sm-10")
+        out.appendChild(svgHolder)
+
+        toSVG(commands, svgHolder, 1)
+
+        i++
+    }
+
+}
+
+
+// Add event handlers ========
+
+document.getElementById("run").addEventListener("click", runLSystems, false)
+
+document.getElementById("add-row-button").addEventListener("click", () => { addRow() }, false)
+
+document.querySelectorAll(".delete-row-button").forEach(item => {
+    item.addEventListener("click", deleteRow, false)
+})
+
+document.getElementById("gen-svgs").addEventListener("click", generateSVGs, false)
+
+document.getElementById("saveToLinkButton").addEventListener("click", saveToLink, false)
+
+
+// Run on load ===============
+
+createAllEditors();
 
 fromQueryString();
 let table = getElById<HTMLTableElement>("rulesBody")

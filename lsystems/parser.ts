@@ -8,6 +8,7 @@ export class Parser {
     private rules: Rules
     private iterations: Array<List>
     constructor(alphabet: List, axiom: List, rules: Rules) {
+        
         this.alphabet = alphabet
         this.axiom = axiom
         this.rules = rules
