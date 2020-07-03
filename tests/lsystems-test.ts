@@ -28,10 +28,29 @@ function getParameters(): [Array<string>, Array<string>, Map<string, Array<strin
 }
 
 function runLSystems() {
+    hideLSystemErrors()
     let [axiom, alphabet, rules, n] = getParameters()
     var parser = new Parser(alphabet, axiom, rules)
+    checkLSystemErrors(parser)
     var res = parser.iterateN(n)
     document.getElementById("output").innerText = res.join("\n")
+}
+
+function hideLSystemErrors(){
+    document.getElementById("lsys-error-body").innerText = ""
+    document.getElementById("lsys-error").style.display = "none"
+}
+
+function checkLSystemErrors(parser: Parser) {
+    let errors = parser.checkErrors()
+    if (errors.length > 0) {
+        let errStrings = errors.map(([err, symbol, input, alph], i, arr) => 
+            `${err}: you used "${symbol.padStart(1)}" in ${input}, but "${symbol.padStart(1)}" is not in the alphabet ${alph.join(", ")}`
+        )
+        console.log(errStrings)
+        document.getElementById("lsys-error-body").innerText = errStrings.join("\n")
+        document.getElementById("lsys-error").style.display = "block"
+    }
 }
 
 // Add editors

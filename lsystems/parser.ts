@@ -12,21 +12,27 @@ export class Parser {
         this.axiom = axiom
         this.rules = rules
         this.iterations = [axiom] // axiom is the 0th iteration
-        for (const symbol of axiom) {
+    }
+
+    checkErrors(): Array<[string, string, string, Array<string>]> {
+        let errors = []
+        for (const symbol of this.axiom) {
             if (this.alphabet.indexOf(symbol) == -1) {
-                throw new Error("Axiom must use only symbols from the alphabet");
+                errors.push(["The axiom must use only symbols from the alphabet", symbol, this.axiom, this.alphabet])
             }
         }
-        for(let [pred,succ] of rules){
+        for (let [pred, succ] of this.rules) {
             if (this.alphabet.indexOf(pred) == -1) {
-                throw new Error("Rules must use only symbols from the alphabet");
+                errors.push(["The rules must use only symbols from the alphabet", pred, `${pred}>${succ.join(",")}`, this.alphabet])
             }
-            for (let i =0; i < succ.length; i++) {
+            for (let i = 0; i < succ.length; i++) {
                 if (this.alphabet.indexOf(succ[i]) == -1) {
-                    throw new Error("Rules must use only symbols from the alphabet");
+                    errors.push(["The rules must use only symbols from the alphabet", succ[i], `${pred}>${succ.join(",")}`, this.alphabet])
                 }
             }
         }
+        console.log(errors)
+        return errors
     }
 
     iterate(): List {
@@ -36,7 +42,6 @@ export class Parser {
             //console.log(symbol, state)
             if (this.rules.has(symbol)) {
                 next = next.concat(this.rules.get(symbol)) // apply the rule
-                
             }
             else {
                 next.push(symbol)
