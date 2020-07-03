@@ -3,8 +3,7 @@ import * as CodeMirror from "codemirror"
 import "codemirror/lib/codemirror.css"
 import "./tests.css"
 import "codemirror/mode/javascript/javascript"
-import { toSVGCommands, State } from "../lsystems/tosvg"
-import { SVG } from '@svgdotjs/svg.js'
+import { toSVGCommands, State, toSVG } from "../lsystems/tosvg"
 
 // Add L-systems button
 document.getElementById("run").addEventListener("click", runLSystems, false)
@@ -152,45 +151,7 @@ function generateSVGs() {
         svgHolder.classList.add("col-sm-10")
         out.appendChild(svgHolder)
 
-        let draw = SVG().addTo(svgHolder).size(200, 200)
-
-        let strokeWidth = 2
-
-        let path = draw.path(commands.join("\n")).attr({
-            fill: "transparent",
-            stroke: "black",
-            "stroke-width": `${strokeWidth}px`
-        }).transform({
-            flip: "y"
-        })
-
-        let bbox = path.bbox()
-        if (bbox.width < bbox.height) {
-            bbox.x -= (bbox.height - bbox.width) / 2
-            bbox.width = bbox.height
-        }
-        else if (bbox.width > bbox.height) {
-            bbox.y -= (bbox.width - bbox.height) / 2
-            bbox.height = bbox.width
-        }
-        bbox.x -= 0.025 * bbox.width
-        bbox.y -= 0.025 * bbox.height
-        bbox.height *= 1.05
-        bbox.width *= 1.05
-        let box = draw.rect(bbox.width, bbox.height).attr({
-            fill: "transparent",
-            stroke: "gray",
-            "stroke-width": "1px"
-        })
-        box.x(bbox.x)
-        box.y(bbox.y)
-
-        draw.viewbox(bbox)
-
-        let scaleFactor = bbox.width / draw.width()
-        path.attr("stroke-width", `${strokeWidth * scaleFactor}px`)
-        box.attr("stroke-width", `${scaleFactor}px`)
-
+        toSVG(commands, svgHolder, 1)
 
         i++
     }
