@@ -44,7 +44,6 @@ export class State {
 
 
     lineA(length: number, angle: number) {
-        console.log(length, angle)
         this.l(length * Math.cos(angle * Math.PI / 180), length * Math.sin(angle * Math.PI / 180))
     }
 
@@ -98,7 +97,6 @@ export function toSVGCommands(str: Array<string>, drawingCommands: Map<string, C
     var state = new State()
 
     for (const symbol of str) {
-        console.log(state.state)
         if (drawingCommands.has(symbol)) {
             try {
                 drawingCommands.get(symbol)(state)
