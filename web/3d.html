@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3D L-systems testing</title>
+</head>
+
+<body>
+
+    <nav class="navbar navbar-light bg-light sticky-top">
+        <a class="navbar-brand" href="#">L-systems in 2D</a>
+        <span class="ml-auto mr-3 text-muted" style="display: none;" id="saveNotif">URL copied to clipboard</span>
+        <button class="btn btn-outline-success" id="saveToLinkButton">Save to link</button>
+    </nav>
+
+    <main class="container" role="main">
+
+        <div class="row">
+            <div class="col-sm-12">
+                <h3>Input L-systems parameters:</h3>
+
+                <p>Please copy the URL of the 2d-working page into the input below, to parse in your settings</p>
+                <div class="form-group row">
+                    <label for="settingsIn" class="col-sm-3 col-form-label">URL</label>
+                    <input id="settingsIn" type="url" class="col-sm-9">
+
+                </div>
+                <button class="btn btn-lg btn-primary" id="run">Run</button>
+
+            </div>
+            <div class="col-sm-12 col-lg-4" id="input-note-1">
+                <p>
+                    <!--TODO add explanation-->
+                </p>
+            </div>
+        </div>
+
+        <div class="row mt-3">
+            <div class="col-sm-12">
+                <div class="alert alert-danger mt-5" role="alert" id="settings-error" style="display: none;">
+                    <h4 class="alert-heading">There was a problem with your settings:</h4>
+                    <p class="mb-0" id="settings-error-body"></p>
+                </div>
+
+            </div>
+
+        </div>
+
+        <hr>
+
+        <div class="row">
+            <div class="col-sm-12">
+                <h3>3D wireframe</h3>
+                <div id="wireframe"></div>
+                <h3>3D triangles</h3>
+                <div id="triangles"></div>
+            </div>
+        </div>
+    </main>
+
+    <script src="../main.ts"></script>
+    <script src="./3d.ts"></script>
+</body>
+
+</html>

@@ -1,11 +1,18 @@
 {
     "compilerOptions": {
-        "target": "ES5",
+        "target": "ES6",
         "lib": [
             "DOM",
             "ES6",
             "es2017.string"
         ],
-        "downlevelIteration": true
-    }
+        "downlevelIteration": true,
+        "moduleResolution": "node"
+    },
+    "include": [
+        ".node_modules/three/src/**/*.ts",
+        "./web/*.ts",
+        "./lsystems/*.ts",
+        "./3d/**/*.ts"
+    ],
 }

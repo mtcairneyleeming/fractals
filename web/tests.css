@@ -10,3 +10,7 @@ main {
 #input-note-1 {
     padding-top: 2.5rem;
 }
+
+canvas {
+    display: block;
+}
