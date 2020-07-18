@@ -47,7 +47,7 @@ commands.set("Y", (state) => {
 
 let simple = new SimpleDevFract(axiom, rules, commands)
 
-let [tris, lLines, jLines] = simple.runN(1.0 / 2, 10, 1 / 2, num)
+let [tris, lLines, jLines] = simple.runN(1.0 / 2, 10, 1 / 2, num, false)
 console.log("Lines", lLines, jLines)
 // draw w/ three.js
 

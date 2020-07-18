@@ -25,7 +25,7 @@ export class Simple3D {
 
 
     // vocab: segment = lines from drawing 1 symbol
-    runN(zFactor: number, initDeltaZ: number, xyFactor: number, n: number): [Tri3d[], Line3d[], Line3d[]] {
+    runN(zFactor: number, initDeltaZ: number, xyFactor: number, n: number, drawAxiom: boolean = true): [Tri3d[], Line3d[], Line3d[]] {
         // initial layer state
         let z = 0
         let xyScale = 1
@@ -78,7 +78,8 @@ export class Simple3D {
                 // Draw tris and joining lines in wireframe
                 let segStart = 0
                 for (let newSegment of segments) {
-                    if (newSegment.length() > 0) {
+                    if (newSegment.length() > 0 && (i > 0 || drawAxiom)) {
+                        //throw new Error(n.toString())
                         let s = segStart
                         // add tris, lines for each of the new lines
                         for (let line of newSegment.lines) {
