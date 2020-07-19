@@ -3,6 +3,7 @@ import "./tests.css"
 import { Simple3D as SimpleDevFract } from "../3d/simple"
 import { State } from "../lsystems/tosvg"
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls"
+import { STLExporter } from "three/examples/jsm/exporters/STLExporter"
 
 // settings import
 
@@ -147,3 +148,21 @@ function update() {
     triRenderer.render(triScene, camera)
 }
 update();
+
+
+// STL exporting
+
+var saveLink = document.createElement('a')
+saveLink.style.display = 'none'
+document.body.appendChild(saveLink)
+
+function exportSTL() {
+    var exporter = new STLExporter()
+    var res = exporter.parse(tri)
+
+    saveLink.href = URL.createObjectURL(new Blob([res], { type: 'text/plain' }))
+    saveLink.download = "fractal.stl"
+    saveLink.click()
+}
+
+document.getElementById("meshSave").addEventListener("click", exportSTL)
