@@ -57,15 +57,15 @@ let triScene = new THREE.Scene();
 
 // set up cameras
 let vWidth = 200
-let camera = new THREE.OrthographicCamera(vWidth / -2, vWidth / 2, vWidth / 2, vWidth / -2, 10, 200)
+let camera = new THREE.OrthographicCamera(vWidth / -2, vWidth / 2, vWidth / 2, vWidth / -2, -2000, 2000)
 
 // renderers
 let wireRenderer = new THREE.WebGLRenderer();
-wireRenderer.setSize(window.innerWidth, window.innerHeight / 2);
+wireRenderer.setSize(window.innerWidth, window.innerHeight);
 document.getElementById("wireframe").appendChild(wireRenderer.domElement);
 
 let triRenderer = new THREE.WebGLRenderer();
-triRenderer.setSize(window.innerWidth, window.innerHeight / 2);
+triRenderer.setSize(window.innerWidth, window.innerHeight);
 document.getElementById("triangles").appendChild(triRenderer.domElement);
 
 // materials
@@ -80,7 +80,8 @@ let triMaterial = new THREE.LineBasicMaterial({
     side: THREE.DoubleSide
 })
 let blackLineMaterial = new THREE.LineBasicMaterial({
-    color: 0x000000
+    color: 0x000000,
+    transparent: true
 })
 
 
@@ -128,7 +129,7 @@ triScene.add(tri)
 triScene.add(edges)
 
 // add controls 
-let controls = new OrbitControls(camera, wireRenderer.domElement);
+let controls = new OrbitControls(camera, triRenderer.domElement);
 
 camera.position.y = 100
 camera.position.x = 100

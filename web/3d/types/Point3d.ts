@@ -1,7 +1,7 @@
 import { Point2d } from "./Point2d";
 
 export class Point3d {
-    
+
     x: number;
     y: number;
     z: number;
