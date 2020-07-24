@@ -3,3 +3,5 @@ web/node_modules/**
 .vscode/**
 web/dist
 yarn-error.log
+pyserver/**
+.python-version
