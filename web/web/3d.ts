@@ -4,6 +4,7 @@ import { Simple3D as SimpleDevFract } from "../3d/simple"
 import { State } from "../lsystems/tosvg"
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls"
 import { STLExporter } from "three/examples/jsm/exporters/STLExporter"
+import { Tri3d } from "../3d/types/Tri3d"
 
 // settings import
 
@@ -46,123 +47,110 @@ commands.set("Y", (state) => {
 
 // run simple developing fractal generation
 
-let simple = new SimpleDevFract(axiom, rules, commands)
+async function run() {
 
-let [tris, lLines, jLines] = simple.runN(1.0 / 2, 10, 1 / 2, num, false)
-console.log("Lines", lLines, jLines)
-// draw w/ three.js
+    let simple = new SimpleDevFract(axiom, rules, commands)
 
-// set up scenes
-let wireScene = new THREE.Scene();
-let triScene = new THREE.Scene();
+    let segments = simple.runN(1.0 / 2, 20, 1 / 2, num, false)
 
-// set up cameras
-let vWidth = 200
-let camera = new THREE.OrthographicCamera(vWidth / -2, vWidth / 2, vWidth / 2, vWidth / -2, -2000, 2000)
+    console.log(segments)
 
-// renderers
-let wireRenderer = new THREE.WebGLRenderer();
-wireRenderer.setSize(window.innerWidth, window.innerHeight);
-document.getElementById("wireframe").appendChild(wireRenderer.domElement);
-
-let triRenderer = new THREE.WebGLRenderer();
-triRenderer.setSize(window.innerWidth, window.innerHeight);
-document.getElementById("triangles").appendChild(triRenderer.domElement);
-
-// materials
-let layerMaterial = new THREE.LineBasicMaterial({
-    color: 0xffffff
-})
-let joinMaterial = new THREE.LineBasicMaterial({
-    color: 0xff5733
-})
-let triMaterial = new THREE.LineBasicMaterial({
-    color: 0xffffff,
-    side: THREE.DoubleSide
-})
-let blackLineMaterial = new THREE.LineBasicMaterial({
-    color: 0x000000,
-    transparent: true
-})
-
-
-
-// wireframe geometry
-let layerPoints = []
-for (let line of lLines) {
-    layerPoints.push(new THREE.Vector3(line.start.x, line.start.y, line.start.z))
-    layerPoints.push(new THREE.Vector3(line.end.x, line.end.y, line.end.z))
-}
-let layerGeometry = new THREE.BufferGeometry().setFromPoints(layerPoints)
-
-let layerLines = new THREE.LineSegments(layerGeometry, layerMaterial)
-
-let joinPoints = []
-for (let line of jLines) {
-    joinPoints.push(new THREE.Vector3(line.start.x, line.start.y, line.start.z))
-    joinPoints.push(new THREE.Vector3(line.end.x, line.end.y, line.end.z))
-}
-let joinGeometry = new THREE.BufferGeometry().setFromPoints(joinPoints)
-
-let joinLines = new THREE.LineSegments(joinGeometry, joinMaterial)
-
-// tris geometry
-let triGeometry = new THREE.BufferGeometry()
-
-let triVerts = []
-for (let tri of tris) {
-    triVerts.push(
-        tri.a.x, tri.a.y, tri.a.z,
-        tri.b.x, tri.b.y, tri.b.z,
-        tri.c.x, tri.c.y, tri.c.z
-    )
+    let response = await fetch(`/api/thick/${num}/false/0.5`, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify(segments)
+    })
+    let tris = await response.json()
+    drawTris(tris)
 }
 
-triGeometry.setAttribute('position', new THREE.BufferAttribute(new Float32Array(triVerts), 3))
-let tri = new THREE.Mesh(triGeometry, triMaterial)
+(async function () {
+    await run();
+})();
 
-let edges = new THREE.LineSegments(new THREE.EdgesGeometry(triGeometry), blackLineMaterial)
+function drawTris(tris: Tri3d[]) {
+    let triScene = new THREE.Scene();
 
-// add to scenes
-wireScene.add(joinLines)
-wireScene.add(layerLines)
-triScene.add(tri)
-triScene.add(edges)
-
-// add controls 
-let controls = new OrbitControls(camera, triRenderer.domElement);
-
-camera.position.y = 100
-camera.position.x = 100
-camera.position.z = 100
-camera.lookAt(0, 0, 0)
-controls.update()
+    // set up cameras
+    let vWidth = 200
+    let camera = new THREE.OrthographicCamera(vWidth / -2, vWidth / 2, vWidth / 2, vWidth / -2, -2000, 2000)
 
 
-// run update
+    let triRenderer = new THREE.WebGLRenderer();
+    triRenderer.setSize(window.innerWidth, window.innerHeight);
+    document.getElementById("triangles").appendChild(triRenderer.domElement);
 
-function update() {
-    requestAnimationFrame(update);
+    // materials
+
+    let triMaterial = new THREE.LineBasicMaterial({
+        color: 0xffffff,
+        side: THREE.DoubleSide
+    })
+    let blackLineMaterial = new THREE.LineBasicMaterial({
+        color: 0xeeeeee,
+        transparent: true
+    })
+
+
+
+    // tris geometry
+    let triGeometry = new THREE.BufferGeometry()
+
+    let triVerts = []
+    for (let tri of tris) {
+        triVerts.push(
+            tri.a.x, tri.a.y, tri.a.z,
+            tri.b.x, tri.b.y, tri.b.z,
+            tri.c.x, tri.c.y, tri.c.z
+        )
+    }
+
+    triGeometry.setAttribute('position', new THREE.BufferAttribute(new Float32Array(triVerts), 3))
+    let tri = new THREE.Mesh(triGeometry, triMaterial)
+
+    let edges = new THREE.LineSegments(new THREE.EdgesGeometry(triGeometry), blackLineMaterial)
+
+    // add to scenes
+    triScene.add(tri)
+    triScene.add(edges)
+
+    // add controls
+    let controls = new OrbitControls(camera, triRenderer.domElement);
+
+    camera.position.y = 100
+    camera.position.x = 100
+    camera.position.z = 100
+    camera.lookAt(0, 0, 0)
     controls.update()
-    wireRenderer.render(wireScene, camera);
-    triRenderer.render(triScene, camera)
+
+
+    // run update
+
+    function update() {
+        requestAnimationFrame(update);
+        controls.update()
+        triRenderer.render(triScene, camera)
+    }
+    update();
+
+
+    // STL exporting
+
+    var saveLink = document.createElement('a')
+    saveLink.style.display = 'none'
+    document.body.appendChild(saveLink)
+
+    function exportSTL() {
+        var exporter = new STLExporter()
+        var res = exporter.parse(tri)
+
+        saveLink.href = URL.createObjectURL(new Blob([res], { type: 'text/plain' }))
+        saveLink.download = "fractal.stl"
+        saveLink.click()
+    }
+
+    document.getElementById("meshSave").addEventListener("click", exportSTL)
+
 }
-update();
-
-
-// STL exporting
-
-var saveLink = document.createElement('a')
-saveLink.style.display = 'none'
-document.body.appendChild(saveLink)
-
-function exportSTL() {
-    var exporter = new STLExporter()
-    var res = exporter.parse(tri)
-
-    saveLink.href = URL.createObjectURL(new Blob([res], { type: 'text/plain' }))
-    saveLink.download = "fractal.stl"
-    saveLink.click()
-}
-
-document.getElementById("meshSave").addEventListener("click", exportSTL)
