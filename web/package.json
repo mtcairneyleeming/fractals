@@ -6,6 +6,7 @@
   "private": false,
   "devDependencies": {
     "@types/codemirror": "^0.0.96",
+    "cssnano": "^4.1.10",
     "typescript": "^3.9.5"
   },
   "dependencies": {
@@ -15,6 +16,7 @@
     "codemirror": "^5.55.0",
     "jquery": "^3.5.1",
     "popper.js": "^1.16.1",
+    "regenerator-runtime": "^0.13.7",
     "three": "^0.118.3"
   }
 }
