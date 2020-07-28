@@ -113,7 +113,7 @@ function addRow(symbol: string = "", func: string = "") {
     `)
     // note all the rest won't be textareas any more!
     createAllEditors()
-    var n = table.lastChild as HTMLTableRowElement
+    var n = table.lastElementChild as HTMLTableRowElement
     n.querySelector(".delete-row-button").addEventListener("click", deleteRow, false)
 }
 
