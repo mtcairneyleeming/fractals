@@ -1,5 +1,5 @@
-use crate::geom::*;
 use super::util::*;
+use crate::geom::*;
 use itertools::Itertools;
 
 pub fn simple_thick(in_segments: Vec<Vec<Segment>>, n: i32, draw_axiom: bool, thickness: f64) -> Vec<Tri3d> {
@@ -8,8 +8,7 @@ pub fn simple_thick(in_segments: Vec<Vec<Segment>>, n: i32, draw_axiom: bool, th
     let segments = thicken_segments(in_segments, thickness);
     let start = if draw_axiom { 1 } else { 2 };
 
-  
-    tris.extend(draw_layer_face(&segments[  if draw_axiom {0} else {1}]));
+    tris.extend(draw_layer_face(&segments[if draw_axiom { 0 } else { 1 }]));
     tris.extend(draw_layer_face(&segments[n as usize]));
 
     for layer in start..=n {
@@ -47,7 +46,6 @@ pub fn simple_thick(in_segments: Vec<Vec<Segment>>, n: i32, draw_axiom: bool, th
 
             let mut curr_start = 0.0;
             for new_segment in &group_segments {
-
                 // there is one offset line on each side for every original line
                 for i in 0..new_segment.original.lines.len() {
                     let orig_line = new_segment.original.lines[i];
@@ -121,7 +119,6 @@ pub fn simple_thick(in_segments: Vec<Vec<Segment>>, n: i32, draw_axiom: bool, th
     return tris;
 }
 
-
 fn thicken_segments(in_segments: Vec<Vec<Segment>>, thickness: f64) -> Vec<Vec<ThickSegment>> {
     let mut segments: Vec<Vec<ThickSegment>> = vec![];
 
@@ -161,9 +158,7 @@ fn thicken_segments(in_segments: Vec<Vec<Segment>>, thickness: f64) -> Vec<Vec<T
     return segments;
 }
 
-
-
-fn draw_layer_face(segs: &Vec<ThickSegment>) -> Vec<Tri3d>{
+fn draw_layer_face(segs: &Vec<ThickSegment>) -> Vec<Tri3d> {
     let mut tris = vec![];
     for seg in segs {
         for i in 0..seg.inner_lines.len() {
