@@ -24,16 +24,14 @@ fn check_lines(a: Line3d, b: Line3d) {
 /// The 'ccw' angle bisector is the vector that bisects the angle and is on the left of `a`.
 /// If the two lines are (almost) parallel then a vector perpendicular to `a` (ensuring it is ccw) is returned.
 /// Implicitly assumes points above.
-fn angle_bisector(a: Line3d, b: Line3d) -> Result<Point2d, String> {
+fn angle_bisector2(a: Line2d, b: Line2d) -> Result<Point2d, String> {
     // 2d versions of these two lines
-    let a2 = a.to2d();
-    let b2 = b.to2d();
     // direction vectors of each
-    let va = a2.start.sub(a2.end);
-    let vb = b2.end.sub(b2.start);
+    let va = a.start.sub(a.end);
+    let vb = b.end.sub(b.start);
     // normed direction vectors
-    let norm_a = va.scale_orig(va.norm());
-    let norm_b = vb.scale_orig(vb.norm());
+    let norm_a = va.unit();
+    let norm_b = vb.unit();
 
     let angle_diff =
         (norm_a.x * norm_b.y - norm_a.y * norm_b.x).atan2(norm_a.x * norm_b.x + norm_a.y * norm_b.y);
@@ -42,7 +40,7 @@ fn angle_bisector(a: Line3d, b: Line3d) -> Result<Point2d, String> {
     let vect = if angle_diff > EPS {
         sum.unit()
     } else if angle_diff < -EPS {
-        sum.scale_orig(-1.0).unit()
+        sum.scale(-1.0).unit()
     } else {
         // roughly equals, so parallel
         Point2d::new(-norm_a.y, norm_a.x)
@@ -50,62 +48,74 @@ fn angle_bisector(a: Line3d, b: Line3d) -> Result<Point2d, String> {
     return Ok(vect);
 }
 
-
-fn offset_start_point(prev: Option<Line3d>, line: Line3d, offset: f64) -> Point3d {
+fn offset_start_point2(prev: Option<Line2d>, line: Line2d, offset: f64) -> Point2d {
     match prev {
-        Some(prev_line) => offset_intersection(prev_line, line, offset),
-        None => offset_line_endpoint(line, offset, true),
+        Some(prev_line) => offset_intersection2(prev_line, line, offset),
+        None => offset_line_endpoint2(line, offset, true),
     }
 }
 
-fn offset_end_point(line: Line3d, next: Option<Line3d>, offset: f64) -> Point3d {
+fn offset_end_point2(line: Line2d, next: Option<Line2d>, offset: f64) -> Point2d {
     match next {
-        Some(next_line) => offset_intersection(line, next_line, offset),
-        None => offset_line_endpoint(line, offset, false),
+        Some(next_line) => offset_intersection2(line, next_line, offset),
+        None => offset_line_endpoint2(line, offset, false),
     }
 }
 
 /// Offsets the point at the intersection of prev, next by `offset`.
+fn offset_intersection2(prev: Line2d, next: Line2d, offset: f64) -> Point2d {
+    match angle_bisector2(prev, next) {
+        Err(msg) => panic!(msg),
+        // could equally be prev.end
+        Ok(vect) => {
+            next.start.add(vect.scale(offset))
+        }
+    }
+}
 pub(super) fn offset_intersection(prev: Line3d, next: Line3d, offset: f64) -> Point3d {
     check_lines(prev, next);
 
-    let bisector = angle_bisector(prev, next);
-    if let Err(msg) = bisector {
-        panic!(msg)
-    }
-    // could equally be prev.end
-    Point3d::from2d(
-        next.start.to2d().add(bisector.unwrap().scale_orig(offset)),
-        prev.end.z,
-    )
+    Point3d::from2d(offset_intersection2(prev.to2d(), next.to2d(), offset), prev.end.z)
 }
 
+pub(super) fn offset_line_endpoint2(line: Line2d, offset: f64, start: bool) -> Point2d {
+    let dir = line.end.sub(line.start);
+    let norm = dir.scale(1.0 / dir.norm());
+    let ccw = Point2d::new(-norm.y, norm.x);
+    if start { line.start } else { line.end }.add(ccw.scale(-offset))
+}
 /// Offsets an endpoint (which one is controlled by `start`) of the provided line by `offset`.
 /// Note offset is multiplied by -1 to ensure consistency with the other offsetting methods.
 pub(super) fn offset_line_endpoint(line: Line3d, offset: f64, start: bool) -> Point3d {
     check_line(line);
-    let dir = line.end.sub(line.start);
-    let norm = dir.scale(1.0 / dir.norm());
-    let ccw = Point2d::new(-norm.y, norm.x);
-    Point3d::from2d(
-        if start { line.start } else { line.end }
-            .to2d()
-            .add(ccw.scale_orig(-offset)),
-        line.start.z,
-    )
+
+    Point3d::from2d(offset_line_endpoint2(line.to2d(), offset, start), line.start.z)
 }
 
 /// Given a line, and possibly two lines that join it, offset the line by offset.
-pub(super) fn offset_line(line: Line3d, prev: Option<Line3d>, next: Option<Line3d>, offset: f64) -> Line3d {
+pub(super) fn offset_line2(line: Line2d, prev: Option<Line2d>, next: Option<Line2d>, offset: f64) -> Line2d {
+    let new_start = offset_start_point2(prev, line, offset);
+    let new_end = offset_end_point2(line, next, offset);
+
+    return Line2d::new(new_start, new_end);
+}
+
+pub(crate) fn offset_line(line: Line3d, prev: Option<Line3d>, next: Option<Line3d>, offset: f64) -> Line3d {
     if prev.is_some() {
         check_lines(prev.unwrap(), line)
     }
     if next.is_some() {
         check_lines(line, next.unwrap())
     }
-
-    let new_start = offset_start_point(prev, line, offset);
-    let new_end = offset_end_point(line, next, offset);
-
-    return Line3d::new(new_start, new_end);
+    let mut new = offset_line2(
+        line.to2d(),
+        prev.map(|x| x.to2d()),
+        next.map(|x| x.to2d()),
+        offset,
+    );
+    Line3d::from2d(
+        new,
+        line.start.z,
+    )
 }
+
