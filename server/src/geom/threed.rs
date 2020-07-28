@@ -54,16 +54,20 @@ impl Point3d {
     pub fn scale(&self, s: f64) -> Point3d {
         return Point3d::new(self.x * s, self.y * s, self.z * s);
     }
+
+    // assumes use as a vector not a position
+    pub fn unit(&self) -> Point3d {
+        return self.scale(1.0 / self.norm());
+    }
 }
 
 impl fmt::Display for Point3d {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "({}, {}, {})", self.x, self.y, self.z)
+        write!(f, "({:.6}, {:.6}, {:.6})", self.x, self.y, self.z)
     }
 }
 
-
-#[derive(Clone, Copy, Debug, Deserialize)]
+#[derive(Clone, Copy, Deserialize)]
 pub struct Line3d {
     pub start: Point3d,
     pub end: Point3d,
@@ -108,6 +112,10 @@ impl Line3d {
     pub fn get_section(&self, start_frac: f64, end_frac: f64) -> Line3d {
         return Line3d::new(self.point(start_frac), self.point(end_frac));
     }
+
+    pub fn direction(&self) -> Point3d {
+        return self.end.sub(self.start).unit();
+    }
 }
 
 impl fmt::Display for Line3d {
@@ -115,7 +123,11 @@ impl fmt::Display for Line3d {
         write!(f, "{}->{}", self.start, self.end)
     }
 }
-
+impl fmt::Debug for Line3d {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{}->{}", self.start, self.end)
+    }
+}
 
 #[derive(Clone, Debug, Serialize)]
 pub struct Tri3d {
