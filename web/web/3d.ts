@@ -78,22 +78,14 @@ function drawTris(tris: Tri3d[]) {
     let camera = new THREE.OrthographicCamera(vWidth / -2, vWidth / 2, vWidth / 2, vWidth / -2, -2000, 2000)
 
 
-    let triRenderer = new THREE.WebGLRenderer();
+    let triRenderer = new THREE.WebGLRenderer({ antialias: true });
+    triRenderer.setPixelRatio(window.devicePixelRatio);
     triRenderer.setSize(window.innerWidth, window.innerHeight);
+    triRenderer.setClearColor(0xEEEEEE);
     document.getElementById("triangles").appendChild(triRenderer.domElement);
 
     // materials
-
-    let triMaterial = new THREE.LineBasicMaterial({
-        color: 0xffffff,
-        side: THREE.DoubleSide
-    })
-    let blackLineMaterial = new THREE.LineBasicMaterial({
-        color: 0xeeeeee,
-        transparent: true
-    })
-
-
+    let triMaterial = new THREE.MeshPhongMaterial({ color: 0xdddddd, specular: 0x999999, shininess: 30, flatShading: true, side: THREE.DoubleSide })
 
     // tris geometry
     let triGeometry = new THREE.BufferGeometry()
@@ -114,15 +106,21 @@ function drawTris(tris: Tri3d[]) {
 
     // add to scenes
     triScene.add(tri)
-    triScene.add(edges)
+
+    triScene.add(new THREE.AmbientLight(0x111111));
+
+    let pointLight = new THREE.PointLight(0xffffff, 1);
+    triScene.add(pointLight);
 
     // add controls
     let controls = new OrbitControls(camera, triRenderer.domElement);
 
-    camera.position.y = 100
-    camera.position.x = 100
-    camera.position.z = 100
+    camera.position.y = 0
+    camera.position.x = 0
+    camera.position.z = -5
     camera.lookAt(0, 0, 0)
+    controls.update();
+    camera.zoom = 3.5
     controls.update()
 
 
