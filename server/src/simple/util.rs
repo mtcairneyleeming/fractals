@@ -1,21 +1,20 @@
 use crate::geom::*;
 use itertools::Itertools;
-use std::f64::{consts, EPSILON};
-
-
+use std::f64::consts;
 
 pub(super) fn are_parallel(a: Line3d, b: Line3d) -> bool {
     // note that both are on planes of the form z = ?, so we can simplify to the 2d case
-    let slope_a = (a.end.y - a.start.y) / (a.end.x - a.start.x);
-    let slope_b = (b.end.y - b.start.y) / (b.end.x - b.start.x);
+    let ua = a.direction().unit();
+    let ub = b.direction().unit();
+    let slope_a = ua.y / ua.x;
+    let slope_b = ub.y / ub.x;
     let angle_a = slope_a.atan();
     let angle_b = slope_b.atan();
-
     let mut abs = (angle_a - angle_b).abs();
     if abs > consts::FRAC_PI_2 {
         abs = consts::PI - abs
     }
-    return abs < EPSILON * 10.0;
+    return abs < 1e-8;
 }
 
 /**

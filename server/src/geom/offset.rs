@@ -19,12 +19,20 @@ fn check_lines(a: Line3d, b: Line3d) {
     }
 }
 
+fn smallest_angle_between(a: Point2d, b: Point2d) -> f64 {
+    if a.sub(b).norm() < EPS {
+        0.0
+    } else {
+        a.dot(b).acos()
+    }
+}
+
 /// Calculates the ccw 2d vector that bisects the angle at the intersection of `a` and `b`.alloc
 ///
 /// The 'ccw' angle bisector is the vector that bisects the angle and is on the left of `a`.
 /// If the two lines are (almost) parallel then a vector perpendicular to `a` (ensuring it is ccw) is returned.
 /// Implicitly assumes points above.
-fn angle_bisector2(a: Line2d, b: Line2d) -> Result<Point2d, String> {
+fn angle_bisector2(a: Line2d, b: Line2d) -> Result<(Point2d, f64), String> {
     // 2d versions of these two lines
     // direction vectors of each
     let va = a.start.sub(a.end);
@@ -33,19 +41,19 @@ fn angle_bisector2(a: Line2d, b: Line2d) -> Result<Point2d, String> {
     let norm_a = va.unit();
     let norm_b = vb.unit();
 
-    let angle_diff =
-        (norm_a.x * norm_b.y - norm_a.y * norm_b.x).atan2(norm_a.x * norm_b.x + norm_a.y * norm_b.y);
-
-    let sum = norm_a.add(norm_b);
-    let vect = if angle_diff > EPS {
-        sum.unit()
-    } else if angle_diff < -EPS {
-        sum.scale(-1.0).unit()
+    let sum = norm_a.add(norm_b).unit();
+    // http://geomalgorithms.com/vector_products.html#2D-Perp-Product
+    let perp_2d_prob = norm_a.x * norm_b.y - norm_a.y * norm_b.x;
+    let vect = if perp_2d_prob > EPS {
+        sum
+    } else if perp_2d_prob < -EPS {
+        sum.scale(-1.0)
     } else {
         // roughly equals, so parallel
-        Point2d::new(-norm_a.y, norm_a.x)
+        return Ok((Point2d::new(-norm_a.y, norm_a.x), std::f64::consts::FRAC_PI_2));
     };
-    return Ok(vect);
+    let angle_to_bis = smallest_angle_between(vect, norm_a);
+    return Ok((vect, angle_to_bis));
 }
 
 fn offset_start_point2(prev: Option<Line2d>, line: Line2d, offset: f64) -> Point2d {
@@ -67,9 +75,7 @@ fn offset_intersection2(prev: Line2d, next: Line2d, offset: f64) -> Point2d {
     match angle_bisector2(prev, next) {
         Err(msg) => panic!(msg),
         // could equally be prev.end
-        Ok(vect) => {
-            next.start.add(vect.scale(offset))
-        }
+        Ok((vect, angle)) => next.start.add(vect.scale(offset / angle.sin())),
     }
 }
 pub(super) fn offset_intersection(prev: Line3d, next: Line3d, offset: f64) -> Point3d {
@@ -113,9 +119,8 @@ pub(crate) fn offset_line(line: Line3d, prev: Option<Line3d>, next: Option<Line3
         next.map(|x| x.to2d()),
         offset,
     );
-    Line3d::from2d(
-        new,
-        line.start.z,
-    )
+    if new.direction().unit().add(line.to2d().direction().unit()).norm() < 1e-8 {
+        new = Line2d::new(new.end, new.start)
+    }
+    Line3d::from2d(new, line.start.z)
 }
-
