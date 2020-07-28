@@ -78,8 +78,34 @@ pub fn simple_thick(in_segments: Vec<Vec<Segment>>, n: i32, draw_axiom: bool, th
                         if are_parallel(prev_inner_lines[i], new_inner_part)
                             && are_parallel(prev_outer_lines[i], new_inner_part)
                         {
-                            tris.extend_from_slice(&draw_join_tris(prev_inner_lines[i], new_inner_part));
-                            tris.extend_from_slice(&draw_join_tris(prev_outer_lines[i], new_outer_part));
+                            // note each pair are on the same plane
+                            let (inner_trap, inner_hole) =
+                                find_trapezium_hole(prev_inner_lines[i], new_inner_part);
+                            let (outer_trap, outer_hole) =
+                                find_trapezium_hole(prev_outer_lines[i], new_outer_part);
+                            for i in 0..4 {
+                                // inner tris
+                                tris.extend_from_slice(
+                                    &(draw_join_tris(
+                                        inner_trap.plane.unproject_line(inner_trap.edges[i]),
+                                        inner_hole.plane.unproject_line(inner_hole.edges[i]),
+                                    )),
+                                );
+                                // outer tris
+                                tris.extend_from_slice(
+                                    &(draw_join_tris(
+                                        outer_trap.plane.unproject_line(outer_trap.edges[i]),
+                                        outer_hole.plane.unproject_line(outer_hole.edges[i]),
+                                    )),
+                                );
+                                // link outer & inner
+                                tris.extend_from_slice(
+                                    &(draw_join_tris(
+                                        outer_hole.plane.unproject_line(outer_hole.edges[i]),
+                                        inner_hole.plane.unproject_line(inner_hole.edges[i]),
+                                    )),
+                                );
+                            }
                         } else {
                             tris.extend(draw_many_joins(prev_inner_lines[i], new_inner_part));
                             tris.extend(draw_many_joins(prev_outer_lines[i], new_outer_part));

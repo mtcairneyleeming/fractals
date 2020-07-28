@@ -46,6 +46,34 @@ pub(super) fn draw_many_joins(a: Line3d, b: Line3d) -> Vec<Tri3d> {
     tris
 }
 
+pub(super) fn find_trapezium_hole(a: Line3d, b: Line3d) -> (Trapezium3d, Trapezium3d) {
+    let trap = Trapezium3d::from_parallel_lines(a, b);
+
+    let shortest_side_length = trap
+        .edges
+        .iter()
+        .map(|line| line.length)
+        .fold(f64::INFINITY, f64::min);
+    // note minus signifies inwards - we leave the problem of inwards vs outwards to offset_polygon
+    let hole_trap = trap.offset(-0.1 * shortest_side_length);
+    (trap, hole_trap)
+}
+
+/// Join two parallel lines with a polygon with a hole cut out of it
+pub(super) fn join_with_hole(a: Line3d, b: Line3d) -> Vec<Tri3d> {
+    let (trap, hole_trap) = find_trapezium_hole(a, b);
+    let mut tris = vec![];
+    for i in 0..4 {
+        tris.extend_from_slice(
+            &(draw_join_tris(
+                trap.plane.unproject_line(trap.edges[i]),
+                trap.plane.unproject_line(hole_trap.edges[i]),
+            )),
+        );
+    }
+    tris
+}
+
 pub(super) fn fix_tris(tris: Vec<Tri3d>) -> (Vec<Tri3d>, bool) {
     let mut new_tris = Vec::new();
     let mut changed = false;

@@ -45,7 +45,7 @@ pub fn simple_thin(segments: Vec<Vec<Segment>>, n: i32, draw_axiom: bool) -> Vec
                             let new_part = line.get_section(new_start_frac, new_end_frac);
 
                             if are_parallel(prev_line, new_part) {
-                                tris.extend_from_slice(&draw_join_tris(prev_line, new_part));
+                                tris.extend(join_with_hole(prev_line, new_part));
                             } else {
                                 tris.extend(draw_many_joins(prev_line, new_part));
                             }
