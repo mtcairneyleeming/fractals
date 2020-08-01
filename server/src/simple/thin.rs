@@ -2,10 +2,10 @@ use crate::geom::*;
 use super::util::*;
 use itertools::Itertools;
 
-pub fn simple_thin(segments: Vec<Vec<Segment>>, n: i32, draw_axiom: bool) -> Vec<Tri3d> {
+pub fn simple_thin(segments: Vec<Vec<Segment>>) -> Vec<Tri3d> {
     let mut tris: Vec<Tri3d> = Vec::new();
 
-    for i in 1..n {
+    for i in 1..segments.len() {
         let prev_segments = &segments[(i - 1) as usize];
         let curr_segments = &segments[i as usize];
 
@@ -20,7 +20,7 @@ pub fn simple_thin(segments: Vec<Vec<Segment>>, n: i32, draw_axiom: bool) -> Vec
 
             let mut seg_start = 0.0;
             for new_segment in &group_segments {
-                if new_segment.length() > 0.0 && (i > 1 || draw_axiom) {
+                if new_segment.length() > 0.0 {
                     //throw new Error(n.toString())
                     let mut s = seg_start;
                     // add tris, lines for each of the new lines

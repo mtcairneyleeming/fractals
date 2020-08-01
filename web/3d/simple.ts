@@ -66,6 +66,9 @@ export class Simple3D {
             }
             segments.push(newSegments)
         }
+        if (!drawAxiom) {
+            segments.splice(0, 1)
+        }
         return segments
     }
 
