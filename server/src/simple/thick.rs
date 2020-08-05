@@ -9,12 +9,9 @@ pub fn simple_thick(segments: Vec<Vec<ThickSegment>>) -> Vec<Tri3d> {
 
     // output
     let mut tris: Vec<Tri3d> = Vec::new();
-  
-    
     tris.extend(draw_layer_face(&segments[0]));
-    
-    tris.extend(draw_layer_face(&segments[segments.len()-1]));
 
+    tris.extend(draw_layer_face(&segments[segments.len() - 1]));
     for layer in 1..segments.len() {
         let prev_segments = &segments[(layer - 1) as usize];
         let curr_segments = &segments[layer as usize];
