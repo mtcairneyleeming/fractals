@@ -1,1 +1,4 @@
 max_width=110
+wrap_comments=true
+blank_lines_upper_bound=2
+blank_lines_lower_bound=0
