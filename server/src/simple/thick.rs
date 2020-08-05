@@ -77,8 +77,11 @@ pub fn simple_thick(segments: Vec<Vec<ThickSegment>>) -> Vec<Tri3d> {
 
                         let new_inner_part = inner_line.get_section(new_start_frac, new_end_frac);
                         let new_outer_part = outer_line.get_section(new_start_frac, new_end_frac);
+                        let new_orig_part = orig_line.get_section(new_start_frac, new_end_frac);
                         if are_parallel(prev_inner_lines[i], new_inner_part)
                             && are_parallel(prev_outer_lines[i], new_inner_part)
+                            && prev_orig_lines[i].length > 0.1 * prev_segment.original.length()
+                            && new_orig_part.length > 0.1 * new_segment.original.length()
                         {
                             // note each pair are on the same plane
                             let (inner_trap, inner_hole) =
