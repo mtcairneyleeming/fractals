@@ -20,6 +20,19 @@ impl Line2d {
     pub fn direction(&self) -> Point2d {
         return self.end.sub(self.start).unit();
     }
+
+    pub fn point(&self, pos: f64) -> Point2d {
+        if pos < 1e-8 {
+            self.start
+        } else if pos > 1.0 - 1e-8 {
+            self.end
+        } else {
+            Point2d::new(
+                self.start.x + pos * (self.end.x - self.start.x),
+                self.start.y + pos * (self.end.y - self.start.y),
+            )
+        }
+    }
 }
 
 impl fmt::Display for Line2d {
