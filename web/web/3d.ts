@@ -55,7 +55,7 @@ async function run() {
 
     console.log(segments)
 
-    let response = await fetch(`/api/thick?thickness=0.5`, {
+    let response = await fetch(`/api/thick?curve=true&max_curve_frac=0.5&thickness=0.1`, {
         method: "POST",
         headers: {
             "Content-Type": "application/json"
