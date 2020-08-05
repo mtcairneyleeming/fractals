@@ -14,7 +14,7 @@ fn check_line(line: Line3d) {
 fn check_lines(a: Line3d, b: Line3d) {
     check_line(a);
     check_line(b);
-    if a.end != b.start {
+    if a.end.sub(b.start).norm() > 1e-7 {
         panic!("Lines {} and {} do not touch at endpoints.", a, b);
     }
 }

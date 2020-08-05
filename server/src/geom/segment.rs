@@ -5,7 +5,7 @@ use serde::Deserialize;
 #[derive(Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct Segment {
-    symbol: String,
+    pub(crate) symbol: String,
     pub(crate) lines: Vec<Line3d>,
     pub(crate) start: Point3d,
     pub(crate) prev_index: usize,
@@ -32,7 +32,7 @@ impl Segment {
             vec![Line3d::new(self.start, self.start)]
         } else {
             let mut out: Vec<Line3d> = Vec::new();
-            let curr_frac: f64 = 0.0;
+            let mut curr_frac: f64 = 0.0;
             let ov_length = self.length();
             for line in self.lines.as_slice() {
                 let line_frac = line.length / ov_length;
@@ -43,6 +43,7 @@ impl Segment {
                         line.get_section((start - line_start) / line_frac, (end - line_start) / line_frac),
                     );
                 }
+                curr_frac += line_frac
             }
             out
         };
@@ -110,7 +111,7 @@ impl ThickSegment {
                     -offset,
                 ));
                 // do middle ones
-                for i in 1..inner_lines.len() - 1 {
+                for i in 1..orig_lines.len() - 1 {
                     outer_lines.push(offset_line(
                         orig_lines[i],
                         Some(orig_lines[i - 1]),
@@ -158,7 +159,7 @@ impl ThickSegment {
         return self.inner_lines.last().map(|l| l.end).unwrap_or(self.inner_start);
     }
 
-    /// Given a fraction into the `original.lines` of this `ThickSegment`, it returns that section of the `original.lines` plus the corresponding inner and outer lines, taking the same fraction of each outer/inner line as the corresponding original line. 
+    /// Given a fraction into the `original.lines` of this `ThickSegment`, it returns that section of the `original.lines` plus the corresponding inner and outer lines, taking the same fraction of each outer/inner line as the corresponding original line.
     pub(crate) fn get_section(&self, start: f64, end: f64) -> (Vec<Line3d>, Vec<Line3d>, Vec<Line3d>) {
         // note there are the same number of lines for either
         return if self.outer_lines.len() == 0 {
