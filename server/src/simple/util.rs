@@ -4,6 +4,10 @@ use std::f64::consts;
 
 pub(super) fn are_parallel(a: Line3d, b: Line3d) -> bool {
     // note that both are on planes of the form z = ?, so we can simplify to the 2d case
+    are_parallel2(a.to2d(), b.to2d())
+}
+
+pub(super) fn are_parallel2(a: Line2d, b: Line2d) -> bool {
     let ua = a.direction().unit();
     let ub = b.direction().unit();
     let slope_a = ua.y / ua.x;
