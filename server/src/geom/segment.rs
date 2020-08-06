@@ -2,7 +2,7 @@ use super::offset::*;
 use super::threed::*;
 use serde::Deserialize;
 
-#[derive(Deserialize, Clone)]
+#[derive(Deserialize, Clone, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct Segment {
     pub(crate) symbol: String,
@@ -59,9 +59,11 @@ pub struct ThickSegment {
 }
 
 impl ThickSegment {
-    /// Thickens a `Segment` by `offset`, taking into account any lines that might come before or after the segment
-    /// There are exactly as many lines in `original.lines` as in `inner_lines` and `outer_lines`, and this method panics if
-    /// no lines are provided and no context either, or if the `Segment` is not on a plane and contiguous.
+    /// Thickens a `Segment` by `offset`, taking into account any lines that
+    /// might come before or after the segment There are exactly as many
+    /// lines in `original.lines` as in `inner_lines` and `outer_lines`, and
+    /// this method panics if no lines are provided and no context either,
+    /// or if the `Segment` is not on a plane and contiguous.
     pub(crate) fn thicken(
         original: Segment,
         offset: f64,
@@ -96,6 +98,7 @@ impl ThickSegment {
                 }
             }
             1 => {
+             
                 outer_lines.push(offset_line(orig_lines[0], prev_line, next_line, offset));
                 inner_lines.push(offset_line(orig_lines[0], prev_line, next_line, -offset));
                 (outer_lines[0].start, inner_lines[0].start)
@@ -159,7 +162,10 @@ impl ThickSegment {
         return self.inner_lines.last().map(|l| l.end).unwrap_or(self.inner_start);
     }
 
-    /// Given a fraction into the `original.lines` of this `ThickSegment`, it returns that section of the `original.lines` plus the corresponding inner and outer lines, taking the same fraction of each outer/inner line as the corresponding original line.
+    /// Given a fraction into the `original.lines` of this `ThickSegment`, it
+    /// returns that section of the `original.lines` plus the corresponding
+    /// inner and outer lines, taking the same fraction of each outer/inner line
+    /// as the corresponding original line.
     pub(crate) fn get_section(&self, start: f64, end: f64) -> (Vec<Line3d>, Vec<Line3d>, Vec<Line3d>) {
         // note there are the same number of lines for either
         return if self.outer_lines.len() == 0 {

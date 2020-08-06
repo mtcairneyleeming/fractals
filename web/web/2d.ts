@@ -164,7 +164,6 @@ function fromQueryString() {
     }
 
     params.forEach((value, key, _) => {
-        console.log(key)
         if (key.startsWith("symbol:")) {
             let index = parseInt(key.replace("symbol:", ""))
             if (params.has("function:" + index)) {
