@@ -32,12 +32,14 @@ fn tris_to_binary_stl(tris: Vec<Tri3d>) -> Vec<u8> {
 }
 
 #[post(
-    "/thin?<curve>&<max_curve_frac>&<steps_multiplier>",
+    "/stl?<thicken>&<thickness>&<curve>&<max_curve_frac>&<steps_multiplier>",
     format = "application/json",
     data = "<segments>"
 )]
-fn thin(
+fn stl(
     segments: Json<Vec<Vec<Segment>>>,
+    thicken: bool,
+    thickness: Option<f64>,
     curve: Option<bool>,
     max_curve_frac: Option<f64>,
     steps_multiplier: Option<f64>,
@@ -49,39 +51,20 @@ fn thin(
     } else {
         data
     };
-    let tris: Vec<Tri3d> = simple::simple_thin(processed);
+    let tris: Vec<Tri3d> = if thicken {
+        simple::simple_thick(
+            simple::thicken_segments(processed, thickness.unwrap())
+        )
+    } else {
+        simple::simple_thin(processed)
+    };
     println!("Calculated thin in {:.2}s", start.elapsed().as_secs_f32());
-    tris_to_binary_stl(tris)
-}
-
-#[post(
-    "/thick?<curve>&<max_curve_frac>&<steps_multiplier>&<thickness>",
-    format = "application/json",
-    data = "<segments>"
-)]
-fn thick(
-    segments: Json<Vec<Vec<Segment>>>,
-    curve: Option<bool>,
-    max_curve_frac: Option<f64>,
-    steps_multiplier: Option<f64>,
-    thickness: f64,
-) -> Vec<u8> {
-    let start = Instant::now();
-    let data = segments.into_inner();
-    let processed = if curve.is_some() && curve.unwrap() {
-        curves::curve_segments(data, max_curve_frac.unwrap(), steps_multiplier.unwrap())
-    } else {
-        data
-    };
-    let segments = simple::thicken_segments(processed, thickness);
-    let tris = simple::simple_thick(segments);
-    println!("Calculated thick in {:.2}s", start.elapsed().as_secs_f32());
     tris_to_binary_stl(tris)
 }
 
 fn main() {
     rocket::ignite()
-        .mount("/api", routes![thin, thick])
+        .mount("/api", routes![stl])
         .mount(
             "/",
             StaticFiles::from(concat!(env!("CARGO_MANIFEST_DIR"), "/../web/dist")),

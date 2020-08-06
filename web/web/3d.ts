@@ -45,7 +45,7 @@ async function run() {
 
 
 
-    let response = await fetch(`/api/${thicken ? "thick" : "thin"}?curve=${curve}&max_curve_frac=${maxCurveFrac}&thickness=${thickness}&steps_multiplier=${curveSteps}`, {
+    let response = await fetch(`/api/stl?thicken=${thicken}${ thicken ? `&thickness=${thickness}` : ""}&curve=${curve}&max_curve_frac=${maxCurveFrac}&thickness=${thickness}&steps_multiplier=${curveSteps}`, {
         method: "POST",
         headers: {
             "Content-Type": "application/json"
