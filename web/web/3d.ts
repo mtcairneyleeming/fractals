@@ -4,9 +4,9 @@ import { Simple3D as SimpleDevFract } from "../3d/simple"
 import { State } from "../lsystems/tosvg"
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls"
 import { STLExporter } from "three/examples/jsm/exporters/STLExporter"
-import { Tri3d } from "../3d/types/Tri3d"
+import { STLLoader } from "three/examples/jsm/loaders/STLLoader"
+
 import "../main.ts"
-import { Scene } from "three"
 // settings import
 // Global variables ==========
 let axiom: Array<string>, alphabet: Array<string>, num: number = null
@@ -52,8 +52,8 @@ async function run() {
         },
         body: JSON.stringify(segments)
     })
-    let tris = await response.json()
-    displayTris(tris)
+    let stl = await response.blob()
+    displaySTL(stl)
 }
 
 
@@ -211,20 +211,11 @@ function removeDisplay() {
 
 }
 
-function displayTris(tris: Tri3d[]) {
-    let triGeometry = new THREE.BufferGeometry()
+async function displaySTL(stl: Blob) {
 
-    let triVerts = []
-    for (let tri of tris) {
-        triVerts.push(
-            tri.a.x, tri.a.y, tri.a.z,
-            tri.b.x, tri.b.y, tri.b.z,
-            tri.c.x, tri.c.y, tri.c.z
-        )
-    }
-
-    triGeometry.setAttribute('position', new THREE.BufferAttribute(new Float32Array(triVerts), 3))
-    trisMesh = new THREE.Mesh(triGeometry, triMaterial)
+    let loader = new STLLoader();
+    let geom = loader.parse(await stl.arrayBuffer())
+    trisMesh = new THREE.Mesh(geom, triMaterial)
 
     triScene.add(trisMesh)
 

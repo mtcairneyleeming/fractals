@@ -132,9 +132,9 @@ impl fmt::Debug for Line3d {
 
 #[derive(Clone, Debug, Serialize)]
 pub struct Tri3d {
-    a: Point3d,
-    b: Point3d,
-    c: Point3d,
+    pub a: Point3d,
+    pub b: Point3d,
+    pub c: Point3d,
 }
 
 impl Tri3d {

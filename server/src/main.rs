@@ -7,11 +7,29 @@ extern crate rocket;
 extern crate rocket_contrib;
 use geom::{Segment, Tri3d};
 use simple::curves;
+use stl_io::*;
 
 use rocket_contrib::json::*;
 use rocket_contrib::serve::StaticFiles;
 
 use std::time::Instant;
+
+fn tris_to_binary_stl(tris: Vec<Tri3d>) -> Vec<u8> {
+    let mesh: Vec<Triangle> = tris
+        .into_iter()
+        .map(|t| stl_io::Triangle {
+            normal: [1.0, 0.0, 0.0],
+            vertices: [
+                [t.a.x as f32, t.a.y as f32, t.a.z as f32],
+                [t.b.x as f32, t.b.y as f32, t.b.z as f32],
+                [t.c.x as f32, t.c.y as f32, t.c.z as f32],
+            ],
+        })
+        .collect();
+    let mut binary_stl = Vec::<u8>::new();
+    stl_io::write_stl(&mut binary_stl, mesh.iter()).unwrap();
+    binary_stl
+}
 
 #[post(
     "/thin?<curve>&<max_curve_frac>&<steps_multiplier>",
@@ -23,7 +41,7 @@ fn thin(
     curve: Option<bool>,
     max_curve_frac: Option<f64>,
     steps_multiplier: Option<f64>,
-) -> Json<Vec<Tri3d>> {
+) -> Vec<u8> {
     let start = Instant::now();
     let data = segments.into_inner();
     let processed = if curve.is_some() && curve.unwrap() {
@@ -31,10 +49,9 @@ fn thin(
     } else {
         data
     };
-    let tris = simple::simple_thin(processed);
-    let res = Json(simple::fix_tris_n(tris, 5));
+    let tris: Vec<Tri3d> = simple::simple_thin(processed);
     println!("Calculated thin in {:.2}s", start.elapsed().as_secs_f32());
-    return res;
+    tris_to_binary_stl(tris)
 }
 
 #[post(
@@ -48,7 +65,7 @@ fn thick(
     max_curve_frac: Option<f64>,
     steps_multiplier: Option<f64>,
     thickness: f64,
-) -> Json<Vec<Tri3d>> {
+) -> Vec<u8> {
     let start = Instant::now();
     let data = segments.into_inner();
     let processed = if curve.is_some() && curve.unwrap() {
@@ -58,9 +75,8 @@ fn thick(
     };
     let segments = simple::thicken_segments(processed, thickness);
     let tris = simple::simple_thick(segments);
-    let res = Json(tris);
     println!("Calculated thick in {:.2}s", start.elapsed().as_secs_f32());
-    return res;
+    tris_to_binary_stl(tris)
 }
 
 fn main() {

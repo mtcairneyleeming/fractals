@@ -846,6 +846,7 @@ dependencies = [
  "rocket_contrib",
  "serde",
  "serde_json",
+ "stl_io",
 ]
 
 [[package]]
@@ -877,6 +878,15 @@ name = "state"
 version = "0.4.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "7345c971d1ef21ffdbd103a75990a15eb03604fc8b8852ca8cb418ee1a099028"
+
+[[package]]
+name = "stl_io"
+version = "0.4.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "dc89130962899464d00274e09685e0b0728c0ba18c82feaff6ae9a912b3cd06c"
+dependencies = [
+ "byteorder",
+]
 
 [[package]]
 name = "subtle"
