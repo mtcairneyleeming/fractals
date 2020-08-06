@@ -21,6 +21,8 @@ let thickness: number = null
 let curve: boolean = null
 let maxCurveFrac: number = null
 let curveSteps: number = null
+let holes: boolean = null
+let hole_frame_thickness: number = null
 let commands = new Map<string, (state: State) => void>()
 // Examples for testing: koch curve & sierpinski dragon:
 
@@ -45,7 +47,7 @@ async function run() {
 
     let query = new URLSearchParams("");
     query.set("thicken", thicken.toString())
-    if (thicken){
+    if (thicken) {
         query.set("thickness", thickness.toString())
     }
     query.set("curve", curve.toString())
@@ -54,6 +56,10 @@ async function run() {
         query.set("steps_multiplier", curveSteps.toString())
     }
 
+    query.set("add_holes", holes.toString())
+    if (holes) {
+        query.set("frame_factor", hole_frame_thickness.toString())
+    }
 
     let response = await fetch(`/api/stl?${query.toString()}`, {
         method: "POST",
@@ -75,7 +81,7 @@ function getElById<T>(id: string): T {
 
 // Querystring save/load =====
 
-let inputs = ["settingsIn", "init_z_sep", "z_sep_mult", "num_layers", "axiomCheck", "xy_scale_factor", "curveCheck", "thickness", "curveCheck", "max_curve_frac", "steps_multiplier"]
+let inputs = ["settingsIn", "init_z_sep", "z_sep_mult", "num_layers", "axiomCheck", "xy_scale_factor", "curveCheck", "thickness", "curveCheck", "max_curve_frac", "steps_multiplier", "holesCheck", "frame_factor"]
 function toQueryStringInURL() {
     let params = new URLSearchParams("")
     function save(name: string) {
@@ -165,7 +171,10 @@ function parseSettings() {
 
     curveSteps = getElById<HTMLInputElement>("steps_multiplier").value as unknown as number;
 
+    holes = getElById<HTMLInputElement>("holesCheck").checked as unknown as boolean;
 
+
+    hole_frame_thickness = getElById<HTMLInputElement>("frame_factor").value as unknown as number;
 }
 
 let triScene: THREE.Scene = null;

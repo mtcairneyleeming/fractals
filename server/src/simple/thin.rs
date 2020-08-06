@@ -2,7 +2,7 @@ use super::util::*;
 use crate::geom::*;
 use itertools::Itertools;
 
-pub fn simple_thin(segments: Vec<Vec<Segment>>) -> Vec<Tri3d> {
+pub fn simple_thin(segments: Vec<Vec<Segment>>, add_holes: bool, frame_factor: Option<f64>) -> Vec<Tri3d> {
     let mut tris: Vec<Tri3d> = Vec::new();
 
     for i in 1..segments.len() {
@@ -44,11 +44,12 @@ pub fn simple_thin(segments: Vec<Vec<Segment>>) -> Vec<Tri3d> {
 
                             let new_part = line.get_section(new_start_frac, new_end_frac);
 
-                            if are_parallel(prev_line, new_part)
+                            if add_holes
+                                && are_parallel(prev_line, new_part)
                                 && prev_line.length > 0.1 * prev_segment.length()
                                 && new_part.length > 0.1 * new_segment.length()
                             {
-                                tris.extend(join_with_hole(prev_line, new_part));
+                                tris.extend(join_with_hole(prev_line, new_part, frame_factor.unwrap()));
                             } else {
                                 tris.extend(draw_many_joins(prev_line, new_part));
                             }

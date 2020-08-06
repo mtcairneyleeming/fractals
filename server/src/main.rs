@@ -32,7 +32,7 @@ fn tris_to_binary_stl(tris: Vec<Tri3d>) -> Vec<u8> {
 }
 
 #[post(
-    "/stl?<thicken>&<thickness>&<curve>&<max_curve_frac>&<steps_multiplier>",
+    "/stl?<thicken>&<thickness>&<add_holes>&<frame_factor>&<curve>&<max_curve_frac>&<steps_multiplier>",
     format = "application/json",
     data = "<segments>"
 )]
@@ -40,6 +40,8 @@ fn stl(
     segments: Json<Vec<Vec<Segment>>>,
     thicken: bool,
     thickness: Option<f64>,
+    add_holes: bool,
+    frame_factor: Option<f64>,
     curve: Option<bool>,
     max_curve_frac: Option<f64>,
     steps_multiplier: Option<f64>,
@@ -53,10 +55,12 @@ fn stl(
     };
     let tris: Vec<Tri3d> = if thicken {
         simple::simple_thick(
-            simple::thicken_segments(processed, thickness.unwrap())
+            simple::thicken_segments(processed, thickness.unwrap()),
+            add_holes,
+            frame_factor,
         )
     } else {
-        simple::simple_thin(processed)
+        simple::simple_thin(processed, add_holes, frame_factor)
     };
     println!("Calculated thin in {:.2}s", start.elapsed().as_secs_f32());
     tris_to_binary_stl(tris)

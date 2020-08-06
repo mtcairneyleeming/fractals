@@ -142,6 +142,37 @@
                     </div>
                 </div>
 
+                <div class="form-group row">
+                    <div class="col-sm-2">Holes</div>
+                    <div class="col-sm-10">
+                        <div class="form-check mb-2">
+                            <div class="form-group row">
+                                <div class="col-sm-3">  <input class="form-check-input" type="checkbox" id="holesCheck" checked>
+                                    <label class="form-check-label" for="holesCheck">
+                                        Add holes? 
+                                    </label></div>
+                                <small class="col-sm-9 form-text" style="padding-left: 0;">When a line on one level and the line it projects from the on the previous are parallel, instead of filling this trapezium in, make a hole instead.</small>
+                            </div>
+                          
+                        </div>
+                        <fieldset id="holes_options">
+
+                            <p></p>
+                            <div class="form-group row">
+                                <label for="frame_factor" class="col-sm-3 col-form-label">Size of hole sides</label>
+                                <div class="col-sm-9">
+                                    <input id="frame_factor" type="number" min="0.01" step="0.1" value="0.1" max="0.5" class="form-control">
+                                    <small id="frame_factorHelp" class="form-text ">
+                                        When creating a hole, how wide the sides of the frame should be as a fraction of the length of the shortest line that makes up the holed trapezium  
+                                    </small>
+                                </div>
+                            </div>
+
+                        </fieldset>
+                    </div>
+                </div>
+
+
 
                 <button class="btn btn-lg btn-primary" id="run">Generate 3d model</button>
 

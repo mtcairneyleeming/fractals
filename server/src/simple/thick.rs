@@ -2,7 +2,7 @@ use super::util::*;
 use crate::geom::*;
 use itertools::Itertools;
 
-pub fn simple_thick(segments: Vec<Vec<ThickSegment>>) -> Vec<Tri3d> {
+pub fn simple_thick(segments: Vec<Vec<ThickSegment>>, add_holes: bool, frame_factor: Option<f64>) -> Vec<Tri3d> {
     if segments.len() == 0 {
         panic!("")
     }
@@ -75,16 +75,17 @@ pub fn simple_thick(segments: Vec<Vec<ThickSegment>>) -> Vec<Tri3d> {
                         let new_inner_part = inner_line.get_section(new_start_frac, new_end_frac);
                         let new_outer_part = outer_line.get_section(new_start_frac, new_end_frac);
                         let new_orig_part = orig_line.get_section(new_start_frac, new_end_frac);
-                        if are_parallel(prev_inner_lines[i], new_inner_part)
+                        if add_holes
+                            && are_parallel(prev_inner_lines[i], new_inner_part)
                             && are_parallel(prev_outer_lines[i], new_inner_part)
                             && prev_orig_lines[i].length > 0.1 * prev_segment.original.length()
                             && new_orig_part.length > 0.1 * new_segment.original.length()
                         {
                             // note each pair are on the same plane
                             let (inner_trap, inner_hole) =
-                                find_trapezium_hole(prev_inner_lines[i], new_inner_part);
+                                find_trapezium_hole(prev_inner_lines[i], new_inner_part, frame_factor.unwrap());
                             let (outer_trap, outer_hole) =
-                                find_trapezium_hole(prev_outer_lines[i], new_outer_part);
+                                find_trapezium_hole(prev_outer_lines[i], new_outer_part, frame_factor.unwrap());
                             for i in 0..4 {
                                 // inner tris
                                 tris.extend_from_slice(
