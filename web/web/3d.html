@@ -11,7 +11,7 @@
 <body>
 
     <nav class="navbar navbar-light bg-light sticky-top">
-        <a class="navbar-brand" href="#">L-systems in 2D</a>
+        <a class="navbar-brand" href="#">L-systems in 3D</a>
         <span class="ml-auto mr-3 text-muted" style="display: none;" id="saveNotif">URL copied to clipboard</span>
         <button class="btn btn-outline-success" id="saveToLinkButton">Save to link</button>
     </nav>
@@ -20,22 +20,133 @@
 
         <div class="row">
             <div class="col-sm-12">
-                <h3>Input L-systems parameters:</h3>
+                <h3>Configuration</h3>
 
-                <p>Please copy the URL of the 2d-working page into the input below, to parse in your settings</p>
+                <p>To set up your L-system and the drawing commands for it, please use <a href="/2d.html">the 2d generation page</a>, and once you're happy with the generated layers, copy the URL of that page into input below, and we'll take your settings from that.</p>
                 <div class="form-group row">
-                    <label for="settingsIn" class="col-sm-3 col-form-label">URL</label>
-                    <input id="settingsIn" type="url" class="col-sm-9">
-
+                    <label for="settingsIn" class="col-sm-2 col-form-label">URL</label>
+                    <div class="col-sm-10">
+                        <input id="settingsIn" type="url" value="http://localhost:8000/2d.html?axiom=X%2CA&alphabet=X%3BY%3BA%3BB%3B%2B%3B-&rules=A%3EB%2C-%2CA%2C-%2CB%3BB%3EA%2C%2B%2CB%2C%2B%2CA%3BX%3EY%3BY%3EX&n=5&symbol%3A0=A&function%3A0=state.draw%28%29%3B&symbol%3A1=B&function%3A1=state.draw%28%29%3B&symbol%3A2=-&function%3A2=+state.right%28state.state%5B%22a%22%5D%29&symbol%3A3=%2B&function%3A3=state.left%28state.state%5B%22a%22%5D%29&symbol%3A4=X&function%3A4=+state.state%5B%22a%22%5D+%3D+-60&symbol%3A5=Y&function%3A5=+++state.right%2860%29%3B%0A++++state.state%5B%22a%22%5D+%3D+-600" class="form-control">
+                    </div>
                 </div>
-                <button class="btn btn-lg btn-primary" id="run">Run</button>
+
+                <div class="form-group row">
+                    <label for="init_z_sep" class="col-sm-2 col-form-label">Initial Z separation</label>
+                    <div class="col-sm-4">
+                        <input id="init_z_sep" type="number" min="0" step="2" value="25" class="form-control">
+                        <small id="init_z_sepHelp" class="form-text ">
+                        The vertical distance between the axiom and the first layer of the shape
+                    </small>
+                    </div>
+                    <label for="z_sep_mult" class="col-sm-2 col-form-label">Z separation multiplier</label>
+                    <div class="col-sm-4">
+                        <input id="z_sep_mult" type="number" min="-1" step="0.1" max="1" class="form-control" value="0.5">
+                        <small id="thicknessHelp" class="form-text ">
+                       The factor to multiply the vertical separation of layers by after each layer 
+                    </small>
+                    </div>
+                </div>
+
+                <div class="form-group row">
+                    <label for="num_layers" class="col-sm-2 col-form-label">Number of layers</label>
+                    <div class="col-sm-4">
+                        <input id="num_layers" type="number" min="2" step="1"value="4"  class="form-control">
+                        <small id="num_layersHelp" class="form-text ">
+                        The number of iterations to generate and then build into the shape.
+                    </small>
+                    </div>
+          
+                    <div class="col-sm-6 mt-1">
+                        <div class="form-check mb-2">
+                            <input class="form-check-input" type="checkbox" id="axiomCheck">
+                            <label class="form-check-label" for="axiomCheck">
+                                Draw the axiom?
+                            </label>
+                        </div>
+                        <small id="axiomCheckHelp" class="form-text mt-3 ">
+                       Whether to include the axiom as part of the 3d shape (It normally appears as a single straight line)
+                    </small>
+                    </div>
+                </div>
+
+                <div class="form-group row">
+                    <label for="init_z_sep" class="col-sm-2 col-form-label">XY scale factor</label>
+                    <div class="col-sm-4">
+                        <input id="xy_scale_factor" type="number" min="0" step="0.1" value="0.5" class="form-control">
+                        <small id="xy_scale_factorHelp" class="form-text ">The factor to multiply the XY scale of each layer by, so that each layer covers the right area
+                    </small>
+                    </div>
+                    
+                </div>
+
+              
+
+                <div class="form-group row">
+                    <div class="col-sm-2">Thickening</div>
+                    <div class="col-sm-10">
+                        <div class="form-check mb-2">
+                            <input class="form-check-input" type="checkbox" id="thickenCheck" checked>
+                            <label class="form-check-label" for="thickenCheck">
+                                Thicken shape?
+                            </label>
+                        </div>
+                        <fieldset id="thicken_options">
+
+                            <p></p>
+                            <div class="form-group row">
+                                <label for="thickness" class="col-sm-3 col-form-label">Thickness</label>
+                                <div class="col-sm-9">
+                                    <input id="thickness" type="number" min="0.01" step="0.1" value="0.1" class="form-control">
+                                    <small id="thicknessHelp" class="form-text ">
+                                        The thickness of the resulting shape ( see note on units)
+                                    </small>
+                                </div>
+                            </div>
+
+                        </fieldset>
+                    </div>
+                </div>
+
+
+                <div class="form-group row">
+                    <div class="col-sm-2">Curving</div>
+                    <div class="col-sm-10">
+                        <div class="form-check mb-2">
+                            <input class="form-check-input" type="checkbox" id="curveCheck" checked>
+                            <label class="form-check-label" for="curveCheck">
+                                Turn on curves?
+                            </label>
+                        </div>
+                        <fieldset id="curve_options">
+
+                            <p></p>
+                            <div class="form-group row">
+                                <label for="max_curve_frac" class="col-sm-3 col-form-label">Maximum fraction to curve</label>
+                                <div class="col-sm-9">
+                                    <input id="max_curve_frac" type="number" min="0" step="0.1" max="0.5" value="0.5" class="form-control">
+                                    <small id="max_curve_fracHelp" class="form-text ">
+                                        The maximum fraction of each line that can be curved (in range 0 to 0.5)
+                                    </small>
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label for="steps_multiplier" class="col-sm-3 col-form-label">Steps per unit</label>
+                                <div class="col-sm-9">
+                                    <input id="steps_multiplier" type="number" min="1" step="1" value="15" class="form-control">
+                                    <small id="steps_multiplierHelp" class="form-text ">
+                                        The number of straight lines approximating the filleting curve per unit of arc length
+                                    </small>
+                                </div>
+                            </div>
+                        </fieldset>
+                    </div>
+                </div>
+
+
+                <button class="btn btn-lg btn-primary" id="run">Generate 3d model</button>
 
             </div>
-            <div class="col-sm-12 col-lg-4" id="input-note-1">
-                <p>
-                    <!--TODO add explanation-->
-                </p>
-            </div>
+
         </div>
 
         <div class="row mt-3">
@@ -53,20 +164,15 @@
 
         <div class="row">
             <div class="col-sm-12">
-               
-                <h3>3D triangles</h3>
+
+                <h3>Generated Model</h3>
                 <div id="triangles"></div>
-            </div>
-        </div>
-        <div class="row">
-            <div class="col-sm-8">
                 <h3>STL output:</h3>
                 <button class="btn btn-outline-primary" id="meshSave">Download non-thickened mesh</button>
             </div>
         </div>
     </main>
 
-    <script src="../main.ts"></script>
     <script src="./3d.ts"></script>
 </body>
 
