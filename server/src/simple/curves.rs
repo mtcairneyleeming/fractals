@@ -238,9 +238,7 @@ pub fn curve_segments(
         let mut nsegs = vec![];
         if segs.len() == 0 {
             panic!("Help")
-        } else if segs.len() == 1 {
-            nsegs.push(segs[0].clone());
-        }
+        } 
         // initially prev_line is none, but next_line is set before the first thickening
         let mut prev_line: Option<Line3d> = None;
         let mut next_line: Option<Line3d> = None;
