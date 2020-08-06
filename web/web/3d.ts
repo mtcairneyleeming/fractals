@@ -43,9 +43,19 @@ async function run() {
 
     let segments = fractalGenerator.runN(zSepMult, initZSep, xyFactor, numLayers, drawAxiom)
 
+    let query = new URLSearchParams("");
+    query.set("thicken", thicken.toString())
+    if (thicken){
+        query.set("thickness", thickness.toString())
+    }
+    query.set("curve", curve.toString())
+    if (curve) {
+        query.set("max_curve_frac", maxCurveFrac.toString())
+        query.set("steps_multiplier", curveSteps.toString())
+    }
 
 
-    let response = await fetch(`/api/stl?thicken=${thicken}${ thicken ? `&thickness=${thickness}` : ""}&curve=${curve}&max_curve_frac=${maxCurveFrac}&thickness=${thickness}&steps_multiplier=${curveSteps}`, {
+    let response = await fetch(`/api/stl?${query.toString()}`, {
         method: "POST",
         headers: {
             "Content-Type": "application/json"
