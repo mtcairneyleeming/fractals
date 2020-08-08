@@ -1,4 +1,5 @@
 use super::util::*;
+use super::holes::*;
 use crate::geom::*;
 use itertools::Itertools;
 
