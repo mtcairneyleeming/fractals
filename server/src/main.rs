@@ -54,6 +54,7 @@ fn stl(
         data
     };
     let tris: Vec<Tri3d> = if thicken {
+        println!("Running thicken");
         simple::simple_thick(
             simple::thicken_segments(processed, thickness.unwrap()),
             if add_holes {
@@ -74,9 +75,10 @@ fn stl(
 
         )
     } else {
+        println!("Running thin");
         simple::simple_thin(processed, add_holes, frame_factor)
     };
-    println!("Calculated thin in {:.2}s", start.elapsed().as_secs_f32());
+    println!("Calculated stl in {:.2}s", start.elapsed().as_secs_f32());
     tris_to_binary_stl(tris)
 }
 
