@@ -10,7 +10,7 @@ pub(crate) enum HoleOptions {
         hole_frac: f64,
         spacing_frac: f64,
         scaling_factor: f64,
-        vertical_side_thickness: f64
+        frame_factor: f64,
     },
 }
 
@@ -34,7 +34,7 @@ pub(super) fn join_with_hole(a: Line3d, b: Line3d, frame_factor: f64) -> Vec<Tri
     let mut tris = vec![];
     for i in 0..4 {
         tris.extend_from_slice(
-            &(draw_join_tris(
+            &(join_planar_lines(
                 trap.plane.unproject_line(trap.edges[i]),
                 trap.plane.unproject_line(hole_trap.edges[i]),
             )),
@@ -57,25 +57,56 @@ pub(super) fn build_thick_hole(
     for i in 0..4 {
         // inner tris
         tris.extend_from_slice(
-            &(draw_join_tris(
+            &(join_planar_lines(
                 inner_trap.plane.unproject_line(inner_trap.edges[i]),
                 inner_hole.plane.unproject_line(inner_hole.edges[i]),
             )),
         );
         // outer tris
         tris.extend_from_slice(
-            &(draw_join_tris(
+            &(join_planar_lines(
                 outer_trap.plane.unproject_line(outer_trap.edges[i]),
                 outer_hole.plane.unproject_line(outer_hole.edges[i]),
             )),
         );
         // link outer & inner
         tris.extend_from_slice(
-            &(draw_join_tris(
+            &(join_planar_lines(
                 outer_hole.plane.unproject_line(outer_hole.edges[i]),
                 inner_hole.plane.unproject_line(inner_hole.edges[i]),
             )),
         );
     }
     tris
+}
+
+pub(super) fn calc_hole_regions(hole_options: &HoleOptions, hole_scale: f64) -> (Vec<f64>, f64) {
+    if let HoleOptions::Everywhere {
+        hole_frac,
+        spacing_frac,
+        scaling_factor,
+        frame_factor: _,
+    } = hole_options
+    {
+        let mut regions = vec![];
+        let mut pos = 0.0;
+        regions.push(0.0);
+        let mut prev_was_hole = false;
+        pos += 0.5 * spacing_frac * hole_scale;
+        regions.push(pos);
+        let mut cont = true;
+        while cont {
+            pos += if prev_was_hole { spacing_frac } else { hole_frac } * hole_scale;
+            if pos < 1.0 {
+                regions.push(pos);
+                prev_was_hole = !prev_was_hole;
+            } else {
+                cont = false
+            }
+        }
+        regions.push(1.0);
+        (regions, hole_scale * scaling_factor) 
+    } else {
+        (vec![], 0.0)
+    }
 }

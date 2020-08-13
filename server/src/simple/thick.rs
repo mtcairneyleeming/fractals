@@ -3,78 +3,41 @@ use super::util::*;
 use crate::geom::*;
 use itertools::Itertools;
 
-pub(crate) fn simple_thick(segments: Vec<Vec<ThickSegment>>, hole_options: HoleOptions) -> Vec<Tri3d> {
-    if segments.len() == 0 {
-        panic!("")
+pub(crate) fn simple_thick(
+    layers: Vec<Vec<ThickSegment>>,
+    hole_options: HoleOptions,
+    init_steps: i64,
+    step_scale: f64,
+) -> Vec<Tri3d> {
+    if layers.len() == 0 {
+        panic!("No  layers to draw")
     }
 
     // output
     let mut tris: Vec<Tri3d> = Vec::new();
-    tris.extend(draw_layer_face(&segments[0]));
+    tris.extend(draw_layer_face(&layers[0]));
 
-    tris.extend(draw_layer_face(&segments[segments.len() - 1]));
+    tris.extend(draw_layer_face(&layers[layers.len() - 1]));
 
     let mut hole_scale = 1.0; //only useful if using HoleOptions::Everywhere
+    let mut steps = init_steps;
+    for layer in 1..layers.len() {
+        let prev_layer = &layers[(layer - 1) as usize];
+        let curr_layer = &layers[layer as usize];
 
-    for layer in 1..segments.len() {
-        let prev_segments = &segments[(layer - 1) as usize];
-        let curr_segments = &segments[layer as usize];
-
-        if prev_segments.len() == 0 || curr_segments.len() == 0 {
+        if prev_layer.len() == 0 || curr_layer.len() == 0 {
             panic!("No segments to draw!!!!!!")
         }
-        // draw sides at start
-        tris.extend_from_slice(&draw_join_tris(
-            Line3d::new(curr_segments[0].inner_start, curr_segments[0].outer_start),
-            Line3d::new(prev_segments[0].inner_start, prev_segments[0].outer_start),
-        ));
-        // draw sides at end
-        tris.extend_from_slice(&draw_join_tris(
-            Line3d::new(
-                curr_segments.last().unwrap().inner_end(),
-                curr_segments.last().unwrap().outer_end(),
-            ),
-            Line3d::new(
-                prev_segments.last().unwrap().inner_end(),
-                prev_segments.last().unwrap().outer_end(),
-            ),
-        ));
+
+        draw_endcaps(curr_layer, prev_layer, &mut tris);
 
         // update hole_scale (only for HoleOptions::Everywhere)
-        let hole_regions = if let HoleOptions::Everywhere {
-            hole_frac,
-            spacing_frac,
-            scaling_factor,
-            vertical_side_thickness: _,
-        } = hole_options
-        {
-            let mut regions = vec![];
-            let mut pos = 0.0;
-            regions.push(0.0);
-            let mut prev_was_hole = false;
-            pos += 0.5 * spacing_frac * hole_scale;
-            regions.push(pos);
-            let mut cont = true;
-            while cont {
-                pos += if prev_was_hole { spacing_frac } else { hole_frac } * hole_scale;
-                if pos < 1.0 {
-                    regions.push(pos);
-                    prev_was_hole = !prev_was_hole;
-                } else {
-                    cont = false
-                }
-            }
-            regions.push(1.0);
-            println!("Regions: {:?}", regions);
-            hole_scale *= scaling_factor;
-            regions
-        } else {
-            vec![]
-        };
+        let (hole_regions, new_hole_scale) = calc_hole_regions(&hole_options, hole_scale);
+        hole_scale = new_hole_scale;
         let mut current_position = 0.0;
-        let layer_length: f64 = curr_segments.iter().map(|seg| seg.original.length()).sum();
-        for (key, group) in &curr_segments.into_iter().group_by(|seg| seg.original.prev_index) {
-            let prev_segment = &prev_segments[key];
+        let layer_length: f64 = curr_layer.iter().map(|seg| seg.original.length()).sum();
+        for (key, group) in &curr_layer.into_iter().group_by(|seg| seg.original.prev_index) {
+            let prev_segment = &prev_layer[key];
             let group_segments: Vec<&ThickSegment> = group.collect();
             let mut group_length = 0.0;
 
@@ -93,8 +56,8 @@ pub(crate) fn simple_thick(segments: Vec<Vec<ThickSegment>>, hole_options: HoleO
 
                     /* note the section may be multiple lines as there are no enforced
                        rules that say the previous iteration should be less complicated
-                       than this one (even though this will be true for any sensible
-                       fractal)
+                       than this one (even though this will be true for most sensible
+                       fractals)
                     */
                     let start_frac = (current_position - group_start) / group_length;
                     let end_frac = (current_position + orig_line.length - group_start) / group_length;
@@ -103,12 +66,12 @@ pub(crate) fn simple_thick(segments: Vec<Vec<ThickSegment>>, hole_options: HoleO
                         prev_segment.get_section(start_frac, end_frac);
 
                     let total_prev_length = prev_orig_lines.iter().fold(0.0, |s, l| s + l.length);
-                    let mut length_along_prev_orig = 0.0;
+                    let mut length_along_prev = 0.0;
                     for i in 0..prev_orig_lines.len() {
                         // fractions into orig_line
-                        let new_start_frac = length_along_prev_orig / total_prev_length;
+                        let new_start_frac = length_along_prev / total_prev_length;
                         let new_end_frac =
-                            (length_along_prev_orig + prev_orig_lines[i].length) / total_prev_length;
+                            (length_along_prev + prev_orig_lines[i].length) / total_prev_length;
 
                         let new_inner_part = inner_line.get_section(new_start_frac, new_end_frac);
                         let new_outer_part = outer_line.get_section(new_start_frac, new_end_frac);
@@ -116,8 +79,8 @@ pub(crate) fn simple_thick(segments: Vec<Vec<ThickSegment>>, hole_options: HoleO
 
                         match hole_options {
                             HoleOptions::None => {
-                                tris.extend(draw_many_joins(prev_inner_lines[i], new_inner_part));
-                                tris.extend(draw_many_joins(prev_outer_lines[i], new_outer_part));
+                                tris.extend(draw_many_joins(prev_inner_lines[i], new_inner_part, steps));
+                                tris.extend(draw_many_joins(prev_outer_lines[i], new_outer_part, steps));
                             }
                             HoleOptions::ParallelOnly { frame_factor } => {
                                 if are_parallel(prev_inner_lines[i], new_inner_part)
@@ -133,15 +96,15 @@ pub(crate) fn simple_thick(segments: Vec<Vec<ThickSegment>>, hole_options: HoleO
                                         frame_factor,
                                     );
                                 } else {
-                                    tris.extend(draw_many_joins(prev_inner_lines[i], new_inner_part));
-                                    tris.extend(draw_many_joins(prev_outer_lines[i], new_outer_part));
+                                    tris.extend(draw_many_joins(prev_inner_lines[i], new_inner_part, steps));
+                                    tris.extend(draw_many_joins(prev_outer_lines[i], new_outer_part, steps));
                                 }
                             }
                             HoleOptions::Everywhere {
                                 hole_frac: _,
                                 spacing_frac: _,
                                 scaling_factor: _,
-                                vertical_side_thickness,
+                                frame_factor,
                             } => {
                                 // Note certain assumptions about hole_regions:
                                 //      - the first entry is 0.0, the last entry 1.0
@@ -155,120 +118,67 @@ pub(crate) fn simple_thick(segments: Vec<Vec<ThickSegment>>, hole_options: HoleO
                                 // #region endcap, solid, hole methods for drawing to tris
                                 let layer_frac_to_part_frac =
                                     |layer_frac: f64| (layer_frac - start_frac) / (end_frac - start_frac);
-                                let solid = |first: f64, second: f64, tris: &mut Vec<Tri3d>| {
-                                    println!(
-                                        "\tSolid, layer {} -> {}; part {} ->{}",
-                                        first,
-                                        second,
-                                        layer_frac_to_part_frac(first),
-                                        layer_frac_to_part_frac(second)
+                                let draw = |first: f64, second: f64, hole: bool, tris: &mut Vec<Tri3d>| {
+                                    let (skip_start, skip_end) = if hole {
+                                        (
+                                            Some((frame_factor * steps as f64).round() as i64),
+                                            Some(((1.0 - frame_factor) * steps as f64).round() as i64),
+                                        )
+                                    } else {
+                                        (None, None)
+                                    };
+                                    let prev_inner = Line3d::new(
+                                        prev_inner_lines[i].point(layer_frac_to_part_frac(first)),
+                                        prev_inner_lines[i].point(layer_frac_to_part_frac(second)),
                                     );
-                                    tris.extend(draw_many_joins(
-                                        Line3d::new(
-                                            prev_inner_lines[i].point(layer_frac_to_part_frac(first)),
-                                            prev_inner_lines[i].point(layer_frac_to_part_frac(second)),
-                                        ),
-                                        Line3d::new(
-                                            new_inner_part.point(layer_frac_to_part_frac(first)),
-                                            new_inner_part.point(layer_frac_to_part_frac(second)),
-                                        ),
-                                    ));
-                                    tris.extend(draw_many_joins(
-                                        Line3d::new(
-                                            prev_outer_lines[i].point(layer_frac_to_part_frac(first)),
-                                            prev_outer_lines[i].point(layer_frac_to_part_frac(second)),
-                                        ),
-                                        Line3d::new(
-                                            new_outer_part.point(layer_frac_to_part_frac(first)),
-                                            new_outer_part.point(layer_frac_to_part_frac(second)),
-                                        ),
-                                    ));
-                                };
-                                let hole = |first: f64, second: f64, tris: &mut Vec<Tri3d>| {
-                                    println!(
-                                        "\tHole, layer {} -> {}; part {} ->{}",
-                                        first,
-                                        second,
-                                        layer_frac_to_part_frac(first),
-                                        layer_frac_to_part_frac(second)
+                                    let prev_outer = Line3d::new(
+                                        prev_outer_lines[i].point(layer_frac_to_part_frac(first)),
+                                        prev_outer_lines[i].point(layer_frac_to_part_frac(second)),
                                     );
-                                    let prev_inner_start =
-                                        prev_inner_lines[i].point(layer_frac_to_part_frac(first));
-                                    let prev_inner_end =
-                                        prev_inner_lines[i].point(layer_frac_to_part_frac(second));
-
-                                    let prev_outer_start =
-                                        prev_outer_lines[i].point(layer_frac_to_part_frac(first));
-                                    let prev_outer_end =
-                                        prev_outer_lines[i].point(layer_frac_to_part_frac(second));
-
-                                    let new_inner_start =
-                                        new_inner_part.point(layer_frac_to_part_frac(first));
-                                    let new_inner_end = new_inner_part.point(layer_frac_to_part_frac(second));
-
-                                    let new_outer_start =
-                                        new_outer_part.point(layer_frac_to_part_frac(first));
-                                    let new_outer_end = new_outer_part.point(layer_frac_to_part_frac(second));
-
-                                    let inner_start_line = Line3d::new(prev_inner_start, new_inner_start);
-                                    let inner_end_line = Line3d::new(prev_inner_end, new_inner_end);
-                                    let outer_start_line = Line3d::new(prev_outer_start, new_outer_start);
-
-                                    let outer_end_line = Line3d::new(prev_outer_end, new_outer_end);
-                                    // Top outer/inner parts
-                                    tris.extend(draw_many_joins(
-                                        Line3d::new(prev_inner_start, prev_inner_end),
-                                        Line3d::new(
-                                            inner_start_line.point(vertical_side_thickness),
-                                            inner_end_line.point(vertical_side_thickness),
-                                        ),
+                                    let next_inner = Line3d::new(
+                                        new_inner_part.point(layer_frac_to_part_frac(first)),
+                                        new_inner_part.point(layer_frac_to_part_frac(second)),
+                                    );
+                                    let next_outer = Line3d::new(
+                                        new_outer_part.point(layer_frac_to_part_frac(first)),
+                                        new_outer_part.point(layer_frac_to_part_frac(second)),
+                                    );
+                                    tris.extend(join_non_parallel(
+                                        prev_inner, next_inner, steps, skip_start, skip_end,
                                     ));
-                                    tris.extend(draw_many_joins(
-                                        Line3d::new(prev_outer_start, prev_outer_end),
-                                        Line3d::new(
-                                            outer_start_line.point(vertical_side_thickness),
-                                            outer_end_line.point(vertical_side_thickness),
-                                        ),
+                                    tris.extend(join_non_parallel(
+                                        prev_outer, next_outer, steps, skip_start, skip_end,
                                     ));
-                                    // bottom outer/inner parts
-                                    tris.extend(draw_many_joins(
-                                        Line3d::new(new_inner_start, new_inner_end),
-                                        Line3d::new(
-                                            inner_start_line.point(1.0 - vertical_side_thickness),
-                                            inner_end_line.point(1.0 - vertical_side_thickness),
-                                        ),
-                                    ));
-                                    tris.extend(draw_many_joins(
-                                        Line3d::new(new_outer_start, new_outer_end),
-                                        Line3d::new(
-                                            outer_start_line.point(1.0 - vertical_side_thickness),
-                                            outer_end_line.point(1.0 - vertical_side_thickness),
-                                        ),
-                                    ));
-                                    // joins to make solid
-                                    tris.extend(draw_many_joins(
-                                        Line3d::new(
-                                            outer_start_line.point(vertical_side_thickness),
-                                            outer_end_line.point(vertical_side_thickness),
-                                        ),
-                                        Line3d::new(
-                                            inner_start_line.point(vertical_side_thickness),
-                                            inner_end_line.point(vertical_side_thickness),
-                                        ),
-                                    ));
-                                    tris.extend(draw_many_joins(
-                                        Line3d::new(
-                                            inner_start_line.point(1.0 - vertical_side_thickness),
-                                            inner_end_line.point(1.0 - vertical_side_thickness),
-                                        ),
-                                        Line3d::new(
-                                            outer_start_line.point(1.0 - vertical_side_thickness),
-                                            outer_end_line.point(1.0 - vertical_side_thickness),
-                                        ),
-                                    ));
+                                    if hole {
+                                        let vertical_side_thickness = frame_factor as f64 / steps as f64;
+                                        // joins to make solid
+                                        let outer_start = Line3d::new(prev_outer.start, next_outer.start);
+                                        let inner_start = Line3d::new(prev_inner.start, next_inner.start);
+                                        let outer_end = Line3d::new(prev_outer.end, next_outer.end);
+                                        let inner_end = Line3d::new(prev_inner.end, next_inner.end);
+                                        tris.extend_from_slice(&join_planar_lines(
+                                            Line3d::new(
+                                                outer_start.point(vertical_side_thickness),
+                                                outer_end.point(vertical_side_thickness),
+                                            ),
+                                            Line3d::new(
+                                                inner_start.point(vertical_side_thickness),
+                                                inner_end.point(vertical_side_thickness),
+                                            ),
+                                        ));
+                                        tris.extend_from_slice(&join_planar_lines(
+                                            Line3d::new(
+                                                inner_start.point(1.0 - vertical_side_thickness),
+                                                inner_end.point(1.0 - vertical_side_thickness),
+                                            ),
+                                            Line3d::new(
+                                                outer_start.point(1.0 - vertical_side_thickness),
+                                                outer_end.point(1.0 - vertical_side_thickness),
+                                            ),
+                                        ));
+                                    }
                                 };
                                 let endcap = |layer_frac: f64, tris: &mut Vec<Tri3d>| {
-                                    println!("\tENDCAP AT {}", layer_frac);
                                     let f = layer_frac_to_part_frac(layer_frac);
                                     let prev_inner = prev_inner_lines[i].point(f);
 
@@ -278,8 +188,9 @@ pub(crate) fn simple_thick(segments: Vec<Vec<ThickSegment>>, hole_options: HoleO
                                     let outer = Line3d::new(prev_outer, new_outer);
                                     let inner = Line3d::new(prev_inner, new_inner);
 
+                                    let vertical_side_thickness = frame_factor as f64 / steps as f64;
 
-                                    tris.extend_from_slice(&draw_join_tris(
+                                    tris.extend_from_slice(&join_planar_lines(
                                         Line3d::new(
                                             outer.point(vertical_side_thickness),
                                             inner.point(vertical_side_thickness),
@@ -292,6 +203,12 @@ pub(crate) fn simple_thick(segments: Vec<Vec<ThickSegment>>, hole_options: HoleO
                                 };
                                 // #endregion
 
+                                for k in 0..hole_regions.len() {
+                                    if hole_regions[k] >= start_frac && hole_regions[k] < end_frac {
+                                        endcap(hole_regions[k], &mut tris)
+                                    }
+                                }
+
 
                                 let mut j = 1;
                                 while start_frac >= hole_regions[j] {
@@ -300,72 +217,26 @@ pub(crate) fn simple_thick(segments: Vec<Vec<ThickSegment>>, hole_options: HoleO
 
                                 // so start_frac is in [hole_regions[j-1], hole_regions[j])
 
-                                if (start_frac - hole_regions[j]).abs() < 1e-7 {
-                                    println!("Drawing first endcap");
-                                    endcap(start_frac, &mut tris)
-                                }
 
                                 if end_frac < hole_regions[j] {
                                     // this line is fully within this hole/space region
-                                    if j % 2 == 0 {
-                                        println!("Drawing full hole");
-                                        hole(start_frac, end_frac, &mut tris)
-                                    } else {
-                                        println!("Drawing full line");
-                                        tris.extend(draw_many_joins(prev_inner_lines[i], new_inner_part));
-                                        tris.extend(draw_many_joins(prev_outer_lines[i], new_outer_part));
-                                    }
+                                    draw(start_frac, end_frac, j % 2 == 0, &mut tris)
                                 } else {
                                     // we've just added an endcap if necessary at start_frac
-                                    if j % 2 == 0 {
-                                        println!("Drawing first hole");
-                                        hole(start_frac, hole_regions[j], &mut tris)
-                                    } else {
-                                        println!("Drawing first solid");
-                                        solid(start_frac, hole_regions[j], &mut tris)
-                                    }
-
+                                    draw(start_frac, hole_regions[j], j % 2 == 0, &mut tris);
                                     /* the loop below works as follows:
                                             - the invariant is that everything up to hole_regions[curr_change_index] has been drawn properly
-                                            - thus each iteration must draw an endcap, and then draw/not the solid/hole up to the next change in hole status
+                                            - thus each iteration must fully draw [ho
                                         it draws all the regions from hole_regions[j] up to and including the last complete one before end_frac
                                     */
 
                                     // index of the region up to which we have already drawn
-                                    let mut curr_region = j;
                                     // check to make sure we haven't reached end, and if not whether the
                                     // whole hole/solid region is in this line part
-                                    while curr_region + 1 < hole_regions.len()
-                                        && hole_regions[curr_region + 1] < end_frac
-                                    {
-                                        println!(
-                                            "!!Check: {}, {} < {} < {} <= {} ??",
-                                            start_frac < hole_regions[curr_region]
-                                                && hole_regions[curr_region + 1] <= end_frac,
-                                            start_frac,
-                                            hole_regions[curr_region],
-                                            hole_regions[curr_region + 1],
-                                            end_frac
-                                        );
+                                    while j + 1 < hole_regions.len() && hole_regions[j + 1] < end_frac {
                                         // so this full hole/space is in this line part
-                                        println!("Drawing endcap for region {}", curr_region);
-                                        endcap(hole_regions[curr_region], &mut tris);
-                                        if curr_region % 2 == 0 {
-                                            println!("Drawing hole for {}", curr_region);
-                                            hole(
-                                                hole_regions[curr_region],
-                                                hole_regions[curr_region + 1],
-                                                &mut tris,
-                                            )
-                                        } else {
-                                            println!("Drawing solid for {}", curr_region);
-                                            solid(
-                                                hole_regions[curr_region],
-                                                hole_regions[curr_region + 1],
-                                                &mut tris,
-                                            )
-                                        }
-                                        curr_region += 1;
+                                        draw(hole_regions[j], hole_regions[j + 1], j % 2 == 0, &mut tris);
+                                        j += 1;
                                     }
 
                                     // now draw from hole_regions[curr_change_index] to end_frac (if
@@ -373,27 +244,22 @@ pub(crate) fn simple_thick(segments: Vec<Vec<ThickSegment>>, hole_options: HoleO
 
                                     // the next endcap will be dealt with by the next line/ the very end
                                     // of the layer
-                                    if end_frac < 1.0 - 1e-8
-                                        && (end_frac - hole_regions[curr_region]).abs() > 1e-7
-                                    {
-                                        if curr_region % 2 == 1 {
-                                            println!("Drawing final hole");
-                                            hole(hole_regions[curr_region], end_frac, &mut tris)
-                                        } else {
-                                            println!("Drawing final solid");
-                                            solid(hole_regions[curr_region], end_frac, &mut tris)
-                                        }
+                                    if end_frac < 1.0 - 1e-8 && end_frac - hole_regions[j] > 1e-7 {
+                                        //println!("Drawing final curr_region -> end_frac");
+                                        draw(hole_regions[j], end_frac, j % 2 == 1, &mut tris);
                                     }
                                 }
                             }
                         }
-                        length_along_prev_orig += prev_orig_lines[i].length;
+                        length_along_prev += prev_orig_lines[i].length;
                         // increment after each part of the current 'new' line is considered
                         current_position += new_orig_part.length;
                     }
                 }
             }
         }
+
+        steps = (steps as f64 * step_scale) as i64;
     }
     return tris;
 }
@@ -439,8 +305,28 @@ fn draw_layer_face(segs: &Vec<ThickSegment>) -> Vec<Tri3d> {
     let mut tris = vec![];
     for seg in segs {
         for i in 0..seg.inner_lines.len() {
-            tris.extend_from_slice(&draw_join_tris(seg.inner_lines[i], seg.outer_lines[i]));
+            tris.extend_from_slice(&join_planar_lines(seg.inner_lines[i], seg.outer_lines[i]));
         }
     }
     return tris;
+}
+
+
+fn draw_endcaps(curr_segments: &Vec<ThickSegment>, prev_segments: &Vec<ThickSegment>, tris: &mut Vec<Tri3d>) {
+    // draw sides at start
+    tris.extend_from_slice(&join_planar_lines(
+        Line3d::new(curr_segments[0].inner_start, curr_segments[0].outer_start),
+        Line3d::new(prev_segments[0].inner_start, prev_segments[0].outer_start),
+    ));
+    // draw sides at end
+    tris.extend_from_slice(&join_planar_lines(
+        Line3d::new(
+            curr_segments.last().unwrap().inner_end(),
+            curr_segments.last().unwrap().outer_end(),
+        ),
+        Line3d::new(
+            prev_segments.last().unwrap().inner_end(),
+            prev_segments.last().unwrap().outer_end(),
+        ),
+    ));
 }

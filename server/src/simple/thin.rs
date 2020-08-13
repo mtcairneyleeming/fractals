@@ -52,7 +52,7 @@ pub fn simple_thin(segments: Vec<Vec<Segment>>, add_holes: bool, frame_factor: O
                             {
                                 tris.extend(join_with_hole(prev_line, new_part, frame_factor.unwrap()));
                             } else {
-                                tris.extend(draw_many_joins(prev_line, new_part));
+                                tris.extend(draw_many_joins(prev_line, new_part, 5)); // TODO: fix
                             }
                             new_s += prev_line.length;
                         }

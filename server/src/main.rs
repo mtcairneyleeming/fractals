@@ -64,11 +64,14 @@ fn stl(
                 hole_frac: 0.111111111111111111111,
                 spacing_frac: 0.222222222222222222222,
                 scaling_factor: 0.333333333333333333333,
-                vertical_side_thickness: 0.2,
+                frame_factor: 0.2,
             }
             } else {
                 HoleOptions::None
             },
+            40,
+            0.5
+
         )
     } else {
         simple::simple_thin(processed, add_holes, frame_factor)
