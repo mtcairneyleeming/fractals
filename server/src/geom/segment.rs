@@ -98,7 +98,6 @@ impl ThickSegment {
                 }
             }
             1 => {
-             
                 outer_lines.push(offset_line(orig_lines[0], prev_line, next_line, offset));
                 inner_lines.push(offset_line(orig_lines[0], prev_line, next_line, -offset));
                 (outer_lines[0].start, inner_lines[0].start)
@@ -185,7 +184,11 @@ impl ThickSegment {
             for i in 0..self.original.lines.len() {
                 let line_frac = self.original.lines[i].length / tot_length;
 
-                if end >= curr_frac && start <= curr_frac + line_frac {
+                if end >= curr_frac
+                    && start <= curr_frac + line_frac
+                    && (start - curr_frac) / line_frac < 1.0 - 1e-7
+                    && (end - curr_frac) / line_frac > 1e-7
+                {
                     orig.push(
                         self.original.lines[i]
                             .get_section((start - curr_frac) / line_frac, (end - curr_frac) / line_frac),
