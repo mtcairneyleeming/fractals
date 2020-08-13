@@ -1,6 +1,18 @@
 use super::util::*;
 use crate::geom::*;
 
+pub(crate) enum HoleOptions {
+    None,
+    ParallelOnly {
+        frame_factor: f64,
+    },
+    Everywhere {
+        hole_frac: f64,
+        spacing_frac: f64,
+        scaling_factor: f64,
+        vertical_side_thickness: f64
+    },
+}
 
 fn find_trapezium_hole(a: Line3d, b: Line3d, frame_factor: f64) -> (Trapezium3d, Trapezium3d) {
     let trap = Trapezium3d::from_parallel_lines(a, b);
@@ -38,7 +50,7 @@ pub(super) fn build_thick_hole(
     prev_outer: Line3d,
     frame_factor: f64,
 ) -> Vec<Tri3d> {
-    let tris = vec![];
+    let mut tris = vec![];
     // note each pair are on the same plane
     let (inner_trap, inner_hole) = find_trapezium_hole(prev_inner, new_inner, frame_factor);
     let (outer_trap, outer_hole) = find_trapezium_hole(prev_outer, new_outer, frame_factor);

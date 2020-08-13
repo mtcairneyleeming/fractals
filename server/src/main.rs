@@ -6,7 +6,7 @@ mod simple;
 extern crate rocket;
 extern crate rocket_contrib;
 use geom::{Segment, Tri3d};
-use simple::curves;
+use simple::*;
 use stl_io::*;
 
 use rocket_contrib::json::*;
@@ -56,8 +56,19 @@ fn stl(
     let tris: Vec<Tri3d> = if thicken {
         simple::simple_thick(
             simple::thicken_segments(processed, thickness.unwrap()),
-            add_holes,
-            frame_factor,
+            if add_holes {
+                // HoleOptions::ParallelOnly {
+                //     frame_factor: frame_factor.unwrap(),
+                // }
+            HoleOptions::Everywhere {
+                hole_frac: 0.111111111111111111111,
+                spacing_frac: 0.222222222222222222222,
+                scaling_factor: 0.333333333333333333333,
+                vertical_side_thickness: 0.2,
+            }
+            } else {
+                HoleOptions::None
+            },
         )
     } else {
         simple::simple_thin(processed, add_holes, frame_factor)
