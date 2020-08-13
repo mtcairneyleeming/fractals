@@ -3,7 +3,7 @@ use super::util::*;
 use crate::geom::*;
 use itertools::Itertools;
 
-pub(crate) fn simple_thick(
+pub fn simple_thick(
     layers: Vec<Vec<ThickSegment>>,
     hole_options: HoleOptions,
     init_steps: i64,
@@ -20,7 +20,7 @@ pub(crate) fn simple_thick(
     tris.extend(draw_layer_face(&layers[layers.len() - 1]));
 
     let mut hole_scale = 1.0; //only useful if using HoleOptions::Everywhere
-    let mut steps = init_steps;
+    let mut layer_steps = init_steps;
     for layer in 1..layers.len() {
         let prev_layer = &layers[(layer - 1) as usize];
         let curr_layer = &layers[layer as usize];
@@ -34,8 +34,11 @@ pub(crate) fn simple_thick(
         // update hole_scale (only for HoleOptions::Everywhere)
         let (hole_regions, new_hole_scale) = calc_hole_regions(&hole_options, hole_scale);
         hole_scale = new_hole_scale;
+
+        // calculate for use later
         let mut current_position = 0.0;
         let layer_length: f64 = curr_layer.iter().map(|seg| seg.original.length()).sum();
+
         for (key, group) in &curr_layer.into_iter().group_by(|seg| seg.original.prev_index) {
             let prev_segment = &prev_layer[key];
             let group_segments: Vec<&ThickSegment> = group.collect();
@@ -79,8 +82,8 @@ pub(crate) fn simple_thick(
 
                         match hole_options {
                             HoleOptions::None => {
-                                tris.extend(draw_many_joins(prev_inner_lines[i], new_inner_part, steps));
-                                tris.extend(draw_many_joins(prev_outer_lines[i], new_outer_part, steps));
+                                tris.extend(draw_many_joins(prev_inner_lines[i], new_inner_part, layer_steps));
+                                tris.extend(draw_many_joins(prev_outer_lines[i], new_outer_part, layer_steps));
                             }
                             HoleOptions::ParallelOnly { frame_factor } => {
                                 if are_parallel(prev_inner_lines[i], new_inner_part)
@@ -96,8 +99,8 @@ pub(crate) fn simple_thick(
                                         frame_factor,
                                     );
                                 } else {
-                                    tris.extend(draw_many_joins(prev_inner_lines[i], new_inner_part, steps));
-                                    tris.extend(draw_many_joins(prev_outer_lines[i], new_outer_part, steps));
+                                    tris.extend(draw_many_joins(prev_inner_lines[i], new_inner_part, layer_steps));
+                                    tris.extend(draw_many_joins(prev_outer_lines[i], new_outer_part, layer_steps));
                                 }
                             }
                             HoleOptions::Everywhere {
@@ -121,8 +124,8 @@ pub(crate) fn simple_thick(
                                 let draw = |first: f64, second: f64, hole: bool, tris: &mut Vec<Tri3d>| {
                                     let (skip_start, skip_end) = if hole {
                                         (
-                                            Some((frame_factor * steps as f64).round() as i64),
-                                            Some(((1.0 - frame_factor) * steps as f64).round() as i64),
+                                            Some((frame_factor * layer_steps as f64).round() as i64),
+                                            Some(((1.0 - frame_factor) * layer_steps as f64).round() as i64),
                                         )
                                     } else {
                                         (None, None)
@@ -144,13 +147,13 @@ pub(crate) fn simple_thick(
                                         new_outer_part.point(layer_frac_to_part_frac(second)),
                                     );
                                     tris.extend(join_non_parallel(
-                                        prev_inner, next_inner, steps, skip_start, skip_end,
+                                        prev_inner, next_inner, layer_steps, skip_start, skip_end,
                                     ));
                                     tris.extend(join_non_parallel(
-                                        prev_outer, next_outer, steps, skip_start, skip_end,
+                                        prev_outer, next_outer, layer_steps, skip_start, skip_end,
                                     ));
                                     if hole {
-                                        let vertical_side_thickness = frame_factor as f64 / steps as f64;
+                                        let vertical_side_thickness = frame_factor as f64 / layer_steps as f64;
                                         // joins to make solid
                                         let outer_start = Line3d::new(prev_outer.start, next_outer.start);
                                         let inner_start = Line3d::new(prev_inner.start, next_inner.start);
@@ -188,7 +191,7 @@ pub(crate) fn simple_thick(
                                     let outer = Line3d::new(prev_outer, new_outer);
                                     let inner = Line3d::new(prev_inner, new_inner);
 
-                                    let vertical_side_thickness = frame_factor as f64 / steps as f64;
+                                    let vertical_side_thickness = frame_factor as f64 / layer_steps as f64;
 
                                     tris.extend_from_slice(&join_planar_lines(
                                         Line3d::new(
@@ -259,7 +262,7 @@ pub(crate) fn simple_thick(
             }
         }
 
-        steps = (steps as f64 * step_scale) as i64;
+        layer_steps = (layer_steps as f64 * step_scale).round() as i64;
     }
     return tris;
 }

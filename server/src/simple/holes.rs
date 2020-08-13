@@ -1,7 +1,7 @@
 use super::util::*;
 use crate::geom::*;
 
-pub(crate) enum HoleOptions {
+pub enum HoleOptions {
     None,
     ParallelOnly {
         frame_factor: f64,

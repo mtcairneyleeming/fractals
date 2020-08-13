@@ -58,7 +58,7 @@ pub(super) fn join_non_parallel(
         let f = skip_from.unwrap();
         let u = skip_until.unwrap();
         if f < 1 || u > steps - 1 || u <= f {
-            panic!("Step ranges malformed")
+            panic!("Step ranges malformed: f {}, u {}, steps {}", f, u, steps)
         }
         true
     } else {

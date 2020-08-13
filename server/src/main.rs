@@ -61,22 +61,32 @@ fn stl(
                 // HoleOptions::ParallelOnly {
                 //     frame_factor: frame_factor.unwrap(),
                 // }
+                HoleOptions::Everywhere {
+                    hole_frac: 0.111111111111111111111,
+                    spacing_frac: 0.222222222222222222222,
+                    scaling_factor: 0.333333333333333333333,
+                    frame_factor: 0.2,
+                }
+            } else {
+                HoleOptions::None
+            },
+            20,
+            1.0,
+        )
+    } else {
+        println!("Running thin");
+        simple::simple_thin(
+            processed,
+            //HoleOptions::None,
             HoleOptions::Everywhere {
                 hole_frac: 0.111111111111111111111,
                 spacing_frac: 0.222222222222222222222,
                 scaling_factor: 0.333333333333333333333,
                 frame_factor: 0.2,
-            }
-            } else {
-                HoleOptions::None
             },
-            40,
-            0.5
-
+            20,
+            1.0,
         )
-    } else {
-        println!("Running thin");
-        simple::simple_thin(processed, add_holes, frame_factor)
     };
     println!("Calculated stl in {:.2}s", start.elapsed().as_secs_f32());
     tris_to_binary_stl(tris)
