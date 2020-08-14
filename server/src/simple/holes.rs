@@ -1,6 +1,9 @@
 use super::util::*;
 use crate::geom::*;
 
+use serde::Deserialize;
+
+#[derive(Deserialize, Debug)]
 pub enum HoleOptions {
     None,
     ParallelOnly {
@@ -105,7 +108,7 @@ pub(super) fn calc_hole_regions(hole_options: &HoleOptions, hole_scale: f64) -> 
             }
         }
         regions.push(1.0);
-        (regions, hole_scale * scaling_factor) 
+        (regions, hole_scale * scaling_factor)
     } else {
         (vec![], 0.0)
     }

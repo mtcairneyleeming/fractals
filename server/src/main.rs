@@ -11,7 +11,7 @@ use stl_io::*;
 
 use rocket_contrib::json::*;
 use rocket_contrib::serve::StaticFiles;
-
+use serde::Deserialize;
 use std::time::Instant;
 
 fn tris_to_binary_stl(tris: Vec<Tri3d>) -> Vec<u8> {
@@ -30,63 +30,44 @@ fn tris_to_binary_stl(tris: Vec<Tri3d>) -> Vec<u8> {
     stl_io::write_stl(&mut binary_stl, mesh.iter()).unwrap();
     binary_stl
 }
+#[derive(Deserialize)]
+struct Data {
+    data: (Vec<Vec<Segment>>, HoleOptions),
+}
 
 #[post(
-    "/stl?<thicken>&<thickness>&<add_holes>&<frame_factor>&<curve>&<max_curve_frac>&<steps_multiplier>",
+    "/stl?<thicken>&<thickness>&<curve>&<max_curve_frac>&<curve_steps_mult>&<init_steps>&<step_scale>",
     format = "application/json",
-    data = "<segments>"
+    data = "<tuple>"
 )]
 fn stl(
-    segments: Json<Vec<Vec<Segment>>>,
+    tuple: Json<Data>,
     thicken: bool,
     thickness: Option<f64>,
-    add_holes: bool,
-    frame_factor: Option<f64>,
     curve: Option<bool>,
     max_curve_frac: Option<f64>,
-    steps_multiplier: Option<f64>,
+    curve_steps_mult: Option<f64>,
+    init_steps: i64,
+    step_scale: f64,
 ) -> Vec<u8> {
+    let (segments, hole_options) = tuple.into_inner().data;
     let start = Instant::now();
-    let data = segments.into_inner();
     let processed = if curve.is_some() && curve.unwrap() {
-        curves::curve_segments(data, max_curve_frac.unwrap(), steps_multiplier.unwrap())
+        curves::curve_segments(segments, max_curve_frac.unwrap(), curve_steps_mult.unwrap())
     } else {
-        data
+        segments
     };
     let tris: Vec<Tri3d> = if thicken {
         println!("Running thicken");
         simple::simple_thick(
             simple::thicken_segments(processed, thickness.unwrap()),
-            if add_holes {
-                // HoleOptions::ParallelOnly {
-                //     frame_factor: frame_factor.unwrap(),
-                // }
-                HoleOptions::Everywhere {
-                    hole_frac: 0.111111111111111111111,
-                    spacing_frac: 0.222222222222222222222,
-                    scaling_factor: 0.333333333333333333333,
-                    frame_factor: 0.2,
-                }
-            } else {
-                HoleOptions::None
-            },
-            20,
-            1.0,
+            hole_options,
+            init_steps,
+            step_scale,
         )
     } else {
         println!("Running thin");
-        simple::simple_thin(
-            processed,
-            //HoleOptions::None,
-            HoleOptions::Everywhere {
-                hole_frac: 0.111111111111111111111,
-                spacing_frac: 0.222222222222222222222,
-                scaling_factor: 0.333333333333333333333,
-                frame_factor: 0.2,
-            },
-            20,
-            1.0,
-        )
+        simple::simple_thin(processed, hole_options, init_steps, step_scale)
     };
     println!("Calculated stl in {:.2}s", start.elapsed().as_secs_f32());
     tris_to_binary_stl(tris)

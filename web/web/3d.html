@@ -35,27 +35,27 @@
                     <div class="col-sm-4">
                         <input id="init_z_sep" type="number" min="0" step="2" value="25" class="form-control">
                         <small id="init_z_sepHelp" class="form-text ">
-                        The vertical distance between the axiom and the first layer of the shape
-                    </small>
+                            The vertical distance between the axiom and the first layer of the shape
+                        </small>
                     </div>
                     <label for="z_sep_mult" class="col-sm-2 col-form-label">Z separation multiplier</label>
                     <div class="col-sm-4">
                         <input id="z_sep_mult" type="number" min="-1" step="0.1" max="1" class="form-control" value="0.5">
                         <small id="thicknessHelp" class="form-text ">
-                       The factor to multiply the vertical separation of layers by after each layer 
-                    </small>
+                            The factor to multiply the vertical separation of layers by after each layer
+                        </small>
                     </div>
                 </div>
 
                 <div class="form-group row">
                     <label for="num_layers" class="col-sm-2 col-form-label">Number of layers</label>
                     <div class="col-sm-4">
-                        <input id="num_layers" type="number" min="2" step="1"value="4"  class="form-control">
+                        <input id="num_layers" type="number" min="2" step="1" value="4" class="form-control">
                         <small id="num_layersHelp" class="form-text ">
-                        The number of iterations to generate and then build into the shape.
-                    </small>
+                            The number of iterations to generate and then build into the shape.
+                        </small>
                     </div>
-          
+
                     <div class="col-sm-6 mt-1">
                         <div class="form-check mb-2">
                             <input class="form-check-input" type="checkbox" id="axiomCheck">
@@ -64,8 +64,8 @@
                             </label>
                         </div>
                         <small id="axiomCheckHelp" class="form-text mt-3 ">
-                       Whether to include the axiom as part of the 3d shape (It normally appears as a single straight line)
-                    </small>
+                            Whether to include the axiom as part of the 3d shape (It normally appears as a single straight line)
+                        </small>
                     </div>
                 </div>
 
@@ -74,12 +74,12 @@
                     <div class="col-sm-4">
                         <input id="xy_scale_factor" type="number" min="0" step="0.1" value="0.5" class="form-control">
                         <small id="xy_scale_factorHelp" class="form-text ">The factor to multiply the XY scale of each layer by, so that each layer covers the right area
-                    </small>
+                        </small>
                     </div>
-                    
+
                 </div>
 
-              
+
 
                 <div class="form-group row">
                     <div class="col-sm-2">Thickening</div>
@@ -143,65 +143,142 @@
                 </div>
 
                 <div class="form-group row">
-                    <div class="col-sm-2">Holes</div>
+                    <div class="col-sm-2">Approximating curved surfaces</div>
                     <div class="col-sm-10">
-                        <div class="form-check mb-2">
-                            <div class="form-group row">
-                                <div class="col-sm-3">  <input class="form-check-input" type="checkbox" id="holesCheck" checked>
-                                    <label class="form-check-label" for="holesCheck">
-                                        Add holes? 
-                                    </label></div>
-                                <small class="col-sm-9 form-text" style="padding-left: 0;">When a line on one level and the line it projects from the on the previous are parallel, instead of filling this trapezium in, make a hole instead.</small>
+
+                        <div class="form-group row">
+                            <label for="max_curve_frac" class="col-sm-2 col-form-label">No. of steps on first transition</label>
+                            <div class="col-sm-4">
+                                <input id="init_steps" type="number" min="0" step="1" max="50" value="20" class="form-control">
+                                <small id="init_stepsHelp" class="form-text ">
+                                    The number of steps to take when approximating curved surfaces on the first layer
+                                </small>
                             </div>
-                          
+                            <label for="step_scale" class="col-sm-2 col-form-label">Per-layer multiplier</label>
+                            <div class="col-sm-4">
+                                <input id="step_scale" type="number" min="0"  value="1.0" class="form-control">
+                                <small id="step_scaleHelp" class="form-text ">
+                                   A multiplier for the number of steps so that smaller layers can use fewer steps
+                                </small>
+                            </div>
                         </div>
-                        <fieldset id="holes_options">
+                        <div class="form-group row">
+                           
 
-                            <p></p>
-                            <div class="form-group row">
-                                <label for="frame_factor" class="col-sm-3 col-form-label">Size of hole sides</label>
-                                <div class="col-sm-9">
-                                    <input id="frame_factor" type="number" min="0.01" step="0.1" value="0.1" max="0.5" class="form-control">
-                                    <small id="frame_factorHelp" class="form-text ">
-                                        When creating a hole, how wide the sides of the frame should be as a fraction of the length of the shortest line that makes up the holed trapezium  
-                                    </small>
-                                </div>
-                            </div>
-
-                        </fieldset>
+                        </div>
                     </div>
                 </div>
 
+                <div class="form-group row">
+                    <div class="col-sm-2">Holes</div>
+                    <div class="col-sm-10">
+                        <div class="mb-2">
+                            <div class="form-group row">
+                                <div class="col-sm-12">
+                                    <div class="form-check form-check-inline">
+                                        <input class="form-check-input" type="radio" name="holeRadios" id="holeRadios1" value="None">
+                                        <label class="form-check-label" for="holeRadios1">No holes</label>
+                                    </div>
+                                    <div class="form-check form-check-inline">
+                                        <input class="form-check-input" type="radio" name="holeRadios" id="holeRadios2" value="ParallelOnly">
+                                        <label class="form-check-label" for="holeRadios2">Only on parallel lines</label>
+                                    </div>
+                                    <div class="form-check form-check-inline">
+                                        <input class="form-check-input" type="radio" name="holeRadios" id="holeRadios3" value="Everywhere">
+                                        <label class="form-check-label" for="holeRadios3">Everywhere</label>
+                                    </div>
+
+                                </div>
+
+                            </div>
+                            <fieldset id="parallel_holes_options">
+
+                                <p class="small form-text">When a line on one level and the line it projects from the on the previous are parallel, instead of filling this trapezium in, make a hole instead.</p>
+                                <div class="form-group row">
+                                    <label for="frame_factor" class="col-sm-3 col-form-label">Size of hole sides</label>
+                                    <div class="col-sm-9">
+                                        <input id="frame_factor" type="number" min="0.01" step="0.1" value="0.1" max="0.5" class="form-control">
+                                        <small id="frame_factorHelp" class="form-text ">
+                                            When creating a hole, how wide the sides of the frame should be as a fraction of the length of the shortest line that makes up the holed trapezium
+                                        </small>
+                                    </div>
+                                </div>
+
+                            </fieldset>
+                            <fieldset id="everywhere_holes_options">
+
+                                <p class="small form-text">Holes are created by splitting each layer into alternating hole/solid regions, using the widths below. Each layer starts with a solid section, which is half of a normal solid region on that layer, and then alternates hole & solid, and ends with another half solid. Thus, 1 must be divisible by hole fraction + solid fraction.</p>
+                                <div class="form-group row">
+                                    <label for="init_z_sep" class="col-sm-2 col-form-label">Hole fraction</label>
+                                    <div class="col-sm-4">
+                                        <input id="everywhere_hole_frac" type="number" min="0" max="1.0" value="0.1111111" class="form-control">
+                                        <small id="everywhere_hole_fracHelp" class="form-text ">
+                                            How wide a hole in the first layer should be as a fraction of the layer's length.
+                                        </small>
+                                    </div>
+                                    <label for="everywhere_solid_frac" class="col-sm-2 col-form-label">Solid fraction</label>
+                                    <div class="col-sm-4">
+                                        <input id="everywhere_solid_frac" type="number" min="0" max="1" class="form-control" value="0.2222222222">
+                                        <small id="everywhere_solid_fracHelp" class="form-text ">
+                                            The same for the solid regions.
+                                        </small>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <label for="everywhere_scaling_factor" class="col-sm-2 col-form-label">Scaling factor</label>
+                                    <div class="col-sm-4">
+                                        <input id="everywhere_scaling_factor" type="number" min="0" value="0.3333333333" class="form-control">
+
+                                    </div>
+                                    <label for="everywhere_frame_factor" class="col-sm-2 col-form-label">Hole top/ bottom height</label>
+                                    <div class="col-sm-4">
+                                        <input id="everywhere_frame_factor" type="number" min="0" max="0.5" class="form-control" value="0.2">
+
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <small id="everywhere_scaling_factorHelp" class="form-text col-sm-6">
+                                        The factor to multiply `Hole fraction` and `Solid fraction` by after each layer so that the holes stay the same size as the features they are on. (Probably the same as the XY scale above).
+                                    </small>
+                                    <small id="everywhere_frame_factorHelp" class="form-text col-sm-6">
+                                        How tall the top or bottom of a hole should be as a fraction of the distance between the line above and below the hole.
+                                    </small>
+                                </div>
+
+                            </fieldset>
+                        </div>
+                    </div>
 
 
-                <button class="btn btn-lg btn-primary" id="run">Generate 3d model</button>
 
-            </div>
+                    <button class="btn btn-lg btn-primary" id="run">Generate 3d model</button>
 
-        </div>
-
-        <div class="row mt-3">
-            <div class="col-sm-12">
-                <div class="alert alert-danger mt-5" role="alert" id="settings-error" style="display: none;">
-                    <h4 class="alert-heading">There was a problem with your settings:</h4>
-                    <p class="mb-0" id="settings-error-body"></p>
                 </div>
 
             </div>
 
-        </div>
+            <div class="row mt-3">
+                <div class="col-sm-12">
+                    <div class="alert alert-danger mt-5" role="alert" id="settings-error" style="display: none;">
+                        <h4 class="alert-heading">There was a problem with your settings:</h4>
+                        <p class="mb-0" id="settings-error-body"></p>
+                    </div>
 
-        <hr>
+                </div>
 
-        <div class="row">
-            <div class="col-sm-12">
-
-                <h3>Generated Model</h3>
-                <div id="triangles"></div>
-                <h3>STL output:</h3>
-                <button class="btn btn-outline-primary" id="meshSave">Download non-thickened mesh</button>
             </div>
-        </div>
+
+            <hr>
+
+            <div class="row">
+                <div class="col-sm-12">
+
+                    <h3>Generated Model</h3>
+                    <div id="triangles"></div>
+                    <h3>STL output:</h3>
+                    <button class="btn btn-outline-primary" id="meshSave">Download non-thickened mesh</button>
+                </div>
+            </div>
     </main>
 
     <script src="./3d.ts"></script>

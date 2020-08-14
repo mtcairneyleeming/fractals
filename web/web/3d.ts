@@ -24,6 +24,9 @@ let curveSteps: number = null
 let holes: boolean = null
 let hole_frame_thickness: number = null
 let commands = new Map<string, (state: State) => void>()
+let holeOptions: any = null
+let step_scale: number = null
+let init_steps: number = null
 // Examples for testing: koch curve & sierpinski dragon:
 
 // curved sierpinski:
@@ -53,20 +56,18 @@ async function run() {
     query.set("curve", curve.toString())
     if (curve) {
         query.set("max_curve_frac", maxCurveFrac.toString())
-        query.set("steps_multiplier", curveSteps.toString())
+        query.set("curve_steps_mult", curveSteps.toString())
     }
 
-    query.set("add_holes", holes.toString())
-    if (holes) {
-        query.set("frame_factor", hole_frame_thickness.toString())
-    }
+   query.set("init_steps", init_steps.toString())
+   query.set("step_scale", step_scale.toString())
 
     let response = await fetch(`/api/stl?${query.toString()}`, {
         method: "POST",
         headers: {
             "Content-Type": "application/json"
         },
-        body: JSON.stringify(segments)
+        body: JSON.stringify({"data": [segments, holeOptions]})
     })
     let stl = await response.blob()
     displaySTL(stl)
@@ -81,7 +82,29 @@ function getElById<T>(id: string): T {
 
 // Querystring save/load =====
 
-let inputs = ["settingsIn", "init_z_sep", "z_sep_mult", "num_layers", "axiomCheck", "xy_scale_factor", "curveCheck", "thickness", "curveCheck", "max_curve_frac", "steps_multiplier", "holesCheck", "frame_factor"]
+let inputs = [
+    "settingsIn",
+    "init_z_sep",
+    "z_sep_mult",
+    "num_layers",
+    "axiomCheck",
+    "xy_scale_factor",
+    "thickenCheck",
+    "thickness",
+    "curveCheck",
+    "max_curve_frac",
+    "steps_multiplier",
+    "holeRadios1",
+    "holeRadios2",
+    "holeRadios3",
+    "frame_factor",
+    "everywhere_hole_frac",
+    "everywhere_solid_frac",
+    "everywhere_scaling_factor",
+    "everywhere_frame_factor",
+    "step_scale",
+    "init_steps"
+]
 function toQueryStringInURL() {
     let params = new URLSearchParams("")
     function save(name: string) {
@@ -171,10 +194,37 @@ function parseSettings() {
 
     curveSteps = getElById<HTMLInputElement>("steps_multiplier").value as unknown as number;
 
-    holes = getElById<HTMLInputElement>("holesCheck").checked as unknown as boolean;
+    init_steps = getElById<HTMLInputElement>("init_steps").value as unknown as number;
 
+    step_scale = getElById<HTMLInputElement>("step_scale").value as unknown as number;
 
-    hole_frame_thickness = getElById<HTMLInputElement>("frame_factor").value as unknown as number;
+    let optionName = (document.querySelector('input[name="holeRadios"]:checked') as HTMLInputElement).value;
+    switch (optionName) {
+        case "None":
+            holeOptions = "None";
+            break;
+        case "ParallelOnly":
+            holeOptions = {
+                "ParallelOnly": {
+                    "frame_factor": parseFloat(getElById<HTMLInputElement>("frame_factor").value)
+                }
+            }
+            break;
+
+        case "Everywhere":
+            holeOptions = {
+                "Everywhere": {
+                    "hole_frac": parseFloat(getElById<HTMLInputElement>("everywhere_hole_frac").value),
+                    "spacing_frac": parseFloat(getElById<HTMLInputElement>("everywhere_solid_frac").value),
+                    "scaling_factor":parseFloat( getElById<HTMLInputElement>("everywhere_scaling_factor").value),
+                    "frame_factor":parseFloat( getElById<HTMLInputElement>("everywhere_frame_factor").value)
+                }
+            }
+            break;
+        default:
+            break;
+    }
+
 }
 
 let triScene: THREE.Scene = null;
