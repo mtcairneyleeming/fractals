@@ -91,13 +91,14 @@ pub fn simple_thick(
                                     && prev_orig_lines[i].length > 0.1 * prev_segment.original.length()
                                     && new_orig_part.length > 0.1 * new_segment.original.length()
                                 {
-                                    build_thick_hole(
+                                    
+                                    tris.extend(build_thick_hole(
                                         new_inner_part,
                                         new_outer_part,
                                         prev_inner_lines[i],
                                         prev_outer_lines[i],
                                         frame_factor,
-                                    );
+                                    ));
                                 } else {
                                     tris.extend(draw_many_joins(prev_inner_lines[i], new_inner_part, layer_steps));
                                     tris.extend(draw_many_joins(prev_outer_lines[i], new_outer_part, layer_steps));
