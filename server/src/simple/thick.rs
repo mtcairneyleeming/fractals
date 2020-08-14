@@ -29,7 +29,7 @@ pub fn simple_thick(
             panic!("No segments to draw!!!!!!")
         }
 
-        draw_endcaps(curr_layer, prev_layer, &mut tris);
+        draw_endcaps(curr_layer, prev_layer, &mut tris, layer_steps);
 
         // update hole_scale (only for HoleOptions::Everywhere)
         let (hole_regions, new_hole_scale) = calc_hole_regions(&hole_options, hole_scale);
@@ -207,7 +207,7 @@ pub fn simple_thick(
                                 };
                                 // #endregion
 
-                                for k in 0..hole_regions.len() {
+                                for k in 1..hole_regions.len() {
                                     if hole_regions[k] >= start_frac && hole_regions[k] < end_frac {
                                         endcap(hole_regions[k], &mut tris)
                                     }
@@ -316,14 +316,16 @@ fn draw_layer_face(segs: &Vec<ThickSegment>) -> Vec<Tri3d> {
 }
 
 
-fn draw_endcaps(curr_segments: &Vec<ThickSegment>, prev_segments: &Vec<ThickSegment>, tris: &mut Vec<Tri3d>) {
+fn draw_endcaps(curr_segments: &Vec<ThickSegment>, prev_segments: &Vec<ThickSegment>, tris: &mut Vec<Tri3d>, steps: i64) {
     // draw sides at start
-    tris.extend_from_slice(&join_planar_lines(
+    println!("Steps: {}", steps);
+    tris.extend(join_non_parallel(
         Line3d::new(curr_segments[0].inner_start, curr_segments[0].outer_start),
         Line3d::new(prev_segments[0].inner_start, prev_segments[0].outer_start),
+        steps, None, None
     ));
     // draw sides at end
-    tris.extend_from_slice(&join_planar_lines(
+    tris.extend(join_non_parallel(
         Line3d::new(
             curr_segments.last().unwrap().inner_end(),
             curr_segments.last().unwrap().outer_end(),
@@ -331,6 +333,6 @@ fn draw_endcaps(curr_segments: &Vec<ThickSegment>, prev_segments: &Vec<ThickSegm
         Line3d::new(
             prev_segments.last().unwrap().inner_end(),
             prev_segments.last().unwrap().outer_end(),
-        ),
+        ),steps, None, None
     ));
 }
