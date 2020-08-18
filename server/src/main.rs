@@ -1,5 +1,7 @@
 #![feature(proc_macro_hygiene, decl_macro)]
-
+extern crate log;
+extern crate simplelog;
+use simplelog::*;
 mod geom;
 mod simple;
 #[macro_use]
@@ -76,6 +78,8 @@ fn stl(
 }
 
 fn main() {
+    TermLogger::init(LevelFilter::Info,Config::default(), TerminalMode::Mixed).unwrap();
+
     rocket::ignite()
         .mount("/api", routes![stl])
         .mount(

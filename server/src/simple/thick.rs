@@ -224,9 +224,26 @@ pub fn simple_thick(
 
                                 if end_frac < hole_regions[j] {
                                     // this line is fully within this hole/space region
+                                    info!(
+                                        "\tDrew {}->{} fully within [{}, {}), hole? {}, j {}",
+                                        start_frac,
+                                        end_frac,
+                                        hole_regions[j - 1],
+                                        hole_regions[j],
+                                        j & 1 == 0,
+                                        j
+                                    );
+
                                     draw(start_frac, end_frac, j & 1 == 0, &mut tris)
                                 } else {
                                     // we've just added an endcap if necessary at start_frac
+                                    info!(
+                                        "\tDrew start to first change: {}->{} hole? {}, j {}",
+                                        start_frac,
+                                        hole_regions[j],
+                                        j & 1 == 0,
+                                        j
+                                    );
                                     draw(start_frac, hole_regions[j], j & 1 == 0, &mut tris);
                                     /* the loop below works as follows:
                                             - the invariant is that everything up to hole_regions[curr_change_index] has been drawn properly
@@ -238,6 +255,13 @@ pub fn simple_thick(
                                     // check to make sure we haven't reached end, and if not whether the
                                     // whole hole/solid region is in this line part
                                     while j + 1 < hole_regions.len() && hole_regions[j + 1] < end_frac {
+                                        info!(
+                                            "\tDrew all of [{}, {}), hole? {}, j {}",
+                                            hole_regions[j],
+                                            hole_regions[j + 1],
+                                            j & 1 != 0,
+                                            j
+                                        );
                                         // so this full hole/space is in this line part
                                         draw(hole_regions[j], hole_regions[j + 1], j & 1 != 0, &mut tris);
                                         j += 1;
@@ -248,6 +272,14 @@ pub fn simple_thick(
 
                                     // the next endcap will be dealt with by the next line/ the very end
                                     // of the layer
+                                    if end_frac - hole_regions[j] > 1e-7 {
+                                        info!(
+                                            "\tDrew final {}->{}, hole? {}, j {}",
+                                            hole_regions[j],
+                                            end_frac,
+                                            j & 1 == 1,
+                                            j
+                                        );
                                         draw(hole_regions[j], end_frac, j & 1 == 1, &mut tris);
                                     }
                                 }
