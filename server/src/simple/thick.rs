@@ -224,10 +224,10 @@ pub fn simple_thick(
 
                                 if end_frac < hole_regions[j] {
                                     // this line is fully within this hole/space region
-                                    draw(start_frac, end_frac, j % 2 == 0, &mut tris)
+                                    draw(start_frac, end_frac, j & 1 == 0, &mut tris)
                                 } else {
                                     // we've just added an endcap if necessary at start_frac
-                                    draw(start_frac, hole_regions[j], j % 2 == 0, &mut tris);
+                                    draw(start_frac, hole_regions[j], j & 1 == 0, &mut tris);
                                     /* the loop below works as follows:
                                             - the invariant is that everything up to hole_regions[curr_change_index] has been drawn properly
                                             - thus each iteration must fully draw [ho
@@ -239,7 +239,7 @@ pub fn simple_thick(
                                     // whole hole/solid region is in this line part
                                     while j + 1 < hole_regions.len() && hole_regions[j + 1] < end_frac {
                                         // so this full hole/space is in this line part
-                                        draw(hole_regions[j], hole_regions[j + 1], j % 2 == 0, &mut tris);
+                                        draw(hole_regions[j], hole_regions[j + 1], j & 1 != 0, &mut tris);
                                         j += 1;
                                     }
 
@@ -248,8 +248,7 @@ pub fn simple_thick(
 
                                     // the next endcap will be dealt with by the next line/ the very end
                                     // of the layer
-                                    if end_frac < 1.0 - 1e-8 && end_frac - hole_regions[j] > 1e-7 {
-                                       draw(hole_regions[j], end_frac, j % 2 == 1, &mut tris);
+                                        draw(hole_regions[j], end_frac, j & 1 == 1, &mut tris);
                                     }
                                 }
                             }
