@@ -26,7 +26,7 @@
                 <div class="form-group row">
                     <label for="settingsIn" class="col-sm-2 col-form-label">URL</label>
                     <div class="col-sm-10">
-                        <input id="settingsIn" type="url" value="http://localhost:8000/2d.html?axiom=X%2CA&alphabet=X%3BY%3BA%3BB%3B%2B%3B-&rules=A%3EB%2C-%2CA%2C-%2CB%3BB%3EA%2C%2B%2CB%2C%2B%2CA%3BX%3EY%3BY%3EX&n=5&symbol%3A0=A&function%3A0=state.draw%28%29%3B&symbol%3A1=B&function%3A1=state.draw%28%29%3B&symbol%3A2=-&function%3A2=+state.right%28state.state%5B%22a%22%5D%29&symbol%3A3=%2B&function%3A3=state.left%28state.state%5B%22a%22%5D%29&symbol%3A4=X&function%3A4=+state.state%5B%22a%22%5D+%3D+-60&symbol%3A5=Y&function%3A5=+++state.right%2860%29%3B%0A++++state.state%5B%22a%22%5D+%3D+-600" class="form-control">
+                        <input id="settingsIn" type="url" value="http://localhost:8000/2d.html?axiom=X%2CA&alphabet=X%3BY%3BA%3BB%3B%2B%3B-&rules=A%3EB%2C-%2CA%2C-%2CB%3BB%3EA%2C%2B%2CB%2C%2B%2CA%3BX%3EY%3BY%3EX&n=5&symbol%3A0=A&function%3A0=state.draw%28%29%3B&symbol%3A1=B&function%3A1=state.draw%28%29%3B&symbol%3A2=-&function%3A2=+state.right%28state.state%5B%22a%22%5D%29&symbol%3A3=%2B&function%3A3=state.left%28state.state%5B%22a%22%5D%29&symbol%3A4=X&function%3A4=+state.state%5B%22a%22%5D+%3D+-60&symbol%3A5=Y&function%3A5=+++state.right%2860%29%3B%0A++++state.state%5B%22a%22%5D+%3D+-60" class="form-control">
                     </div>
                 </div>
 
@@ -112,7 +112,7 @@
                     <div class="col-sm-2">Curving</div>
                     <div class="col-sm-10">
                         <div class="form-check mb-2">
-                            <input class="form-check-input" type="checkbox" id="curveCheck" checked>
+                            <input class="form-check-input" type="checkbox" id="curveCheck">
                             <label class="form-check-label" for="curveCheck">
                                 Turn on curves?
                             </label>
@@ -132,7 +132,7 @@
                             <div class="form-group row">
                                 <label for="steps_multiplier" class="col-sm-3 col-form-label">Steps per unit</label>
                                 <div class="col-sm-9">
-                                    <input id="steps_multiplier" type="number" min="1" step="1" value="15" class="form-control">
+                                    <input id="steps_multiplier" type="number" min="1" step="1" value="7" class="form-control">
                                     <small id="steps_multiplierHelp" class="form-text ">
                                         The number of straight lines approximating the filleting curve per unit of arc length
                                     </small>
@@ -149,7 +149,7 @@
                         <div class="form-group row">
                             <label for="max_curve_frac" class="col-sm-2 col-form-label">No. of steps on first transition</label>
                             <div class="col-sm-4">
-                                <input id="init_steps" type="number" min="0" step="1" max="50" value="20" class="form-control">
+                                <input id="init_steps" type="number" min="0" step="1" max="50" value="15" class="form-control">
                                 <small id="init_stepsHelp" class="form-text ">
                                     The number of steps to take when approximating curved surfaces on the first layer
                                 </small>
@@ -176,7 +176,7 @@
                             <div class="form-group row">
                                 <div class="col-sm-12">
                                     <div class="form-check form-check-inline">
-                                        <input class="form-check-input" type="radio" name="holeRadios" id="holeRadios1" value="None">
+                                        <input class="form-check-input" type="radio" name="holeRadios" id="holeRadios1" value="None" checked>
                                         <label class="form-check-label" for="holeRadios1">No holes</label>
                                     </div>
                                     <div class="form-check form-check-inline">
