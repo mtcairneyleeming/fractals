@@ -46,8 +46,7 @@ pub(super) fn join_non_parallel(
     skip_from: Option<i64>,
     skip_until: Option<i64>,
 ) -> Vec<Tri3d> {
-    //println!("Drawing with {} steps", steps);
-    let mut tris = Vec::new();
+   let mut tris = Vec::new();
     let starts = Line3d::new(a.start, b.start);
     let ends = Line3d::new(a.end, b.end);
 
@@ -103,7 +102,6 @@ pub fn fix_tris_n(tris: Vec<Tri3d>, n: i32) -> Vec<Tri3d> {
     let (mut tris, mut changed) = fix_tris(tris);
     let mut j = 1;
     while changed && j < n {
-        println!("Iteration {}", j);
         let (t, c) = fix_tris(tris);
         tris = t;
         changed = c;

@@ -139,7 +139,6 @@ pub fn simple_thin(
                                     // the next endcap will be dealt with by the next line/ the very end
                                     // of the layer
                                     if end_frac < 1.0 - 1e-8 && end_frac - hole_regions[j] > 1e-7 {
-                                        //println!("Drawing final curr_region -> end_frac");
                                         draw(hole_regions[j], end_frac, j % 2 == 1, &mut tris);
                                     }
                                 }

@@ -249,8 +249,7 @@ pub fn simple_thick(
                                     // the next endcap will be dealt with by the next line/ the very end
                                     // of the layer
                                     if end_frac < 1.0 - 1e-8 && end_frac - hole_regions[j] > 1e-7 {
-                                        //println!("Drawing final curr_region -> end_frac");
-                                        draw(hole_regions[j], end_frac, j % 2 == 1, &mut tris);
+                                       draw(hole_regions[j], end_frac, j % 2 == 1, &mut tris);
                                     }
                                 }
                             }
@@ -318,7 +317,6 @@ fn draw_layer_face(segs: &Vec<ThickSegment>) -> Vec<Tri3d> {
 
 fn draw_endcaps(curr_segments: &Vec<ThickSegment>, prev_segments: &Vec<ThickSegment>, tris: &mut Vec<Tri3d>, steps: i64) {
     // draw sides at start
-    println!("Steps: {}", steps);
     tris.extend(join_non_parallel(
         Line3d::new(curr_segments[0].inner_start, curr_segments[0].outer_start),
         Line3d::new(prev_segments[0].inner_start, prev_segments[0].outer_start),
