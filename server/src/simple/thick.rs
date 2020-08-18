@@ -2,6 +2,7 @@ use super::holes::*;
 use super::util::*;
 use crate::geom::*;
 use itertools::Itertools;
+use log::info;
 
 pub fn simple_thick(
     layers: Vec<Vec<ThickSegment>>,
@@ -82,8 +83,16 @@ pub fn simple_thick(
 
                         match hole_options {
                             HoleOptions::None => {
-                                tris.extend(draw_many_joins(prev_inner_lines[i], new_inner_part, layer_steps));
-                                tris.extend(draw_many_joins(prev_outer_lines[i], new_outer_part, layer_steps));
+                                tris.extend(draw_many_joins(
+                                    prev_inner_lines[i],
+                                    new_inner_part,
+                                    layer_steps,
+                                ));
+                                tris.extend(draw_many_joins(
+                                    prev_outer_lines[i],
+                                    new_outer_part,
+                                    layer_steps,
+                                ));
                             }
                             HoleOptions::ParallelOnly { frame_factor } => {
                                 if are_parallel(prev_inner_lines[i], new_inner_part)
@@ -91,7 +100,6 @@ pub fn simple_thick(
                                     && prev_orig_lines[i].length > 0.1 * prev_segment.original.length()
                                     && new_orig_part.length > 0.1 * new_segment.original.length()
                                 {
-                                    
                                     tris.extend(build_thick_hole(
                                         new_inner_part,
                                         new_outer_part,
@@ -100,8 +108,16 @@ pub fn simple_thick(
                                         frame_factor,
                                     ));
                                 } else {
-                                    tris.extend(draw_many_joins(prev_inner_lines[i], new_inner_part, layer_steps));
-                                    tris.extend(draw_many_joins(prev_outer_lines[i], new_outer_part, layer_steps));
+                                    tris.extend(draw_many_joins(
+                                        prev_inner_lines[i],
+                                        new_inner_part,
+                                        layer_steps,
+                                    ));
+                                    tris.extend(draw_many_joins(
+                                        prev_outer_lines[i],
+                                        new_outer_part,
+                                        layer_steps,
+                                    ));
                                 }
                             }
                             HoleOptions::Everywhere {
@@ -119,6 +135,7 @@ pub fn simple_thick(
                                 let start_frac = current_position / layer_length;
                                 let end_frac = (current_position + new_orig_part.length) / layer_length;
 
+                                info!("To draw: {} -> {}", start_frac, end_frac);
                                 // #region endcap, solid, hole methods for drawing to tris
                                 let layer_frac_to_part_frac =
                                     |layer_frac: f64| (layer_frac - start_frac) / (end_frac - start_frac);
@@ -131,6 +148,7 @@ pub fn simple_thick(
                                     } else {
                                         (None, None)
                                     };
+                                    info!("\t\tSkipping: {:?}, {:?}, hole {}", skip_start, skip_end, hole);
                                     let prev_inner = Line3d::new(
                                         prev_inner_lines[i].point(layer_frac_to_part_frac(first)),
                                         prev_inner_lines[i].point(layer_frac_to_part_frac(second)),
@@ -148,13 +166,22 @@ pub fn simple_thick(
                                         new_outer_part.point(layer_frac_to_part_frac(second)),
                                     );
                                     tris.extend(join_non_parallel(
-                                        prev_inner, next_inner, layer_steps, skip_start, skip_end,
+                                        prev_inner,
+                                        next_inner,
+                                        layer_steps,
+                                        skip_start,
+                                        skip_end,
                                     ));
                                     tris.extend(join_non_parallel(
-                                        prev_outer, next_outer, layer_steps, skip_start, skip_end,
+                                        prev_outer,
+                                        next_outer,
+                                        layer_steps,
+                                        skip_start,
+                                        skip_end,
                                     ));
                                     if hole {
-                                        let vertical_side_thickness = frame_factor as f64 / layer_steps as f64;
+                                        let vertical_side_thickness =
+                                            frame_factor as f64 / layer_steps as f64;
                                         // joins to make solid
                                         let outer_start = Line3d::new(prev_outer.start, next_outer.start);
                                         let inner_start = Line3d::new(prev_inner.start, next_inner.start);
@@ -346,12 +373,19 @@ fn draw_layer_face(segs: &Vec<ThickSegment>) -> Vec<Tri3d> {
 }
 
 
-fn draw_endcaps(curr_segments: &Vec<ThickSegment>, prev_segments: &Vec<ThickSegment>, tris: &mut Vec<Tri3d>, steps: i64) {
+fn draw_endcaps(
+    curr_segments: &Vec<ThickSegment>,
+    prev_segments: &Vec<ThickSegment>,
+    tris: &mut Vec<Tri3d>,
+    steps: i64,
+) {
     // draw sides at start
     tris.extend(join_non_parallel(
         Line3d::new(curr_segments[0].inner_start, curr_segments[0].outer_start),
         Line3d::new(prev_segments[0].inner_start, prev_segments[0].outer_start),
-        steps, None, None
+        steps,
+        None,
+        None,
     ));
     // draw sides at end
     tris.extend(join_non_parallel(
@@ -362,6 +396,9 @@ fn draw_endcaps(curr_segments: &Vec<ThickSegment>, prev_segments: &Vec<ThickSegm
         Line3d::new(
             prev_segments.last().unwrap().inner_end(),
             prev_segments.last().unwrap().outer_end(),
-        ),steps, None, None
+        ),
+        steps,
+        None,
+        None,
     ));
 }

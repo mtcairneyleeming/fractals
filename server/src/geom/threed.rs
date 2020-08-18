@@ -161,7 +161,8 @@ impl Tri3d {
 
 #[derive(Copy, Clone, Debug)]
 pub(crate) struct Trapezium3d {
-    /// A list of edges where consecutive edges touch at ends, the loop is complete and never self-intersects.
+    /// A list of edges where consecutive edges touch at ends, the loop is
+    /// complete and never self-intersects.
     pub edges: [Line2d; 4],
     pub plane: Plane3d,
 }
@@ -169,7 +170,8 @@ pub(crate) struct Trapezium3d {
 impl Trapezium3d {
     pub(crate) fn from_parallel_lines(a: Line3d, b: Line3d) -> Self {
         let plane = Plane3d::from_two_lines(a, Line3d::new(a.start, b.start));
-        // since our vectors are parallel they can either point exactly the same direction or exactly opposite.
+        // since our vectors are parallel they can either point exactly the same
+        // direction or exactly opposite.
         let a_vect = a.end.sub(a.start);
         let b_vect = b.end.sub(b.start);
 
@@ -189,7 +191,8 @@ impl Trapezium3d {
     }
 
     pub(crate) fn offset(&self, offset: f64) -> Trapezium3d {
-        // to test which way the loop goes, we take a point and offset it, and then check if the point is in it.
+        // to test which way the loop goes, we take a point and offset it, and then
+        // check if the point is in it.
         let test_point = offset_intersection2(self.edges[0], self.edges[1], offset);
         let tri = Tri2d::from_sp(self.edges[0], self.edges[1].end);
         let new_offset = if tri.contains_point(test_point) { -1.0 } else { 1.0 } * offset;
@@ -235,7 +238,8 @@ pub struct Plane3d {
 }
 
 impl Plane3d {
-    /// given two lines (non parallel), construct the plane they both lie on. the start of `a` is set to be the origin.
+    /// given two lines (non parallel), construct the plane they both lie on.
+    /// the start of `a` is set to be the origin.
     pub(crate) fn from_two_lines(x1_l: Line3d, x2_l: Line3d) -> Self {
         let x1 = x1_l.direction();
         let x2 = x2_l.direction();

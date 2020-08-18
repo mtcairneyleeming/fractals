@@ -1,7 +1,7 @@
-mod twod;
-mod threed;
-mod segment;
 mod offset;
+mod segment;
+mod threed;
+mod twod;
 
 pub use self::segment::*;
 pub use self::threed::*;

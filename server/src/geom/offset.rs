@@ -1,7 +1,11 @@
-//! Various functions to offset an entire line/one of its endpoints depending on whether there is a preceding line that we should be aligning to.
+//! Various functions to offset an entire line/one of its endpoints depending on
+//! whether there is a preceding line that we should be aligning to.
 //! All of these methods make certain implicit/explicit assumptions:
-//!     - although they return `Point3d`, all lines passed to a function are assumed to be on a plane z=?, and all offsetting occurs in 2d on that plane
-//!     - lines intersect: if two (or more) lines are passed in that are supposed to intersect, they really have to.
+//!     - although they return `Point3d`, all lines passed to a function are
+//!       assumed to be on a plane z=?, and all offsetting occurs in 2d on that
+//!       plane
+//!     - lines intersect: if two (or more) lines are passed in that are
+//!       supposed to intersect, they really have to.
 
 use super::threed::*;
 use super::twod::*;
@@ -27,11 +31,13 @@ fn smallest_angle_between(a: Point2d, b: Point2d) -> f64 {
     }
 }
 
-/// Calculates the ccw 2d vector that bisects the angle at the intersection of `a` and `b`.alloc
+/// Calculates the ccw 2d vector that bisects the angle at the intersection of
+/// `a` and `b`.alloc
 ///
-/// The 'ccw' angle bisector is the vector that bisects the angle and is on the left of `a`.
-/// If the two lines are (almost) parallel then a vector perpendicular to `a` (ensuring it is ccw) is returned.
-/// Implicitly assumes points above.
+/// The 'ccw' angle bisector is the vector that bisects the angle and is on the
+/// left of `a`. If the two lines are (almost) parallel then a vector
+/// perpendicular to `a` (ensuring it is ccw) is returned. Implicitly assumes
+/// points above.
 fn angle_bisector2(a: Line2d, b: Line2d) -> Result<(Point2d, f64), String> {
     // 2d versions of these two lines
     // direction vectors of each
@@ -90,15 +96,17 @@ pub(super) fn offset_line_endpoint2(line: Line2d, offset: f64, start: bool) -> P
     let ccw = Point2d::new(-norm.y, norm.x);
     if start { line.start } else { line.end }.add(ccw.scale(-offset))
 }
-/// Offsets an endpoint (which one is controlled by `start`) of the provided line by `offset`.
-/// Note offset is multiplied by -1 to ensure consistency with the other offsetting methods.
+/// Offsets an endpoint (which one is controlled by `start`) of the provided
+/// line by `offset`. Note offset is multiplied by -1 to ensure consistency with
+/// the other offsetting methods.
 pub(super) fn offset_line_endpoint(line: Line3d, offset: f64, start: bool) -> Point3d {
     check_line(line);
 
     Point3d::from2d(offset_line_endpoint2(line.to2d(), offset, start), line.start.z)
 }
 
-/// Given a line, and possibly two lines that join it, offset the line by offset.
+/// Given a line, and possibly two lines that join it, offset the line by
+/// offset.
 pub(super) fn offset_line2(line: Line2d, prev: Option<Line2d>, next: Option<Line2d>, offset: f64) -> Line2d {
     let new_start = offset_start_point2(prev, line, offset);
     let new_end = offset_end_point2(line, next, offset);

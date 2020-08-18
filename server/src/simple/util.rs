@@ -46,7 +46,7 @@ pub(super) fn join_non_parallel(
     skip_from: Option<i64>,
     skip_until: Option<i64>,
 ) -> Vec<Tri3d> {
-   let mut tris = Vec::new();
+    let mut tris = Vec::new();
     let starts = Line3d::new(a.start, b.start);
     let ends = Line3d::new(a.end, b.end);
 

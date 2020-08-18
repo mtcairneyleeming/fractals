@@ -78,7 +78,7 @@ fn stl(
 }
 
 fn main() {
-    TermLogger::init(LevelFilter::Info,Config::default(), TerminalMode::Mixed).unwrap();
+    TermLogger::init(LevelFilter::Info, Config::default(), TerminalMode::Mixed).unwrap();
 
     rocket::ignite()
         .mount("/api", routes![stl])
