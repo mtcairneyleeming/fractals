@@ -49,7 +49,7 @@ impl Segment {
         };
     }
 }
-
+#[derive(Debug)]
 pub struct ThickSegment {
     pub(crate) original: Segment,
     pub(crate) inner_start: Point3d,
@@ -208,4 +208,58 @@ impl ThickSegment {
             (orig, inner, outer)
         };
     }
+}
+
+pub fn get_section(layer: &Vec<Segment>, start: f64, end: f64) -> Vec<Line3d> {
+    if layer.len() == 0 {
+        panic!("Cannot get section of empty layer")
+    }
+    let mut out: Vec<Line3d> = Vec::new();
+    let mut curr_frac: f64 = 0.0;
+    let ov_length: f64 = layer.iter().map(|l| l.length()).sum();
+    for segment in layer {
+        let line_frac = segment.length() / ov_length;
+        let line_start = curr_frac;
+        let line_end = curr_frac + line_frac;
+        if end >= line_start && start <= line_end {
+            out.extend(segment.get_section((start - line_start) / line_frac, (end - line_start) / line_frac));
+        }
+        curr_frac += line_frac
+    }
+    out
+}
+
+pub fn get_section_thick(
+    layer: &Vec<ThickSegment>,
+    start: f64,
+    end: f64,
+) -> (Vec<Line3d>, Vec<Line3d>, Vec<Line3d>) {
+    // note there are the same number of lines for either
+    if layer.len() == 0 {
+        panic!("Cannot get section of empty layer")
+    }
+    let mut orig = vec![];
+    let mut inner = vec![];
+    let mut outer = vec![];
+    let mut curr_frac: f64 = 0.0;
+
+    let tot_length: f64 = layer.iter().map(|l| l.original.length()).sum();
+
+    for i in 0..layer.len() {
+        let line_frac = layer[i].original.length() / tot_length;
+
+        if end >= curr_frac
+            && start <= curr_frac + line_frac
+            && (start - curr_frac) / line_frac < 1.0 - 1e-7
+            && (end - curr_frac) / line_frac > 1e-7
+        {
+            let (or, inn, out) =
+                layer[i].get_section((start - curr_frac) / line_frac, (end - curr_frac) / line_frac);
+            orig.extend(or);
+            inner.extend(inn);
+            outer.extend(out);
+        }
+        curr_frac += line_frac
+    }
+    (orig, inner, outer)
 }
