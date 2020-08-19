@@ -59,15 +59,15 @@ async function run() {
         query.set("curve_steps_mult", curveSteps.toString())
     }
 
-   query.set("init_steps", init_steps.toString())
-   query.set("step_scale", step_scale.toString())
+    query.set("init_steps", init_steps.toString())
+    query.set("step_scale", step_scale.toString())
 
     let response = await fetch(`/api/stl?${query.toString()}`, {
         method: "POST",
         headers: {
             "Content-Type": "application/json"
         },
-        body: JSON.stringify({"data": [segments, holeOptions]})
+        body: JSON.stringify({ "data": [segments, holeOptions] })
     })
     let stl = await response.blob()
     displaySTL(stl)
@@ -216,8 +216,8 @@ function parseSettings() {
                 "Everywhere": {
                     "hole_frac": parseFloat(getElById<HTMLInputElement>("everywhere_hole_frac").value),
                     "spacing_frac": parseFloat(getElById<HTMLInputElement>("everywhere_solid_frac").value),
-                    "scaling_factor":parseFloat( getElById<HTMLInputElement>("everywhere_scaling_factor").value),
-                    "frame_factor":parseFloat( getElById<HTMLInputElement>("everywhere_frame_factor").value)
+                    "scaling_factor": parseFloat(getElById<HTMLInputElement>("everywhere_scaling_factor").value),
+                    "frame_factor": parseFloat(getElById<HTMLInputElement>("everywhere_frame_factor").value)
                 }
             }
             break;
