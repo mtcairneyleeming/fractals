@@ -22,13 +22,13 @@ function getElById<T>(id: string): T {
 // Input parsing =============
 
 function getParameters(): void {
-    axiom = getElById<HTMLInputElement>("axiom").value.split(',')
-    alphabet = getElById<HTMLInputElement>("alphabet").value.split(';')
+    axiom = getElById<HTMLInputElement>("axiom").value.split('')
+    alphabet = getElById<HTMLInputElement>("alphabet").value.split('')
 
     getElById<HTMLInputElement>("rules").value.split(';').forEach((str: string) => {
         var parts = str.split('>')
 
-        rules.set(parts[0], parts[1].split(","))
+        rules.set(parts[0], parts[1].split(""))
     })
 
     num = (document.getElementById("n") as HTMLInputElement).value as unknown as number
@@ -237,7 +237,7 @@ function generateSVGs() {
     let i = 0
     console.log(iterations, out, map)
     for (const str of iterations) {
-        let commands = toSVGCommands(str, map)
+        let commands = toSVGCommands(str, map, i)
 
         // display the error
         if (typeof commands == "string") {

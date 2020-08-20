@@ -141,19 +141,19 @@ function parse2dURL(urlstr: string) {
     let url = new URL(urlstr)
     let params = url.searchParams
     if (params.has("axiom")) {
-        axiom = params.get("axiom").split(',')
+        axiom = params.get("axiom").split('')
     }
     if (params.has("alphabet")) {
-        alphabet = params.get("alphabet").split(';')
+        alphabet = params.get("alphabet").split('')
     }
     if (params.has("rules")) {
         params.get("rules").split(';').forEach((str: string) => {
             var parts = str.split('>')
 
-            rules.set(parts[0], parts[1].split(","))
+            rules.set(parts[0], parts[1].split(""))
         })
     }
-
+    console.log(rules)
 
     params.forEach((value, key, _) => {
         console.log(key)
