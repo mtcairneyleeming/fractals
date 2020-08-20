@@ -30,10 +30,12 @@ function length(a) {
     return Math.sqrt(a.x * a.x + a.y * a.y)
 }
 function drawCurve() {
+    let context = curveCanvas.getContext("2d")
+    context.clearRect(0, 0, curveCanvas.width, curveCanvas.height);
     // TODO add more construction lines
     let max_curve_frac = getInput("curve_frac").value as unknown as number * 0.01
     let h = curveCanvas.height; let w = curveCanvas.width;
-    let a = { x: w * 0.2, y: h * 0.95 };
+    let a = { x: w * 0.3, y: h * 0.25 };
     let b = { x: w * 0.5, y: h * 0.15 }; // = next.start
     let c = { x: w * 0.75, y: h * 0.95 };
     // direction vectors
@@ -69,7 +71,7 @@ function drawCurve() {
 
     let [path0, x0, y0] = makeCurlyBrace(b.x, b.y, b.x + max_curve_frac * pv.x, b.y + max_curve_frac * pv.y, 15, 0.6)
     curve.path(path0)
-    let context = curveCanvas.getContext("2d")
+
     context.font = `1rem sans-serif`
     context.textAlign = "right"
     context.textBaseline = "middle"
