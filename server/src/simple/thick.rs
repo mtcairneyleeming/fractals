@@ -225,6 +225,9 @@ pub fn simple_thick(
                                 }
                             }
 
+                            if start_frac > 1.0 - 1e-9 {
+                                continue;
+                            }
 
                             let mut j = 1;
                             while start_frac >= hole_regions[j] {
