@@ -228,43 +228,46 @@ fn curve_segment(
 }
 
 pub fn curve_segments(
-    in_segments: Vec<Vec<Segment>>,
+    in_layers: Vec<Vec<Segment>>,
     max_curve_frac: f64,
     steps_multiplier: f64,
 ) -> Vec<Vec<Segment>> {
     let mut segments: Vec<Vec<Segment>> = vec![];
 
-    for segs in in_segments {
-        let mut nsegs = vec![];
-        if segs.len() == 0 {
+    for layer in in_layers {
+        let mut new_layer = vec![];
+        if layer.len() == 0 {
             panic!("Help")
         }
         // initially prev_line is none, but next_line is set before the first thickening
         let mut prev_line: Option<Line3d> = None;
+        for i in 0..layer.len() {
+            // set next line
         let mut next_line: Option<Line3d> = None;
-        for i in 0..segs.len() {
-            if i != segs.len() - 1 {
+            if i != layer.len() - 1 {
                 // find the next actual line, if we're not at the end of the segment.
-                for j in (i + 1)..segs.len() {
-                    if segs[j].lines.len() > 0 {
-                        next_line = Some(segs[j].lines[0]);
+                for j in (i + 1)..layer.len() {
+                    if layer[j].lines.len() > 0 {
+                        next_line = Some(layer[j].lines[0]);
                         break;
                     }
                 }
             }
-            nsegs.push(curve_segment(
-                segs[i].clone(),
+            let seg = curve_segment(
+                layer[i].clone(),
                 prev_line,
                 next_line,
                 max_curve_frac,
                 steps_multiplier,
-            ));
+            );
+
+            new_layer.push(seg);
 
             // update the previous line if there is a line in this segment
-            prev_line = segs[i].lines.last().cloned().or(prev_line);
-            next_line = None;
+            prev_line = layer[i].lines.last().cloned().or(prev_line);
         }
-        segments.push(nsegs)
+        
+        segments.push(new_layer)
     }
     return segments;
 }
