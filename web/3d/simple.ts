@@ -96,8 +96,12 @@ export class Simple3D {
             // get newly added SVG commands
             let prevLength = state.commands.length
             this.commands.get(symbol)(state)
-            let commands = state.commands.slice(prevLength - 1)
 
+            let commands = state.commands.length > prevLength ? state.commands.slice(prevLength - 1) : [];
+
+            if (commands.length == 0) {
+                return new Segment(symbol, [], currPos, prevIndex)
+            }
             try {
                 // convert SVG commands to lines
                 let lines = svgToLines(commands, currPos.x, currPos.y, xyScale)
