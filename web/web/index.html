@@ -134,7 +134,7 @@
                     <label for="layer_dist" class="col-sm-4 col-form-label">Distance between layers</label>
                     <form class="col-sm-8 d-flex flex-row mt-2" oninput="slider_val.value=parseInt(layer_dist.value) + '% of the step length on each layer'">
                         <input type="range" class="custom-range pr-2" id="layer_dist" name="layer_dist" />
-                        <output for="layer_dist" name="slider_val"> 0% of the step length on each layer</output>
+                        <output for="layer_dist" name="slider_val"> 50% of the step length on each layer</output>
                     </form>
                 </div>
             </div>
@@ -155,7 +155,7 @@
 
                 <label class="col-form-label"> by </label>
                 <div class="input-group ml-2" style="width: 15rem;">
-                    <input type="number" class="form-control" aria-describedby="thicken_unit" id="thicken_width" name="thicken_width" />
+                    <input type="number" class="form-control" aria-describedby="thicken_unit" id="thicken_width" name="thicken_width" value="1.0" />
                     <div class="input-group-append" style="display: inline;">
                         <span class="input-group-text" id="thicken_unit">mm</span>
                     </div>
@@ -175,7 +175,7 @@
 
                     <label class="col-form-label"> if so, how much?</label>
                     <div class="input-group ml-3" style="width: 15rem;">
-                        <input type="number" class="form-control" id="curve_frac" min="0" max="50" />
+                        <input type="number" class="form-control" id="curve_frac" min="0" max="50" value="50" />
                         <div class="input-group-append" style="display: inline;">
                             <span class="input-group-text" id="basic-addon2">%</span>
                         </div>
@@ -217,7 +217,7 @@
                             <div class="form-group d-flex flex-row">
                                 <label for="frame_factor" class="col-form-label">Frame size</label>
                                 <div class="input-group ml-3" style="width: 15rem;">
-                                    <input type="number" class="form-control" id="frame_factor" min="0" max="50" />
+                                    <input type="number" class="form-control" id="frame_factor" min="0" max="50" value="10" />
                                     <div class="input-group-append" style="display: inline;">
                                         <span class="input-group-text" id="basic-addon2">%</span>
                                     </div>
@@ -242,12 +242,12 @@
                                     <div class="input-group-prepend" style="display: inline;">
                                         <span class="input-group-text" id="ev_ratio_prepend">1:</span>
                                     </div>
-                                    <input type="number" min="0" class="form-control" id="ev_ratio" />
+                                    <input type="number" min="0" class="form-control" id="ev_ratio" value="2" />
                                 </div>
 
                                 <label for="ev_frame_percent" class="col-sm-6 col-form-label  mt-3">Frame size</label>
                                 <div class="input-group pl-0 pr-0 col-sm-6 mt-3">
-                                    <input type="text" class="form-control" id="ev_frame_percent" min="0" max="0.5" />
+                                    <input type="text" class="form-control" id="ev_frame_percent" min="0" max="50" value="10" />
                                     <div class="input-group-append" style="display: inline;">
                                         <span class="input-group-text" id="ev_frame_append">%</span>
                                     </div>
