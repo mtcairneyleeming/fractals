@@ -1,18 +1,24 @@
 import { SVG } from '@svgdotjs/svg.js'
 
 type Command = (state: State) => void
+
+
 export class State {
+    constructor(iteration: number) {
+        this.iteration = iteration;
+    }
+
     // Internal state:
     public commands: Array<string> = ["M 0 0"]
     // using an array as a stack, as it has push, pop
     private stateStack: Array<Object> = []
-
-
-    public currentPosition: [number, number] = [0, 0]
     public state: Object = {
-        step: 50,
-        angle: 0
+        step: 100,
+        angle: 0,
+        currentPosition: [0, 0]
+
     }
+    public iteration: number;
 
 
     draw() { this.lineA(this.step(), this.angle()) }
@@ -23,7 +29,14 @@ export class State {
         this.state["step"] = factor * this.state["step"]
     }
 
+    changePosition(dx: number, dy: number) {
+        let p = [this.state["currentPosition"][0], this.state["currentPosition"][1]]
+        this.state["currentPosition"] = [p[0] + dx, p[1] + dy]
+
+    }
+
     right(angle: number) {
+
         this.state["angle"] = angle + this.state["angle"]
     }
     left(angle: number) {
@@ -31,11 +44,28 @@ export class State {
     }
 
     save() {
-        this.stateStack.push(this.state)
+
+        let stackV = {
+            step: this.state["step"],
+            angle: this.state["angle"],
+            currentPosition: [this.state["currentPosition"][0], this.state["currentPosition"][1]]
+        };
+
+
+        this.stateStack.push(stackV)
+
     }
     restore() {
+
+        let prevP = [this.state["currentPosition"][0], this.state["currentPosition"][1]];
+
         this.state = this.stateStack.pop()
+        let currP = this.state["currentPosition"]
+        this.commands.push(`m ${currP[0] - prevP[0]} ${currP[1] - prevP[1]}`)
+
     }
+
+
 
     angle(): number { return this.state["angle"] as number }
 
@@ -53,53 +83,64 @@ export class State {
 
     m(dx: number, dy: number) {
         this.commands.push(`m ${dx} ${dy}`)
+        this.changePosition(dx, dy)
     }
+
 
     l(dx: number, dy: number) {
         this.commands.push(`l ${dx} ${dy}`)
+        this.changePosition(dx, dy)
     }
 
 
 
     h(length: number) {
         this.commands.push(`h ${length}`)
+        this.changePosition(length, 0)
     }
 
     v(length: number) {
         this.commands.push(`v ${length}`)
+        this.changePosition(0, length)
     }
 
     c(dx1: number, dy1: number, dx2: number, dy2: number, dx: number, dy: number) {
         this.commands.push(`c ${dx1} ${dy1} ${dx2} ${dy2} ${dx} ${dy}`)
+        this.changePosition(dx, dy)
     }
 
     s(dx2: number, dy2: number, dx: number, dy: number) {
         this.commands.push(`s ${dx2} ${dy2} ${dx} ${dy}`)
+        this.changePosition(dx, dy)
     }
 
     q(dx1: number, dy1: number, dx: number, dy: number) {
         this.commands.push(`q ${dx1} ${dy1} ${dx} ${dy}`)
+        this.changePosition(dx, dy)
     }
 
     t(dx: number, dy: number) {
         this.commands.push(`t ${dx} ${dy}`)
+        this.changePosition(dx, dy)
     }
 
     a(rx: number, ry: number, angle: number, large: number, sweep: number, dx: number, dy: number) {
         this.commands.push(`c ${rx} ${ry} ${angle} ${large} ${sweep} ${dx} ${dy}`)
+        this.changePosition(dx, dy)
     }
 
     // close is not allowed as paths must produce a line not a shape
 
 
 }
-export function toSVGCommands(str: Array<string>, drawingCommands: Map<string, Command>): Array<string> | string {
-    var state = new State()
+export function toSVGCommands(str: Array<string>, drawingCommands: Map<string, Command>, iteration: number): Array<string> | string {
+    var state = new State(iteration)
 
     for (const symbol of str) {
         if (drawingCommands.has(symbol)) {
             try {
                 drawingCommands.get(symbol)(state)
+
             } catch (err) {
                 return err.name + ": " + err.message
             }

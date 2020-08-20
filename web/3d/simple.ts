@@ -28,7 +28,7 @@ export class Simple3D {
         let segments: Segment[][] = []
 
         // draw axiom wireframe
-        segments.push(this.drawSymbols(this.axiom, new State(), z, 1, 0))
+        segments.push(this.drawSymbols(this.axiom, new State(0), z, 1, 0))
 
 
 
@@ -40,7 +40,7 @@ export class Simple3D {
             let currPos = new Point3d(0, 0, z)
 
             // create state to run user commands against
-            let state = new State()
+            let state = new State(layer)
 
 
             // the lines that will make up the next plane of the wireframe
