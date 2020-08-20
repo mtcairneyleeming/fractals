@@ -78,22 +78,28 @@ export function svgToLines(svgCommands: Array<string>, offsetX: number = 0, offs
         switch (parts[0]) {
             case "l":
                 newP = new Point2d(currPos.x + scale * parseFloat(parts[1]), currPos.y + scale * parseFloat(parts[2]))
-
+                out.push(new Line2d(currPos, newP))
+                currPos = newP
                 break;
             case "h":
                 newP = new Point2d(currPos.x + scale * parseFloat(parts[1]), currPos.y)
-
+                out.push(new Line2d(currPos, newP))
+                currPos = newP
                 break;
             case "v":
                 newP = new Point2d(currPos.x, currPos.y + scale * parseFloat(parts[2]))
-
+                out.push(new Line2d(currPos, newP))
+                currPos = newP
+                break;
+            case "m":
+                currPos = new Point2d(currPos.x + parseFloat(parts[1]), currPos.y + parseFloat(parts[2]));
                 break;
             default:
                 throw new Error(`Unexpected SVG command ${parts[0]} when only expected straight lines`)
 
         }
-        out.push(new Line2d(currPos, newP))
-        currPos = newP
+
+
     }
     return out
 }
