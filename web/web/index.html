@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Fractals!</title>
+    <link rel="shortcut icon" href="favicon.ico" />
+</head>
+
+<body>
+    <nav class="navbar navbar-light bg-light sticky-top">
+        <a class="navbar-brand" href="#">Build-a-fractal!</a>
+        <span class="ml-auto mr-3 text-muted" style="display: none;" id="saveNotif">URL copied to clipboard</span>
+        <button class="btn btn-outline-success" id="saveToLinkButton">Save to link</button>
+    </nav>
+
+    <main class="container-fluid" role="main">
+        <!-- L-systems header -->
+        <div class="row justify-content-between">
+            <div class="col-md-auto">
+                <h3>Describe your fractal <small>or choose from one of the presets:</small></h3>
+            </div>
+            <div class="col-md-auto">
+                <form>Presets form TODO</form>
+            </div>
+        </div>
+        <p class="small">If you don't know what a Lindenmayer-system is, read / watch ??? to get started.</p>
+        <!-- L-systems input-->
+
+        <div class="form-group row">
+            <label for="axiom" class="col-sm-2 col-form-label">Axiom</label>
+            <div class="col-sm-4">
+                <input id="axiom" type="text" class="form-control" />
+            </div>
+            <div class="col-sm-6 col-form-label">TODO axiom help</div>
+        </div>
+
+        <div class="form-group row">
+            <label for="rules" class="col-sm-2 col-form-label">Rules</label>
+            <div class="col-sm-4">
+                <textarea id="rules" value="" class="form-control"></textarea>
+            </div>
+            <div class="col-sm-6 col-form-label">Write your rules as A>BCD TODO rules help</div>
+        </div>
+
+        <div class="form-group row">
+            <label for="rules" class="col-sm-2 col-form-label">Drawing commands</label>
+            <div class="col-sm-4 col-form-label">
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="radio" name="drawingRadio" id="drawingRadioStandard" value="Standard" checked />
+                    <label class="form-check-label" for="drawingRadioStandard">Standard</label>
+                </div>
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="radio" name="drawingRadio" id="drawingRadioAdvanced" value="Advanced" />
+                    <label class="form-check-label" for="drawingRadioAdvanced">Advanced</label>
+                </div>
+            </div>
+
+            <div class="col-sm-6 col-form-label">TODO drawing help</div>
+
+            <div class="col-sm-10 pl-4 offset-sm-2">
+                <div id="standard_drawing_commands">
+                    <dl class="row">
+                        <dt class="col-sm-1">F,G</dt>
+                        <dd class="col-sm-11">draw a line forwards by 1 step</dd>
+
+                        <dt class="col-sm-1">+,-</dt>
+                        <dd class="col-sm-11">rotate right or left by <input class="number" id="drawing_standard_degrees" /> degrees</dd>
+
+                        <dt class="col-sm-1">[</dt>
+                        <dd class="col-sm-11">save position, heading, (TODO step??) length</dd>
+
+                        <dt class="col-sm-1">]</dt>
+                        <dd class="col-sm-11">restore last saved state</dd>
+                    </dl>
+                    All other characters have no effect on drawing.
+                </div>
+                <div id="custom_drawing_commands">
+                    <table class="table" id="rules-table">
+                        <thead>
+                            <th scope="col" class="col-md-1">Symbol</th>
+                            <th scope="col" class=col-md-10>Function</th>
+                            <th scope="col" class="col-md-1"></th>
+                        </thead>
+                        <tbody id="rulesBody">
+                            <!--<tr>
+                                        <td><input placeholder="Symbol" class="symbol-input"></td>
+                                        <td><textarea placeholder="Function" class="edit"></textarea></td>
+                                        <td><button class="btn btn-link delete-row-button"><i class="fa fa-times" aria-hidden="true"
+                                                    aria-label="Delete row"></i></button></td>
+                                    </tr> -->
+                        </tbody>
+                    </table>
+                    <button class="btn btn-outline-dark" id="add-row-button">Add a row</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-group row">
+            <label for="" class="col-sm-2 col-form-label">Scale factor</label>
+
+            <div class="col-sm-6 input-group">
+                <div class="input-group-prepend" class="btn-group btn-group-toggle" data-toggle="buttons">
+                    <label class="btn btn-outline-secondary"> <input type="radio" class="input_radio" name="scale_radio" value="half" autocomplete="off" checked /> `1//2` </label>
+                    <label class="btn btn-outline-secondary"> <input type="radio" class="input_radio" name="scale_radio" value="sqrt3" autocomplete="off" /> `1 // sqrt3` </label>
+                    <label class="btn btn-outline-secondary"> <input type="radio" class="input_radio" name="scale_radio" value="sqrt2" autocomplete="off" /> `1//sqrt2` </label>
+                    <label class="btn btn-outline-secondary"> <input type="radio" class="input_radio" name="scale_radio" value="other" autocomplete="off" /> other </label>
+                </div>
+                <input type="number" class="form-control" name="scaling_factor_other" id="scaling_factor_other" />
+            </div>
+        </div>
+
+        <div class="row justify-content-between">
+            <div class="col-md-auto">
+                <h3>Turning it 3D</h3>
+            </div>
+        </div>
+        <p class="small">See ???? for more help, if you need it</p>
+
+        <!-- 3d options-->
+
+        <div class="row">
+            <div class="col-md-6">
+                <div class="form-group row">
+                    <label for="num_layers" class="col-sm-4 col-form-label pb-4">Number of layers</label>
+                    <div class="col-sm-8">
+                        <input id="num_layers" type="number" min="2" step="1" value="4" class="form-control" />
+                    </div>
+                    <label for="draw_axiom_check" class="col-sm-4 col-form-label">Draw the axiom?</label>
+                    <div class="col-sm-8">
+                        <input class="form-control-sm form-check-input position-static ml-0" type="checkbox" id="draw_axiom_check" />
+                    </div>
+                    <label for="layer_dist" class="col-sm-4 col-form-label">Distance between layers</label>
+                    <form class="col-sm-8 d-flex flex-row mt-2" oninput="slider_val.value=parseInt(layer_dist.value) + '% of the step length on each layer'">
+                        <input type="range" class="custom-range pr-2" id="layer_dist" name="layer_dist" />
+                        <output for="layer_dist" name="slider_val"> 0% of the step length on each layer</output>
+                    </form>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <canvas id="layer-diagram">
+            </div>
+        </div>
+
+        <div class="form-group row">
+
+            <p id="layer_distHelp" class="col-form-label"></p>
+        </div>
+
+        <form class="form-group row" oninput="thicken_output.value=thicken_width.value">
+            <label class="col-sm-2 col-form-label">Thicken shape?</label>
+            <div class="col-sm-10 d-flex flex-row">
+                <input class="form-control-sm form-check-input position-static ml-0 mr-2" type="checkbox" style="align-self: start;" id="thicken_check" checked />
+
+                <label class="col-form-label"> by </label>
+                <div class="input-group ml-2" style="width: 15rem;">
+                    <input type="number" class="form-control" aria-describedby="thicken_unit" id="thicken_width" name="thicken_width" />
+                    <div class="input-group-append" style="display: inline;">
+                        <span class="input-group-text" id="thicken_unit">mm</span>
+                    </div>
+                </div>
+
+                <p id="thicken_help" class="ml-3 col-form-label" style="font-size: smaller;">
+                    If you don't tick this, the final shape will be a thin 'skin' of zero thickness. Tick it to produce a solid object, which will be <output name="thicken_output"></output>mm thick.
+                </p>
+            </div>
+        </form>
+
+        <div class="form-group row">
+            <label class="col-sm-2 col-form-label">Curve corners?</label>
+            <div class="col-sm-5">
+                <div class="d-flex flex-row">
+                    <input class="form-control-sm form-check-input position-static ml-0 mr-2" type="checkbox" style="align-self: start;" id="curve_check" checked />
+
+                    <label class="col-form-label"> if so, how much?</label>
+                    <div class="input-group ml-3" style="width: 15rem;">
+                        <input type="number" class="form-control" id="curve_frac" min="0" max="50" />
+                        <div class="input-group-append" style="display: inline;">
+                            <span class="input-group-text" id="basic-addon2">%</span>
+                        </div>
+                    </div>
+                </div>
+
+                <p id="thicknessHelp" class="col-form-label" style="font-size: smaller;">
+                    Curving works by drawing a circle at each corner and folllowing that to produce a smooth curve. The percentage above controls how much, on each end, of a line can be used for that curve.
+                </p>
+            </div>
+            <div class="col-sm-5">
+                <canvas id="curve-diagram">
+            </div>
+        </div>
+
+        <div class="form-group row">
+            <div class="col-sm-2">Holes</div>
+            <div class="col-sm-10">
+                <div class="mb-2">
+                    <div class="form-group row">
+                        <div class="col-sm-12">
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="radio" name="hole_radio" id="hole_radio1" value="None" />
+                                <label class="form-check-label" for="hole_radio1">No holes</label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="radio" name="hole_radio" id="hole_radio2" value="ParallelOnly" />
+                                <label class="form-check-label" for="hole_radio2">Only on parallel lines</label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="radio" name="hole_radio" id="hole_radio3" value="Everywhere" checked />
+                                <label class="form-check-label" for="hole_radio3">Anywhere</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="parallel_hole_options" class="row">
+                        <div class="col-sm-6">
+                            <p class="small form-text">When a line on one level and the line it projects from the on the previous are parallel, instead of filling this trapezium in, make a hole instead.</p>
+                            <div class="form-group d-flex flex-row">
+                                <label for="frame_factor" class="col-form-label">Frame size</label>
+                                <div class="input-group ml-3" style="width: 15rem;">
+                                    <input type="number" class="form-control" id="frame_factor" min="0" max="50" />
+                                    <div class="input-group-append" style="display: inline;">
+                                        <span class="input-group-text" id="basic-addon2">%</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <small id="frame_factorHelp" class="form-text">
+                                Width of the solid sides of a hole as a percentage of the space available for the hole.
+                            </small>
+                        </div>
+                        <div class="col-sm-6">
+                            <canvas id="parallel-diagram">
+                        </div>
+                    </div>
+                    <div id="ev_hole_options" class="row">
+                        <div class="col-sm-6">
+                            <div class="form-group row">
+                                <label for="ev_hole_number" class="col-sm-6 col-form-label">How many holes?</label>
+                                <input id="ev_hole_number" type="number" min="1" value="5" step="1" class="form-control col-sm-6" />
+
+                                <label for="ev_ratio" class="col-sm-6 col-form-label mt-3">Hole to solid ratio</label>
+                                <div class="input-group pl-0 pr-0 col-sm-6 mt-3">
+                                    <div class="input-group-prepend" style="display: inline;">
+                                        <span class="input-group-text" id="ev_ratio_prepend">1:</span>
+                                    </div>
+                                    <input type="number" min="0" class="form-control" id="ev_ratio" />
+                                </div>
+
+                                <label for="ev_frame_percent" class="col-sm-6 col-form-label  mt-3">Frame size</label>
+                                <div class="input-group pl-0 pr-0 col-sm-6 mt-3">
+                                    <input type="text" class="form-control" id="ev_frame_percent" min="0" max="0.5" />
+                                    <div class="input-group-append" style="display: inline;">
+                                        <span class="input-group-text" id="ev_frame_append">%</span>
+                                    </div>
+                                    <small id="frame_factorHelp" class="form-text">
+                                        Height of the solid top/bottom of a hole as a percentage of distance from one layer to the next.
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-6">
+                            <canvas id="everywhere-diagram" width="400" height="300">
+                        </div>
+                    </div>
+                </div>
+            </div><button class="btn btn-lg btn-outline-primary ml-3" id="run">Generate!</button>
+            <div class="row">
+                <div class="col-sm-2">
+
+                </div>
+                <div class="col-sm-10">
+                    <!-- TODO set up error handling-->
+                    <div class="alert alert-danger mt-5" role="alert" id="lsys-error" style="display: none;">
+                        <h4 class="alert-heading">There was a problem with your setttings:</h4>
+                        <p class="mb-0" id="lsys-error-body"></p>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <hr />
+
+        <div class="row ">
+            <div class="col-sm-12 ">
+                <h3>Your developing fractal:</h3>
+                <button class="btn btn-outline-primary " id="meshSave">Download as .STL</button>
+                <span class=" d-inline-block align-middle"> or view here</span>
+                <div id="viewer" class="mt-3"></div>
+
+
+            </div>
+        </div>
+    </main>
+
+    <script src="./index.ts"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.4/latest.js?config=AM_CHTML"></script>
+</body>
+
+</html>
