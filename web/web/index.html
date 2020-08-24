@@ -29,50 +29,38 @@
         <!-- L-systems input-->
 
         <div class="form-group row">
-            <label for="axiom" class="col-sm-2 col-form-label">Axiom</label>
-            <div class="col-sm-4">
-                <input id="axiom" type="text" class="form-control" />
-            </div>
-            <div class="col-sm-6 col-form-label">TODO axiom help</div>
-        </div>
+            <label for="rules" class="col-sm-12 col-form-label align-text-bottom">
+                <span class="mr-4">To describe your fractal you can use </span>
+                <!-- <div class="form-check form-check-inline align-text-bottom"> -->
+                <input class="form-check-input" type="radio" name="drawingRadio" id="drawingRadioStandard" value="Standard" checked />
+                <label class="form-check-label" for="drawingRadioStandard">standard</label>
+                <!-- </div> -->
+                <span class="mr-4"> or </span>
 
-        <div class="form-group row">
-            <label for="rules" class="col-sm-2 col-form-label">Rules</label>
-            <div class="col-sm-4">
-                <textarea id="rules" value="" class="form-control"></textarea>
-            </div>
-            <div class="col-sm-6 col-form-label">Write your rules as A>BCD TODO rules help</div>
-        </div>
+                <input class="form-check-input" type="radio" name="drawingRadio" id="drawingRadioAdvanced" value="Advanced" />
+                <label class="form-check-label" for="drawingRadioAdvanced">advanced</label>
 
-        <div class="form-group row">
-            <label for="rules" class="col-sm-2 col-form-label">Drawing commands</label>
-            <div class="col-sm-4 col-form-label">
-                <div class="form-check form-check-inline">
-                    <input class="form-check-input" type="radio" name="drawingRadio" id="drawingRadioStandard" value="Standard" checked />
-                    <label class="form-check-label" for="drawingRadioStandard">Standard</label>
-                </div>
-                <div class="form-check form-check-inline">
-                    <input class="form-check-input" type="radio" name="drawingRadio" id="drawingRadioAdvanced" value="Advanced" />
-                    <label class="form-check-label" for="drawingRadioAdvanced">Advanced</label>
-                </div>
-            </div>
+                <span class="mr-4"> drawing commands:</span>
+            </label>
 
-            <div class="col-sm-6 col-form-label">TODO drawing help</div>
 
             <div class="col-sm-10 pl-4 offset-sm-2">
                 <div id="standard_drawing_commands">
                     <dl class="row">
+                        <dt class="col-sm-1">Letter</dt>
+                        <dd class="col-sm-11 font-weight-bold">means</dd>
+
                         <dt class="col-sm-1">F,G</dt>
-                        <dd class="col-sm-11">draw a line forwards by 1 step</dd>
+                        <dd class="col-sm-11">draw a straight line one step forwards</dd>
 
                         <dt class="col-sm-1">+,-</dt>
-                        <dd class="col-sm-11">rotate right or left by <input class="number" id="drawing_standard_degrees" /> degrees</dd>
+                        <dd class="col-sm-11">turn right or left by <input class="number ml-2" id="drawing_standard_degrees" /> degrees</dd>
 
                         <dt class="col-sm-1">[</dt>
-                        <dd class="col-sm-11">save position, heading, (TODO step??) length</dd>
+                        <dd class="col-sm-11">save position and heading (TODO step length??) to a stack</dd>
 
                         <dt class="col-sm-1">]</dt>
-                        <dd class="col-sm-11">restore last saved state</dd>
+                        <dd class="col-sm-11">restore the last saved position and heading</dd>
                     </dl>
                     All other characters have no effect on drawing.
                 </div>
@@ -98,16 +86,34 @@
         </div>
 
         <div class="form-group row">
-            <label for="" class="col-sm-2 col-form-label">Scale factor</label>
+            <label for="axiom" class="col-sm-1 col-form-label">Axiom</label>
+            <div class="col-sm-4">
+                <input id="axiom" type="text" class="form-control" placeholder="F" />
+            </div>
+            <div class="col-sm-7 col-form-label">the zero-th iteration - this is normally a single character, say <code>F</code> for a line, or a non-drawing character</div>
+        </div>
 
-            <div class="col-sm-6 input-group">
-                <div class="input-group-prepend" class="btn-group btn-group-toggle" data-toggle="buttons">
-                    <label class="btn btn-outline-secondary"> <input type="radio" class="input_radio" name="scale_radio" value="half" autocomplete="off" checked /> `1//2` </label>
-                    <label class="btn btn-outline-secondary"> <input type="radio" class="input_radio" name="scale_radio" value="sqrt3" autocomplete="off" /> `1 // sqrt3` </label>
-                    <label class="btn btn-outline-secondary"> <input type="radio" class="input_radio" name="scale_radio" value="sqrt2" autocomplete="off" /> `1//sqrt2` </label>
-                    <label class="btn btn-outline-secondary"> <input type="radio" class="input_radio" name="scale_radio" value="other" autocomplete="off" /> other </label>
+        <div class="form-group row">
+            <label for="rules" class="col-sm-1 col-form-label">Rules</label>
+            <div class="col-sm-4">
+                <textarea id="rules" value="" class="form-control" placeholder="F>G-F-G&#10;G>F+G+F"></textarea>
+            </div>
+            <div class="col-sm-7 col-form-label">The rules that are applied to each iteration to generate the next one - write each on a separate line in the form <code>A>B+C-D...</code>, mapping 1 letter to 0 or more other ones (so for the placeholder example <code>+</code> and <code>-</code> will always stay the same). If you don't include a letter then the program will assume it will stay the same.</div>
+        </div>
+
+
+
+        <div class="form-group row">
+            <label for="" class="col-sm-1 col-form-label">Scale factor</label>
+
+            <div class="col-sm-7 input-group">
+                <div class="input-group-prepend" class="btn-group btn-group-toggle d-flex" data-toggle="buttons">
+                    <span class="btn btn-outline-secondary"> <input type="radio" class="input_radio" name="scale_radio" value="half" autocomplete="off" checked /> `1/2` </span>
+                    <span class="btn btn-outline-secondary"> <input type="radio" class="input_radio" name="scale_radio" value="sqrt3" autocomplete="off" /> `1 / sqrt3` </span>
+                    <span class="btn btn-outline-secondary"> <input type="radio" class="input_radio" name="scale_radio" value="sqrt2" autocomplete="off" /> `1/sqrt2` </span>
+                    <span class="btn btn-outline-secondary text-" style="display: flex; align-items: center;"> <input type="radio" class="input_radio" name="scale_radio" value="other" autocomplete="off" /> other: </span>
                 </div>
-                <input type="number" class="form-control" name="scaling_factor_other" id="scaling_factor_other" />
+                <input type="number" class="form-control" name="scaling_factor_other" id="scaling_factor_other" placeholder="0.25" style="height: 100%" />
             </div>
         </div>
 
@@ -143,10 +149,7 @@
             </div>
         </div>
 
-        <div class="form-group row">
 
-            <p id="layer_distHelp" class="col-form-label"></p>
-        </div>
 
         <form class="form-group row" oninput="thicken_output.value=thicken_width.value">
             <label class="col-sm-2 col-form-label">Thicken shape?</label>
@@ -155,7 +158,7 @@
 
                 <label class="col-form-label"> by </label>
                 <div class="input-group ml-2" style="width: 15rem;">
-                    <input type="number" class="form-control" aria-describedby="thicken_unit" id="thicken_width" name="thicken_width" value="1.0" />
+                    <input type="number" class="form-control" aria-describedby="thicken_unit" id="thicken_width" name="thicken_width" value="1" />
                     <div class="input-group-append" style="display: inline;">
                         <span class="input-group-text" id="thicken_unit">mm</span>
                     </div>
