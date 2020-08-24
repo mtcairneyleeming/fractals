@@ -58,6 +58,8 @@ function updateThickenAndCurve() {
     let curve = getInput("curve_check").checked
     getInput("curve_frac").disabled = !curve;
 
+    document.getElementById("curve-diagram").style.display = curve ? "block" : "none"
+
     let thicken = getInput("thicken_check").checked
     getInput("thicken_width").disabled = !thicken;
 }
