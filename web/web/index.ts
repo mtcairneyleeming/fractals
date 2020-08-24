@@ -22,7 +22,6 @@ import 'regenerator-runtime/runtime'
 
 // Main run method ==========
 async function run() {
-    console.log("running")
     removeDisplay();
     let settings = parseSettings();
 

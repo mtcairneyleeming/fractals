@@ -67,7 +67,7 @@ export function parseSettings(): Object {
             settings["scale_factor"] = parseFloat(getInput("scaling_factor_other").value)
             break;
         default:
-            console.log(scale_radio)
+            throw new Error("Invalid scale radio setting, " + scale_radio)
     }
     let thicken_check = getInput("thicken_check").checked
     settings["thicken"] = thicken_check
@@ -83,7 +83,6 @@ export function parseSettings(): Object {
     }
 
     let hole_radio = (document.querySelector('input[name="hole_radio"]:checked') as HTMLInputElement).value;
-    console.log("Hole", hole_radio)
     switch (hole_radio) {
         case "None":
             settings["hole"] = "None"
@@ -118,7 +117,6 @@ export function parseSettings(): Object {
 
 export function loadSettings(settings: Object) {
 
-    console.log(settings)
     for (let input of simple_inputs) {
         getInput(input).value = settings[input];
     }

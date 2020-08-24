@@ -106,7 +106,6 @@ function drawCurve() {
         }
 
         let scale_factor = 1; // TODO find better scaling factor
-        console.log(h * 0.25, radius, h * 0.25 / radius)
         context.translate(centre.x, 0)
         context.scale(scale_factor, scale_factor)
         context.translate(-centre.x, 0)
@@ -251,10 +250,8 @@ function drawParallel() {
         ]
     ]
     let offsetPer = 120;
-    console.log("EUn")
     for (let i = 0; i < origTrapeziums.length; i++) {
         parallel.polygon(origTrapeziums[i].map(a => [a[0] + i * offsetPer, a[1]]), { fill: "gray" })
-        console.log(origTrapeziums[i].map(a => [a[0] + i * offsetPer, a[1]]))
         let min_side_length = Number.POSITIVE_INFINITY
         let was_unique = true
         for (let j = 0; j < 3; j++) {
@@ -275,7 +272,6 @@ function drawParallel() {
         var offset = new Offset();
 
         var inner = offset.data(origTrapeziums[i]).padding(frame_size * min_side_length)
-        console.log(was_unique, inner, inner[0].map(a => [a[0] + i * offsetPer, a[1]]))
         if (frame_size < 0.5 || was_unique) {
             parallel.polygon(inner[0].map(a => [a[0] + i * offsetPer, a[1]]), { fill: "white", fillStyle: "solid" })
 
@@ -328,7 +324,6 @@ function drawEverywhere(num_holes: number, ratio: number, frame: number) {
     // context.font = `${Math.round(frameHeight)}px sans-serif`
     // context.fillText("}", offsetX + 0.5 * pairWidth, offsetY + 0.5 * frameHeight)
     let [path0, x0, y0] = makeCurlyBrace(holeLeft, offsetY + frameHeight, holeLeft, offsetY, 45, 0.6)
-    console.log("T", path0, x0, y0)
     everywhere.path(path0)
     context.font = `1rem sans-serif`
     context.textAlign = "left"
