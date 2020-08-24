@@ -138,9 +138,9 @@
                         <input class="form-control-sm form-check-input position-static ml-0" type="checkbox" id="draw_axiom_check" />
                     </div>
                     <label for="layer_dist" class="col-sm-4 col-form-label">Distance between layers</label>
-                    <form class="col-sm-8 d-flex flex-row mt-2" oninput="slider_val.value=parseInt(layer_dist.value) + '% of the step length on each layer'">
-                        <input type="range" class="custom-range pr-2" id="layer_dist" name="layer_dist" />
-                        <output for="layer_dist" name="slider_val"> 50% of the step length on each layer</output>
+                    <form class="col-sm-8 d-flex flex-row mt-2" id="step_length_form">
+                        <input type="range" class="custom-range pr-2" id="layer_dist" />
+                        <output for="layer_dist" id="slider_val"> 50% of the step length on each layer</output>
                     </form>
                 </div>
             </div>
@@ -152,7 +152,7 @@
 
 
 
-        <form class="form-group row" oninput="thicken_output.value=thicken_width.value">
+        <form class="form-group row" id="thicken_form">
             <label class="col-sm-2 col-form-label">Thicken shape?</label>
             <div class="col-sm-10 d-flex flex-row">
                 <input class="form-control-sm form-check-input position-static ml-0 mr-2" type="checkbox" style="align-self: start;" id="thicken_check" checked />
@@ -166,7 +166,7 @@
                 </div>
 
                 <p id="thicken_help" class="ml-3 col-form-label" style="font-size: smaller;">
-                    If you don't tick this, the final shape will be a thin 'skin' of zero thickness. Tick it to produce a solid object, which will be <output name="thicken_output"></output>mm thick.
+                    If you don't tick this, the final shape will be a thin 'skin' of zero thickness. Tick it to produce a solid object, which will be <output id="thicken_output"></output>mm thick.
                 </p>
             </div>
         </form>

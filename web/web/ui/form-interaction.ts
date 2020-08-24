@@ -1,6 +1,9 @@
 function getInput(id: string): HTMLInputElement {
     return document.getElementById(id) as unknown as HTMLInputElement
 }
+function getOutput(id: string): HTMLOutputElement {
+    return document.getElementById(id) as unknown as HTMLOutputElement
+}
 
 function getDiv(id: string): HTMLDivElement {
     return document.getElementById(id) as unknown as HTMLDivElement
@@ -90,4 +93,20 @@ export function setupInteractions() {
     getInput("thicken_check").addEventListener("click", updateThickenAndCurve)
 
     updateThickenAndCurve();
+    updateLiveOutputs()
+}
+
+function updateLiveOutputs() {
+    function stepLength() {
+        getOutput("slider_val").value = parseInt(getInput("layer_dist").value) + '% of the step length on each layer'
+    }
+    stepLength()
+    document.getElementById("step_length_form").addEventListener("input", stepLength)
+
+    function thickenWidth() {
+
+        getOutput("thicken_output").value = getInput("thicken_width").value
+    }
+    thickenWidth()
+    document.getElementById("thicken_form").addEventListener("input", thickenWidth)
 }
