@@ -234,7 +234,7 @@ function drawLayers() {
 function drawParallel() {
     let context = parallelCanvas.getContext("2d")
     context.setTransform(1, 0, 0, 1, 0, 0);
-    context.clearRect(0, 0, curveCanvas.width, curveCanvas.height);
+    context.clearRect(0, 0, parallelCanvas.width, parallelCanvas.height);
     context.translate(30, 0)
     let frame_size = parseFloat(getInput("frame_factor").value) * 0.01 // convert to 0-0.5 range
     frame_size = Math.max(0, Math.min(0.5, frame_size))
