@@ -24,6 +24,7 @@ export function parseSettings(): Object {
     let rulesMap = new Map();
     for (let line of rules.split("\n")) {
         let parts = line.split(">")
+        if (parts.length > 1)
         rulesMap.set(parts[0], parts[1].split(""))
     }
     settings["rules"] = rulesMap
