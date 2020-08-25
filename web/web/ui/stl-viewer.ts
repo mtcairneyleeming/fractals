@@ -60,7 +60,12 @@ export function removeDisplay() {
 export async function displaySTL(stl: Blob) {
 
     let loader = new STLLoader();
-    let geom = loader.parse(await stl.arrayBuffer())
+
+    let geom = null
+    try { geom = loader.parse(await stl.arrayBuffer()) }
+    catch (e) {
+        throw new Error("The STL returned by the server wasn't valid.")
+    }
     trisMesh = new THREE.Mesh(geom, triMaterial)
 
     triScene.add(trisMesh)

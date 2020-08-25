@@ -95,24 +95,25 @@ export class Simple3D {
         if (this.commands.has(symbol)) {
             // get newly added SVG commands
             let prevLength = state.commands.length
-            this.commands.get(symbol)(state)
-
+            try {
+                this.commands.get(symbol)(state)
+            }
+            catch (e) {
+                throw new Error("There was a problem with your drawing commands:\n" + e.message)
+            }
             let commands = state.commands.length > prevLength ? state.commands.slice(prevLength - 1) : [];
 
             if (commands.length == 0) {
                 return new Segment(symbol, [], currPos, prevIndex)
             }
-            try {
-                // convert SVG commands to lines
-                let lines = svgToLines(commands, currPos.x, currPos.y, xyScale)
-                // then to 3d lines
-                let lines3d = lines.map(x => Line3d.from2d(x, currPos.z))
-                return new Segment(symbol, lines3d, currPos, prevIndex)
-            }
-            catch (e) {
-                // TODO!!
-                throw e
-            }
+
+            // convert SVG commands to lines
+            // note throws error on curved lines/ move/etc,
+            let lines = svgToLines(commands, currPos.x, currPos.y, xyScale)
+            // then to 3d lines
+            let lines3d = lines.map(x => Line3d.from2d(x, currPos.z))
+            return new Segment(symbol, lines3d, currPos, prevIndex)
+
         }
         // didn't draw anything, so no new lines and we stay in the same place.
         else return new Segment(symbol, [], currPos, prevIndex)

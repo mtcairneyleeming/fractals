@@ -42,23 +42,30 @@ export function deleteRow(event: Event) {
     let row = btn.parentElement.parentElement as HTMLTableRowElement
     row.parentElement.removeChild(row)
 }
-export function getDrawingCommands(): [Map<string, (state: State) => void>, any[]] {
+export function getDrawingCommands(ignoreErrors = false): [Map<string, (state: State) => void>, any[]] {
     let table = document.getElementById("rulesBody")
     let functions = new Map<string, (state: State) => void>()
     let strings = [];// new Map<string, string>()
     for (let child of Array.from(table.children)) {
 
         let symbol = (child.firstElementChild.firstElementChild as HTMLInputElement).value
+        if (symbol.length > 1 && !ignoreErrors) {
+            throw new Error(`All symbols must be 1 character only - "${symbol}" is too long.`)
+        }
         // @ts-ignore 
         let functionStr = child.querySelector(".CodeMirror").CodeMirror.getValue()
-        let func = new Function("state", functionStr)
-        // @ts-ignore - this is to avoid function typing issues
-        functions.set(symbol, func)
-        strings.push([symbol, functionStr])
-
+        try {
+            let func = new Function("state", functionStr)
+            // @ts-ignore - this is to avoid function typing issues
+            functions.set(symbol, func)
+            strings.push([symbol, functionStr])
+        } catch (e) {
+            if (!ignoreErrors) {
+                throw new Error(`Your drawing code for the symbol "${symbol}" was not valid Javascript`)
+            }
+        }
 
     }
-    console.log(functions, strings)
     return [functions, strings]
 }
 

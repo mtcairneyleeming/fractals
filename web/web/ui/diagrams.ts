@@ -2,7 +2,7 @@ import rough from "roughjs/bin/rough"
 import { RoughCanvas } from "roughjs/bin/canvas";
 let Offset = require("polygon-offset")
 import { off } from "@svgdotjs/svg.js";
-import { parseSettings } from "./settings";
+import { parseScaleFactor } from "./settings";
 function getInput(id: string): HTMLInputElement {
     return document.getElementById(id) as unknown as HTMLInputElement
 }
@@ -189,11 +189,11 @@ function drawLayers() {
     context.clearRect(0, 0, layersCanvas.width, layersCanvas.height);
     //context.translate(30, layersCanvas.height)
     //context.scale(1, -1)
-    let settings = parseSettings()
-    let num_layers = Math.max(settings["num_layers"], 1)
+
+    let num_layers = Math.max(parseInt(getInput("num_layers").value), 1)
     let draw_axiom = getInput("draw_axiom_check").checked;
     let dist_between = Math.max(0, Math.min(1.0, 0.01 * parseFloat(getInput("layer_dist").value)))
-    let scale_factor = settings["scale_factor"]
+    let scale_factor = parseScaleFactor()
     let tot_height = 0
     let step = 1;
     for (let i = 0; i < num_layers; i++) {

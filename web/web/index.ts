@@ -22,6 +22,16 @@ import 'regenerator-runtime/runtime'
 
 // Main run method ==========
 async function run() {
+    try {
+        await runE()
+    } catch (e) {
+        console.warn("Error thrown", e)
+        document.getElementById("gen-error").style.display = "block"
+        document.getElementById("gen-error-body").innerText = e.message
+    }
+}
+
+async function runE() {
     removeDisplay();
     let settings = parseSettings();
 
@@ -50,8 +60,11 @@ async function run() {
         },
         body: JSON.stringify({ "data": [segments, settings["hole"]] })
     })
+    if (!response.ok) {
+        throw new Error(`The server returned an error: code ${response.status}, body: ${response.body}`)
+    }
     let stl = await response.blob()
-    displaySTL(stl)
+    await displaySTL(stl)
 }
 
 

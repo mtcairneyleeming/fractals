@@ -95,7 +95,7 @@ export function svgToLines(svgCommands: Array<string>, offsetX: number = 0, offs
                 currPos = new Point2d(currPos.x + parseFloat(parts[1]), currPos.y + parseFloat(parts[2]));
                 break;
             default:
-                throw new Error(`Unexpected SVG command ${parts[0]} when only expected straight lines`)
+                throw new Error(`Unexpected SVG command "${parts[0]}" when only expected straight lines`)
 
         }
 
