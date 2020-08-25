@@ -123,7 +123,7 @@ export function parseSettings(): Object {
                     "hole_frac": 1 / pair * pair_frac,
                     "spacing_frac": ratio / pair * pair_frac,
                     "scaling_factor": settings["scale_factor"],
-                    "frame_factor": 0.01 * parseFloat(getInput("fval").value)
+                    "frame_factor": 0.01 * fval
                 }
             }
             break;

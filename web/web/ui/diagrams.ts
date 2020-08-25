@@ -23,18 +23,18 @@ export function setupDiagrams() {
     everywhereCanvas = document.getElementById("everywhere-diagram") as HTMLCanvasElement;
     everywhere = rough.canvas(everywhereCanvas);
     curveCanvas = document.getElementById("curve-diagram") as HTMLCanvasElement
-    curveCanvas.style.width = "100%"
-    curveCanvas.width = curveCanvas.offsetWidth;
+    // curveCanvas.style.width = "100%"
+    // curveCanvas.width = curveCanvas.offsetWidth;
     curve = rough.canvas(curveCanvas, { options: { roughness: 0.5 } })
 
     parallelCanvas = document.getElementById("parallel-diagram") as HTMLCanvasElement
-    parallelCanvas.style.width = "100%"
-    parallelCanvas.width = parallelCanvas.offsetWidth;
+    // parallelCanvas.style.width = "100%"
+    // parallelCanvas.width = parallelCanvas.offsetWidth;
     parallel = rough.canvas(parallelCanvas, { options: { roughness: 0.5 } })
 
     layersCanvas = document.getElementById("layer-diagram") as HTMLCanvasElement
-    layersCanvas.style.width = "100%"
-    layersCanvas.width = layersCanvas.offsetWidth;
+    // layersCanvas.style.width = "100%"
+    // layersCanvas.width = layersCanvas.offsetWidth;
     layers = rough.canvas(layersCanvas, { options: { roughness: 0.5 } })
 
 
