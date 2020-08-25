@@ -3,7 +3,7 @@ import { parseSettings, loadSettings } from "./settings"
 export function toQueryStringInURL() {
     let settings = parseSettings()
     let params = new URLSearchParams("")
-    params.set("json", JSON.stringify(settings))
+    params.set("json", encodeURIComponent(JSON.stringify(settings)))
     let str = params.toString()
     return [location.protocol, '//', location.host, location.pathname, "?", str, location.hash].join('');
 }
@@ -11,7 +11,7 @@ export function toQueryStringInURL() {
 export function fromQueryString() {
     let params = new URLSearchParams(window.location.search)
     if (params.has("json")) {
-        let ins = JSON.parse(params.get("json"))
+        let ins = JSON.parse(decodeURIComponent(params.get("json")))
         loadSettings(ins)
     }
 
