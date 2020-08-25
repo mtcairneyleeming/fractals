@@ -42,10 +42,10 @@ export function deleteRow(event: Event) {
     let row = btn.parentElement.parentElement as HTMLTableRowElement
     row.parentElement.removeChild(row)
 }
-export function getDrawingCommands() {
+export function getDrawingCommands(): [Map<string, (state: State) => void>, any[]] {
     let table = document.getElementById("rulesBody")
-    let funcMap = new Map<string, (state: State) => void>()
-    let strMap = new Map<string, string>()
+    let functions = new Map<string, (state: State) => void>()
+    let strings = [];// new Map<string, string>()
     for (let child of Array.from(table.children)) {
 
         let symbol = (child.firstElementChild.firstElementChild as HTMLInputElement).value
@@ -53,11 +53,13 @@ export function getDrawingCommands() {
         let functionStr = child.querySelector(".CodeMirror").CodeMirror.getValue()
         let func = new Function("state", functionStr)
         // @ts-ignore - this is to avoid function typing issues
-        funcMap.set(symbol, func)
-        strMap.set(symbol, functionStr)
+        functions.set(symbol, func)
+        strings.push([symbol, functionStr])
+
 
     }
-    return [funcMap, strMap]
+    console.log(functions, strings)
+    return [functions, strings]
 }
 
 export function setupTables() {
