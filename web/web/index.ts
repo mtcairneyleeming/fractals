@@ -57,9 +57,9 @@ async function run() {
 
 
 (() => {
+    fromQueryString();
     setupScene();
     setupTables();
-    fromQueryString();
     document.getElementById("run").addEventListener("click", run, false);
     setupInteractions();
     setupDiagrams()
