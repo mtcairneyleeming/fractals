@@ -1,5 +1,6 @@
 import rough from "roughjs/bin/rough"
 import { RoughCanvas } from "roughjs/bin/canvas";
+// @ts-ignore
 let Offset = require("polygon-offset")
 import { off } from "@svgdotjs/svg.js";
 import { parseScaleFactor } from "./settings";
@@ -219,7 +220,7 @@ function drawLayers() {
             let currHeight = layersCanvas.height - (yScale * currPos + offsetY)
             layers.line(0.05 * layersCanvas.width, currHeight, (0.05 + step * 0.45) * layersCanvas.width, currHeight)
 
-             if (i == 0 && draw_axiom) {
+            if (i == 0 && draw_axiom) {
                 context.fillText("Axiom (Layer #0)", 0.55 * layersCanvas.width, currHeight)
             }
             else {
