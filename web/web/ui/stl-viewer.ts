@@ -28,8 +28,9 @@ export function setupScene() {
     camera.position.z = -5
     camera.lookAt(0, 0, 0)
     controls.update();
-    camera.zoom = 3.5
+    camera.zoom = 2
     controls.update()
+    camera.updateProjectionMatrix()
 
 
     triScene.add(new THREE.AmbientLight(0x111111));
