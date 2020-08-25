@@ -98,7 +98,7 @@ export function setupInteractions() {
     document.querySelectorAll("#scale_radio_container>label").forEach(element => {
         element.addEventListener("click", () => updateScalingFactor);
     });
-    getInput("scaling_factor_other").addEventListener("change", () => {
+    getInput("scaling_factor_other").addEventListener("input", () => {
         let label = getInput("scale_other");
         (label.firstElementChild as HTMLInputElement).checked = true;
         updateScalingFactor();
