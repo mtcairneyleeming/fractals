@@ -28,18 +28,28 @@ function updateDrawingOptions() {
     setDrawingType(standard)
 }
 
+function updateScalingFactor() {
+    document.querySelectorAll(".scale_label").forEach(el => {
+        el.classList.remove("active")
+    })
+    let checkedRadio = (document.querySelector('input[name="scale_radio"]:checked') as HTMLInputElement)
+    checkedRadio.parentElement.classList.add("active")
+}
+
 export enum HoleType {
     None = 1,
     ParallelOnly,
     Everywhere
 }
 
-export function setHoles(type: HoleType) {
-    let curr = (document.querySelector('input[name="drawingRadio"]:checked') as HTMLInputElement).value
-    let standard = curr != "Standard"
-
+export function setHoles(type: HoleType, use_curr: boolean = false) {
     for (let i = 1; i <= 3; i++) {
-        getInput("hole_radio" + i).checked = i == type
+        let input = getInput("hole_radio" + i).checked;
+        if (use_curr && input) {
+            type = i
+        } else {
+            input = i == type
+        }
     }
     switch (type) {
         case HoleType.None:
@@ -69,6 +79,14 @@ function updateThickenAndCurve() {
 }
 
 export function setupInteractions() {
+    // Initial setup
+
+    updateDrawingOptions()
+    updateScalingFactor()
+
+    setHoles(-1, true)
+
+    // Add event handlers
     document.querySelectorAll("input[type=radio][name=drawingRadio]").forEach((rad: HTMLInputElement) => {
         rad.addEventListener("change", (ev) => {
             if ((ev.target as HTMLInputElement).checked) {
@@ -76,39 +94,29 @@ export function setupInteractions() {
             }
         })
     })
-    getDiv("custom_drawing_commands").style.display = "none"
-    if (getInput("drawingRadioAdvanced").checked) {
-        updateDrawingOptions()
-    }
-    setHoles(HoleType.Everywhere)
-    document.querySelectorAll("input[type=radio][name=hole_radio]").forEach((rad: HTMLInputElement) => {
-        rad.addEventListener("change", (ev) => {
-            setHoles(parseInt(rad.id.replace("hole_radio", "")));
-        });
 
-    })
+    document.querySelectorAll("#scale_radio_container>label").forEach(element => {
+        element.addEventListener("click", () => updateScalingFactor);
+    });
+    getInput("scaling_factor_other").addEventListener("change", () => {
+        let label = getInput("scale_other");
+        (label.firstElementChild as HTMLInputElement).checked = true;
+        updateScalingFactor();
+    });
 
     getInput("curve_check").addEventListener("click", updateThickenAndCurve)
 
     getInput("thicken_check").addEventListener("click", updateThickenAndCurve)
 
     updateThickenAndCurve();
-    updateLiveOutputs();
 
-
-    document.querySelectorAll("#scale_radio_container>label").forEach(element => {
-        element.addEventListener("click", () => {
-            document.querySelectorAll("#scale_radio_container>label").forEach(element => element.classList.remove("active"));
-            element.classList.add("active")
-
-        })
-    });
-    getInput("scaling_factor_other").addEventListener("change", () => {
-        document.querySelectorAll("#scale_radio_container>label").forEach(element => element.classList.remove("active"));
-        let label = getInput("scale_other");
-        label.classList.add("active");
-        label.firstElementChild.checked = true;
+    document.querySelectorAll("input[type=radio][name=hole_radio]").forEach((rad: HTMLInputElement) => {
+        rad.addEventListener("change", (ev) => {
+            setHoles(parseInt(rad.id.replace("hole_radio", "")));
+        });
     })
+
+    updateLiveOutputs();
 }
 
 function updateLiveOutputs() {
