@@ -47,12 +47,13 @@ export function parseSettings(): Object {
         case "Advanced":
             let [commands, orig] = getDrawingCommands()
             settings["commands"] = commands
+            settings["numAdvancedCommands"] = orig.length
+
             settings["origCommands"] = orig
 
 
     }
     let scale_radio = (document.querySelector('input[name="scale_radio"]:checked') as HTMLInputElement).value;
-
     switch (scale_radio) {
         case "half":
             settings["scale_factor"] = 1 / 2.0
@@ -69,6 +70,8 @@ export function parseSettings(): Object {
         default:
             throw new Error("Invalid scale radio setting, " + scale_radio)
     }
+    settings["scale_radio"] = scale_radio
+
     let thicken_check = getInput("thicken_check").checked
     settings["thicken"] = thicken_check
     if (thicken_check) {
