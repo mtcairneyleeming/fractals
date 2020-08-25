@@ -27,12 +27,13 @@ async function run() {
     } catch (e) {
         console.warn("Error thrown", e)
         document.getElementById("gen-error").style.display = "block"
-        document.getElementById("gen-error-body").innerText = e.message
+        document.getElementById("gen-error-body").textContent = e.message
     }
 }
 
 async function runE() {
     removeDisplay();
+    document.getElementById("url-alert-box").style.display = "none"
     let settings = parseSettings();
 
     let fractalGenerator = new SimpleDevFract(settings["axiom"], settings["rules"], settings["commands"])

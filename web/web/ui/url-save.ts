@@ -11,12 +11,18 @@ export function toQueryStringInURL() {
 export function fromQueryString() {
     let params = new URLSearchParams(window.location.search)
     if (params.has("json")) {
-        let ins = JSON.parse(decodeURIComponent(params.get("json")))
-        importAllSettings(ins)
+        try {
+            let ins = JSON.parse(decodeURIComponent(params.get("json")))
+            importAllSettings(ins)
+        } catch (error) {
+            // not much point in precise detail as there isn't any
+            document.getElementById("url-alert-box").style.display = "block"
+        }
     }
 
 }
 function saveToLink() {
+    document.getElementById("url-alert-box").style.display = "none"
     // generate new url
     let newURL = toQueryStringInURL()
 

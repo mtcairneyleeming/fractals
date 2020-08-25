@@ -18,7 +18,7 @@
     <main class="container-fluid" role="main">
         <!-- L-systems header -->
         <div class="row justify-content-between">
-            <div class="col-md-auto">
+            <div class="col-md-auto mt-5">
                 <h3>Describe your fractal <small>or choose from one of the presets:</small></h3>
             </div>
             <div class="col-md-auto">
@@ -27,6 +27,10 @@
         </div>
         <p class="small">If you don't know what a Lindenmayer-system is, read / watch ??? to get started.</p>
         <!-- L-systems input-->
+        <div class="col-sm-9 alert alert-danger" role="alert" id="url-alert-box" style="display: none;">
+            <h5 class="alert-heading">We're sorry, we couldn't load your settings</h5>
+            <p class="mb-0" id="url-error-body">The data in the URL you just pasted in was broken - you might have deleted a few characters from the end or miscopied, or it might be from an old version of this website.</p>
+        </div>
 
         <div class="form-group row">
             <label for="rules" class="col-sm-12 col-form-label align-text-bottom">
