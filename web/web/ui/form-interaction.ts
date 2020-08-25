@@ -11,21 +11,21 @@ function getDiv(id: string): HTMLDivElement {
 
 
 
-export function toggleDrawing() {
-    let curr = (document.querySelector('input[name="drawingRadio"]:checked') as HTMLInputElement).value
-    let standard = curr != "Standard"
+export function setDrawingType(standard: boolean) {
+
     getInput("drawingRadioStandard").checked = standard
     getInput("drawingRadioAdvanced").checked = !standard
+    getDiv("standard_drawing_commands").style.display = standard ? "block" : "none"
+
+    getDiv("custom_drawing_commands").style.display = !standard ? "block" : "none"
 
 
 }
 
-function toggleDrawingOptions() {
+function updateDrawingOptions() {
     let curr = (document.querySelector('input[name="drawingRadio"]:checked') as HTMLInputElement).value
     let standard = curr == "Standard"
-    getDiv("standard_drawing_commands").style.display = standard ? "block" : "none"
-
-    getDiv("custom_drawing_commands").style.display = !standard ? "block" : "none"
+    setDrawingType(standard)
 }
 
 export enum HoleType {
@@ -72,13 +72,13 @@ export function setupInteractions() {
     document.querySelectorAll("input[type=radio][name=drawingRadio]").forEach((rad: HTMLInputElement) => {
         rad.addEventListener("change", (ev) => {
             if ((ev.target as HTMLInputElement).checked) {
-                toggleDrawingOptions()
+                updateDrawingOptions()
             }
         })
     })
     getDiv("custom_drawing_commands").style.display = "none"
     if (getInput("drawingRadioAdvanced").checked) {
-        toggleDrawingOptions()
+        updateDrawingOptions()
     }
     setHoles(HoleType.Everywhere)
     document.querySelectorAll("input[type=radio][name=hole_radio]").forEach((rad: HTMLInputElement) => {
