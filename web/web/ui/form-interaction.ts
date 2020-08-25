@@ -93,7 +93,22 @@ export function setupInteractions() {
     getInput("thicken_check").addEventListener("click", updateThickenAndCurve)
 
     updateThickenAndCurve();
-    updateLiveOutputs()
+    updateLiveOutputs();
+
+
+    document.querySelectorAll("#scale_radio_container>label").forEach(element => {
+        element.addEventListener("click", () => {
+            document.querySelectorAll("#scale_radio_container>label").forEach(element => element.classList.remove("active"));
+            element.classList.add("active")
+
+        })
+    });
+    getInput("scaling_factor_other").addEventListener("change", () => {
+        document.querySelectorAll("#scale_radio_container>label").forEach(element => element.classList.remove("active"));
+        let label = getInput("scale_other");
+        label.classList.add("active");
+        label.firstElementChild.checked = true;
+    })
 }
 
 function updateLiveOutputs() {
