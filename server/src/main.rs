@@ -7,7 +7,7 @@ mod simple;
 #[macro_use]
 extern crate rocket;
 extern crate rocket_contrib;
-use geom::{Line3d, Segment, Tri3d};
+use geom::{Layer, Line3d, Tri3d};
 use simple::*;
 use stl_io::*;
 
@@ -53,7 +53,10 @@ fn stl(
     step_scale: f64,
 ) -> Vec<u8> {
     let (lines, hole_options) = tuple.into_inner().data;
-    let layers = lines.iter().map(|l| Segment { lines: l.to_vec() }).collect();
+    let layers = lines
+        .iter()
+        .map(|l| Layer::<Line3d> { lines: l.to_vec() })
+        .collect();
     let start = Instant::now();
     let processed = if curve.is_some() && curve.unwrap() {
         curves::curve_layers(layers, max_curve_frac.unwrap(), curve_steps_mult.unwrap())
@@ -61,14 +64,10 @@ fn stl(
         layers
     };
     let tris: Vec<Tri3d> = if thicken {
-        simple::simple_thick(
-            simple::thicken_layers(processed, thickness.unwrap()),
-            hole_options,
-            init_steps,
-            step_scale,
-        )
+        let thickened = processed.iter().map(|l| l.thicken(thickness.unwrap())).collect();
+        simple::develop(thickened, hole_options, init_steps, step_scale)
     } else {
-        simple::simple_thin(processed, hole_options, init_steps, step_scale)
+        simple::develop(processed, hole_options, init_steps, step_scale)
     };
     println!(
         "Calculated {} in {:.2}s",

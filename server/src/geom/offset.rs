@@ -7,18 +7,18 @@
 //!     - lines intersect: if two (or more) lines are passed in that are
 //!       supposed to intersect, they really have to.
 
-use super::threed::*;
-use super::twod::*;
+use super::line::*;
+use super::point::*;
 
 fn check_line(line: Line3d) {
-    if line.start.z != line.end.z {
+    if line.start().z != line.end().z {
         panic!("Line {} was not on a z= plane.", line)
     }
 }
 fn check_lines(a: Line3d, b: Line3d) {
     check_line(a);
     check_line(b);
-    if a.end.sub(b.start).norm() > 1e-7 {
+    if a.end().sub(b.start()).norm() > 1e-7 {
         panic!("Lines {} and {} do not touch at endpoints.", a, b);
     }
 }
@@ -87,7 +87,10 @@ pub(super) fn offset_intersection2(prev: Line2d, next: Line2d, offset: f64) -> P
 pub(super) fn offset_intersection(prev: Line3d, next: Line3d, offset: f64) -> Point3d {
     check_lines(prev, next);
 
-    Point3d::from2d(offset_intersection2(prev.to2d(), next.to2d(), offset), prev.end.z)
+    Point3d::from2d(
+        offset_intersection2(prev.to2d(), next.to2d(), offset),
+        prev.end().z,
+    )
 }
 
 pub(super) fn offset_line_endpoint2(line: Line2d, offset: f64, start: bool) -> Point2d {
@@ -102,7 +105,7 @@ pub(super) fn offset_line_endpoint2(line: Line2d, offset: f64, start: bool) -> P
 pub(super) fn offset_line_endpoint(line: Line3d, offset: f64, start: bool) -> Point3d {
     check_line(line);
 
-    Point3d::from2d(offset_line_endpoint2(line.to2d(), offset, start), line.start.z)
+    Point3d::from2d(offset_line_endpoint2(line.to2d(), offset, start), line.start().z)
 }
 
 /// Given a line, and possibly two lines that join it, offset the line by
@@ -130,5 +133,15 @@ pub(crate) fn offset_line(line: Line3d, prev: Option<Line3d>, next: Option<Line3
     if new.direction().unit().add(line.to2d().direction().unit()).norm() < 1e-8 {
         new = Line2d::new(new.end, new.start)
     }
-    Line3d::from2d(new, line.start.z)
+    Line3d::from2d(new, line.start().z)
+}
+
+impl Line3d {
+    pub(crate) fn thicken(self, thickness: f64, prev: Option<Line3d>, next: Option<Line3d>) -> ThickLine3d {
+        ThickLine3d::new(
+            self,
+            offset_line(self, prev, next, thickness),
+            offset_line(self, prev, next, -thickness),
+        )
+    }
 }

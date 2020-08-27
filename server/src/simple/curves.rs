@@ -1,4 +1,3 @@
-use super::util::*;
 use crate::geom::*;
 
 fn divide_line(line: Line2d, frac: f64) -> (Line2d, Line2d) {
@@ -37,7 +36,7 @@ fn fix_lines(lines: Vec<Line2d>) -> Vec<Line2d> {
     }
     let mut out_lines = vec![lines[0]];
     for i in 1..lines.len() {
-        if are_parallel2(*out_lines.last().unwrap(), lines[i]) {
+        if (*out_lines.last().unwrap()).is_parallel_to(lines[i]) {
             let prev = out_lines.pop().unwrap();
             out_lines.push(Line2d::new(prev.start, lines[i].end))
         } else {
@@ -168,51 +167,52 @@ fn curve_line(
     }
 }
 
-fn curve_layer(segment: Segment, max_curve_frac: f64, steps_multiplier: f64) -> Segment {
+fn curve_layer(layer: Layer<Line3d>, max_curve_frac: f64, steps_multiplier: f64) -> Layer<Line3d> {
     let mut new_lines = vec![];
 
-    let start = match segment.lines.len() {
+    let start = match layer.count() {
         0 => panic!("Cannot curve an empty layer"),
         1 => {
             new_lines.extend(curve_line(
-                segment.lines[0].to2d(),
+                layer.first().to2d(),
                 None,
                 None,
                 max_curve_frac,
                 steps_multiplier,
             ));
-            Point3d::from2d(new_lines[0].start, segment.lines[0].start.z)
+            Point3d::from2d(new_lines[0].start, layer.first().start().z)
         }
         _ => {
-            let len = segment.lines.len();
+            let len = layer.count();
+            let lines = &layer.lines;
             new_lines.extend(curve_line(
-                segment.lines[0].to2d(),
+                layer.first().to2d(),
                 None,
-                Some(segment.lines[1].to2d()),
+                Some(lines[1].to2d()),
                 max_curve_frac,
                 steps_multiplier,
             ));
             for i in 1..len - 1 {
                 new_lines.extend(curve_line(
-                    segment.lines[i].to2d(),
-                    Some(segment.lines[i - 1].to2d()),
-                    Some(segment.lines[i + 1].to2d()),
+                    lines[i].to2d(),
+                    Some(lines[i - 1].to2d()),
+                    Some(lines[i + 1].to2d()),
                     max_curve_frac,
                     steps_multiplier,
                 ));
             }
             new_lines.extend(curve_line(
-                segment.lines[len - 1].to2d(),
-                Some(segment.lines[len - 2].to2d()),
+                lines[len - 1].to2d(),
+                Some(lines[len - 2].to2d()),
                 None,
                 max_curve_frac,
                 steps_multiplier,
             ));
-            Point3d::from2d(new_lines[0].start, segment.lines[0].start.z)
+            Point3d::from2d(new_lines[0].start, lines[0].start().z)
         }
     };
     let fixed_lines = fix_lines(new_lines);
-    Segment {
+    Layer::<Line3d> {
         lines: fixed_lines
             .into_iter()
             .map(|l| Line3d::from2d(l, start.z))
@@ -220,8 +220,12 @@ fn curve_layer(segment: Segment, max_curve_frac: f64, steps_multiplier: f64) -> 
     }
 }
 
-pub fn curve_layers(in_layers: Vec<Segment>, max_curve_frac: f64, steps_multiplier: f64) -> Vec<Segment> {
-    let mut curved_layers: Vec<Segment> = vec![];
+pub fn curve_layers(
+    in_layers: Vec<Layer<Line3d>>,
+    max_curve_frac: f64,
+    steps_multiplier: f64,
+) -> Vec<Layer<Line3d>> {
+    let mut curved_layers: Vec<Layer<Line3d>> = vec![];
 
 
     for layer in in_layers {

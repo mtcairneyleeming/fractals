@@ -1,10 +1,7 @@
 pub mod curves;
+mod develop;
 mod holes;
-mod thick;
-mod thin;
-mod util;
 
+
+pub use develop::develop;
 pub(crate) use holes::HoleOptions;
-pub use thick::*;
-pub use thin::simple_thin;
-pub use util::fix_tris_n;

@@ -1,20 +1,26 @@
 use super::holes::*;
-use super::util::*;
 use crate::geom::*;
 
-pub fn simple_thin(
-    layers: Vec<Segment>,
+pub fn develop<T>(
+    layers: Vec<Layer<T>>,
     hole_options: HoleOptions,
     init_steps: i64,
     step_scale: f64,
-) -> Vec<Tri3d> {
+) -> Vec<Tri3d>
+where
+    T: Line + Copy,
+{
     let mut tris: Vec<Tri3d> = Vec::new();
+    tris.extend(T::draw_layer(&layers[0].lines));
 
+    tris.extend(T::draw_layer(&layers.last().unwrap().lines));
     let mut layer_steps = init_steps;
     let mut hole_scale = 1.0; //only useful if using HoleOptions::Everywhere
     for i in 1..layers.len() {
         let prev_layer = &layers[(i - 1) as usize];
         let curr_layer = &layers[i as usize];
+
+        tris.extend(T::draw_edges(&curr_layer.lines, &prev_layer.lines, layer_steps));
 
         // find where the holes should go (if we're using HoleRegions::Everywhere)
         let (hole_regions, new_hole_scale) = calc_hole_regions(&hole_options, hole_scale);
@@ -25,8 +31,8 @@ pub fn simple_thin(
         let layer_length: f64 = curr_layer.length();
 
 
-        for line in &(curr_layer.lines) {
-            // find section of segment on prev level to join to self line
+        for line in &curr_layer.lines {
+            // find section of previous layer to join to self line
 
             /* note the section may be multiple lines as there are no enforced
                rules that say the previous iteration should be less complicated
@@ -34,26 +40,27 @@ pub fn simple_thin(
                fractal)
             */
             let start_frac = (current_position) / layer_length;
-            let end_frac = (current_position + line.length) / layer_length;
+            let end_frac = (current_position + line.length()) / layer_length;
             let prev_lines = prev_layer.get_section(start_frac, end_frac);
 
-            let total_prev_length: f64 = prev_lines.iter().map(|l| l.length).sum();
+            let total_prev_length: f64 = prev_lines.iter().map(|l| l.length()).sum();
             let mut length_along_prev = 0.0;
             for prev_line in prev_lines {
                 let new_start_frac = length_along_prev / total_prev_length;
-                let new_end_frac = (length_along_prev + prev_line.length) / total_prev_length;
+                let new_end_frac = (length_along_prev + prev_line.length()) / total_prev_length;
 
-                let new_part = line.get_section(new_start_frac, new_end_frac);
+                let new_part = line.section(new_start_frac, new_end_frac);
 
                 match hole_options {
                     HoleOptions::None => {
-                        tris.extend(draw_many_joins(prev_line, new_part, layer_steps));
+                        tris.extend(prev_line.join_to(new_part, layer_steps));
                     }
                     HoleOptions::ParallelOnly { frame_factor } => {
-                        if are_parallel(prev_line, new_part) && new_part.length > 0.1 * curr_layer.length() {
-                            tris.extend(join_with_hole(prev_line, new_part, frame_factor));
+                        if prev_line.is_parallel_to(new_part) && new_part.length() > 0.1 * curr_layer.length()
+                        {
+                            tris.extend(prev_line.join_to_with_hole(new_part, frame_factor));
                         } else {
-                            tris.extend(draw_many_joins(prev_line, new_part, layer_steps));
+                            tris.extend(prev_line.join_to(new_part, layer_steps));
                         }
                     }
                     HoleOptions::Everywhere {
@@ -63,30 +70,27 @@ pub fn simple_thin(
                         frame_factor,
                     } => {
                         let start_frac = current_position / layer_length;
-                        let end_frac = (current_position + new_part.length) / layer_length;
+                        let end_frac = (current_position + new_part.length()) / layer_length;
 
                         let layer_frac_to_part_frac =
                             |layer_frac: f64| (layer_frac - start_frac) / (end_frac - start_frac);
                         let draw = |first: f64, second: f64, hole: bool, tris: &mut Vec<Tri3d>| {
-                            let (skip_start, skip_end) = if hole {
-                                (
-                                    Some((frame_factor * layer_steps as f64).round() as i64),
-                                    Some(((1.0 - frame_factor) * layer_steps as f64).round() as i64),
-                                )
+                            let skips = if hole {
+                                Some((
+                                    (frame_factor * layer_steps as f64).round() as i64,
+                                    ((1.0 - frame_factor) * layer_steps as f64).round() as i64,
+                                ))
                             } else {
-                                (None, None)
+                                None
                             };
-                            let prev = Line3d::new(
-                                prev_line.point(layer_frac_to_part_frac(first)),
-                                prev_line.point(layer_frac_to_part_frac(second)),
-                            );
+                            let prev = prev_line
+                                .section(layer_frac_to_part_frac(first), layer_frac_to_part_frac(second));
 
-                            let next = Line3d::new(
-                                new_part.point(layer_frac_to_part_frac(first)),
-                                new_part.point(layer_frac_to_part_frac(second)),
-                            );
+                            let next = new_part
+                                .section(layer_frac_to_part_frac(first), layer_frac_to_part_frac(second));
 
-                            tris.extend(join_non_parallel(prev, next, layer_steps, skip_start, skip_end));
+
+                            tris.extend(prev.join_non_parallel(next, layer_steps, skips));
                         };
 
                         let mut j = 1;
@@ -124,8 +128,8 @@ pub fn simple_thin(
                         }
                     }
                 }
-                length_along_prev += prev_line.length;
-                current_position += new_part.length;
+                length_along_prev += prev_line.length();
+                current_position += new_part.length();
             }
         }
         layer_steps = (layer_steps as f64 * step_scale).round() as i64;
