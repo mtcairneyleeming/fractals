@@ -2,6 +2,7 @@ import * as CodeMirror from "codemirror"
 import "codemirror/lib/codemirror.css"
 import "codemirror/mode/javascript/javascript"
 import { State } from "../../lsystems/tosvg"
+import { showPreview } from "./2d-preview";
 export function createAllEditors() {
     document.querySelectorAll("textarea.edit").forEach(element => {
         if ((element as HTMLTextAreaElement).style.display != "none") {
@@ -30,10 +31,18 @@ export function addRow(symbol: string = "", func: string = "") {
         </td>
     </tr>
     `)
-    // note all the rest won't be textareas any more!
-    createAllEditors()
+
     var n = table.lastElementChild as HTMLTableRowElement
+
+    let code = CodeMirror.fromTextArea(n.querySelector("textarea.edit") as HTMLTextAreaElement, {
+        lineNumbers: true,
+        mode: "text/typescript",
+        viewportMargin: Infinity
+    });
     n.querySelector(".delete-row-button").addEventListener("click", deleteRow, false)
+
+    n.querySelector(".symbol-input").addEventListener("input", showPreview, false)
+    code.on("changes", (editor, changes) => showPreview())
 }
 
 export function deleteRow(event: Event) {

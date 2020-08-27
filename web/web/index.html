@@ -122,6 +122,44 @@
                 <input type="number" class="form-control" name="scaling_factor_other" id="scaling_factor_other" placeholder="0.25" step="0.001" min="0" style="height: 100%" />
             </div>
         </div>
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="card">
+                    <div class="card-header" id="headingText" style="padding: 0px">
+                        <h2 class="mb-0">
+                            <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#collapseText" aria-expanded="true" aria-controls="collapseText">
+                                Text preview
+                            </button>
+                        </h2>
+                    </div>
+
+                    <div id="collapseText" class="collapse show" aria-labelledby="headingText">
+                        <div class="card-body" style="padding-bottom: 0;">
+                            <pre class="pre-scrollable" id="lsys-preview"></pre>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card mt-3 mb-3">
+                    <div class="card-header" id="headingDrawn">
+                        <h2 class="mb-0">
+                            <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#collapseDrawn" aria-expanded="true" aria-controls="collapseDrawn">
+                                Drawn preview
+                            </button>
+                        </h2>
+                    </div>
+
+                    <div id="collapseDrawn" class="collapse show" aria-labelledby="headingDrawn">
+                        <div class="card-body">
+                            <div id="2d-preview-box"></div>
+                        </div>
+                    </div>
+                </div>
+
+
+
+            </div>
+        </div>
 
         <div class="row justify-content-between">
             <div class="col-md-auto">

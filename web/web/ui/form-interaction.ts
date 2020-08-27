@@ -1,3 +1,5 @@
+import { showPreview } from "./2d-preview"
+
 function getInput(id: string): HTMLInputElement {
     return document.getElementById(id) as unknown as HTMLInputElement
 }
@@ -91,6 +93,7 @@ export function setupInteractions() {
         rad.addEventListener("change", (ev) => {
             if ((ev.target as HTMLInputElement).checked) {
                 updateDrawingOptions()
+                showPreview()
             }
         })
     })
@@ -117,6 +120,14 @@ export function setupInteractions() {
     })
 
     updateLiveOutputs();
+
+    getInput("axiom").addEventListener("input", showPreview)
+
+    getInput("rules").addEventListener("input", showPreview)
+
+    getInput("axiom").addEventListener("input", showPreview)
+    showPreview()
+
 }
 
 function updateLiveOutputs() {

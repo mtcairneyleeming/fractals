@@ -135,11 +135,12 @@ export class State {
 }
 export function toSVGCommands(str: Array<string>, drawingCommands: Map<string, Command>, iteration: number): Array<string> | string {
     var state = new State(iteration)
-
+    console.log(drawingCommands)
     for (const symbol of str) {
         if (drawingCommands.has(symbol)) {
             try {
                 drawingCommands.get(symbol)(state)
+
 
             } catch (err) {
                 return err.name + ": " + err.message
@@ -180,18 +181,18 @@ export function toSVG(commands: Array<string>, addTo: HTMLElement, boxWidth: num
     bbox.y -= 0.025 * bbox.height
     bbox.height *= 1.05
     bbox.width *= 1.05
-    let box = draw.rect(bbox.width, bbox.height).attr({
-        fill: "transparent",
-        stroke: "gray",
-        "stroke-width": `${boxWidth}px`
-    })
-    box.x(bbox.x)
-    box.y(bbox.y)
+    // let box = draw.rect(bbox.width, bbox.height).attr({
+    //     fill: "transparent",
+    //     stroke: "gray",
+    //     "stroke-width": `${boxWidth}px`
+    // })
+    // box.x(bbox.x)
+    // box.y(bbox.y)
 
     draw.viewbox(bbox)
 
     let scaleFactor = bbox.width / draw.width()
     path.attr("stroke-width", `${strokeWidth * scaleFactor}px`)
-    box.attr("stroke-width", `${boxWidth * scaleFactor}px`)
+    // box.attr("stroke-width", `${boxWidth * scaleFactor}px`)
 
 }
