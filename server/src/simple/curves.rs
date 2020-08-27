@@ -62,9 +62,10 @@ fn curve_intersection(
     let pv = prev.direction();
     let nv = next.direction();
 
+    const PI: f64 = std::f64::consts::PI;
     // angle between AB & BC
-    let angle_between_lines = smallest_angle_between(pv, nv.scale(-1.0));
-    if angle_between_lines == 0.0 {
+    let angle_between_lines = smallest_angle_between(pv, nv.scale(-1.0)) % PI;
+    if angle_between_lines.abs() < 1e-7 || (angle_between_lines - PI).abs() < 1e-7 {
         // i.e. parallel
         return vec![if return_next { next } else { prev }];
     }
@@ -99,7 +100,10 @@ fn curve_intersection(
         (start, circle_bis_intersection)
     };
     // uses arc length (= radius * angle) and the user-configurable multiplier
-    let steps = (bisect_tangent_angle * radius * steps_multiplier) as i64;
+    let mut steps = (bisect_tangent_angle * radius * steps_multiplier).round() as i64;
+    if steps == 0 {
+        steps = 1
+    }
     let mut prev_point = start_point;
     // direction vector from centre to start
     let init_vector = start_point.sub(centre);
@@ -243,7 +247,7 @@ pub fn curve_segments(
         let mut prev_line: Option<Line3d> = None;
         for i in 0..layer.len() {
             // set next line
-        let mut next_line: Option<Line3d> = None;
+            let mut next_line: Option<Line3d> = None;
             if i != layer.len() - 1 {
                 // find the next actual line, if we're not at the end of the segment.
                 for j in (i + 1)..layer.len() {
