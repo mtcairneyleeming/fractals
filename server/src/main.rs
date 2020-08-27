@@ -7,7 +7,7 @@ mod simple;
 #[macro_use]
 extern crate rocket;
 extern crate rocket_contrib;
-use geom::{Segment, Tri3d};
+use geom::{Line3d, Segment, Tri3d};
 use simple::*;
 use stl_io::*;
 
@@ -34,7 +34,7 @@ fn tris_to_binary_stl(tris: Vec<Tri3d>) -> Vec<u8> {
 }
 #[derive(Deserialize)]
 struct Data {
-    data: (Vec<Vec<Segment>>, HoleOptions),
+    data: (Vec<Vec<Line3d>>, HoleOptions),
 }
 
 #[post(
@@ -52,16 +52,17 @@ fn stl(
     init_steps: i64,
     step_scale: f64,
 ) -> Vec<u8> {
-    let (segments, hole_options) = tuple.into_inner().data;
+    let (lines, hole_options) = tuple.into_inner().data;
+    let layers = lines.iter().map(|l| Segment { lines: l.to_vec() }).collect();
     let start = Instant::now();
     let processed = if curve.is_some() && curve.unwrap() {
-        curves::curve_segments(segments, max_curve_frac.unwrap(), curve_steps_mult.unwrap())
+        curves::curve_layers(layers, max_curve_frac.unwrap(), curve_steps_mult.unwrap())
     } else {
-        segments
+        layers
     };
     let tris: Vec<Tri3d> = if thicken {
         simple::simple_thick(
-            simple::thicken_segments(processed, thickness.unwrap()),
+            simple::thicken_layers(processed, thickness.unwrap()),
             hole_options,
             init_steps,
             step_scale,

@@ -168,24 +168,16 @@ fn curve_line(
     }
 }
 
-fn curve_segment(
-    segment: Segment,
-    prev3: Option<Line3d>,
-    next3: Option<Line3d>,
-    max_curve_frac: f64,
-    steps_multiplier: f64,
-) -> Segment {
-    let prev = prev3.map(|l| l.to2d());
-    let next = next3.map(|l| l.to2d());
+fn curve_layer(segment: Segment, max_curve_frac: f64, steps_multiplier: f64) -> Segment {
     let mut new_lines = vec![];
 
     let start = match segment.lines.len() {
-        0 => segment.start,
+        0 => panic!("Cannot curve an empty layer"),
         1 => {
             new_lines.extend(curve_line(
                 segment.lines[0].to2d(),
-                prev,
-                next,
+                None,
+                None,
                 max_curve_frac,
                 steps_multiplier,
             ));
@@ -195,7 +187,7 @@ fn curve_segment(
             let len = segment.lines.len();
             new_lines.extend(curve_line(
                 segment.lines[0].to2d(),
-                prev,
+                None,
                 Some(segment.lines[1].to2d()),
                 max_curve_frac,
                 steps_multiplier,
@@ -212,7 +204,7 @@ fn curve_segment(
             new_lines.extend(curve_line(
                 segment.lines[len - 1].to2d(),
                 Some(segment.lines[len - 2].to2d()),
-                next,
+                None,
                 max_curve_frac,
                 steps_multiplier,
             ));
@@ -221,57 +213,19 @@ fn curve_segment(
     };
     let fixed_lines = fix_lines(new_lines);
     Segment {
-        symbol: segment.symbol,
         lines: fixed_lines
             .into_iter()
             .map(|l| Line3d::from2d(l, start.z))
             .collect(),
-        start,
-        prev_index: segment.prev_index,
     }
 }
 
-pub fn curve_segments(
-    in_layers: Vec<Vec<Segment>>,
-    max_curve_frac: f64,
-    steps_multiplier: f64,
-) -> Vec<Vec<Segment>> {
-    let mut segments: Vec<Vec<Segment>> = vec![];
+pub fn curve_layers(in_layers: Vec<Segment>, max_curve_frac: f64, steps_multiplier: f64) -> Vec<Segment> {
+    let mut curved_layers: Vec<Segment> = vec![];
+
 
     for layer in in_layers {
-        let mut new_layer = vec![];
-        if layer.len() == 0 {
-            panic!("Help")
-        }
-        // initially prev_line is none, but next_line is set before the first thickening
-        let mut prev_line: Option<Line3d> = None;
-        for i in 0..layer.len() {
-            // set next line
-            let mut next_line: Option<Line3d> = None;
-            if i != layer.len() - 1 {
-                // find the next actual line, if we're not at the end of the segment.
-                for j in (i + 1)..layer.len() {
-                    if layer[j].lines.len() > 0 {
-                        next_line = Some(layer[j].lines[0]);
-                        break;
-                    }
-                }
-            }
-            let seg = curve_segment(
-                layer[i].clone(),
-                prev_line,
-                next_line,
-                max_curve_frac,
-                steps_multiplier,
-            );
-
-            new_layer.push(seg);
-
-            // update the previous line if there is a line in this segment
-            prev_line = layer[i].lines.last().cloned().or(prev_line);
-        }
-        
-        segments.push(new_layer)
+        curved_layers.push(curve_layer(layer, max_curve_frac, steps_multiplier));
     }
-    return segments;
+    return curved_layers;
 }
