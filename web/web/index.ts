@@ -22,6 +22,7 @@ import 'regenerator-runtime/runtime'
 
 // Main run method ==========
 async function run() {
+    document.getElementById("gen-error").style.display = "none"
     try {
         await runE()
     } catch (e) {
