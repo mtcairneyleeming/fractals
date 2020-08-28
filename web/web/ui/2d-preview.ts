@@ -22,7 +22,7 @@ export function showPreview() {
     // show drwn form
     let svgOut = document.getElementById("2d-preview-box")
     svgOut.innerHTML = ''
-
+    let wholeScaleFactors = []
 
     let i = 0
     for (let iteration of iterations) {
@@ -33,10 +33,19 @@ export function showPreview() {
             console.error(commands)
             return
         }
-        toSVG(commands, svgOut, 1)
+        let sf = toSVG(commands, svgOut, i)
+        wholeScaleFactors.push(sf)
 
         i++
     }
-
+    let sfs = []
+    for (let j = 1; j < wholeScaleFactors.length; j++) {
+        sfs.push(wholeScaleFactors[j - 1] / wholeScaleFactors[j])
+    }
+    console.log(wholeScaleFactors, sfs)
+    let avg = sfs.reduce((x, y) => x + y, 0) / sfs.length
+    let desc = document.createElement("p")
+    desc.innerText = `Suggested scale factor (see below) based from drawing these previews is ${Math.round(avg * 1e6) / 1e6}`
+    svgOut.appendChild(desc)
 }
 

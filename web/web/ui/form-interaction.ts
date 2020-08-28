@@ -125,7 +125,7 @@ export function setupInteractions() {
 
     getInput("rules").addEventListener("input", showPreview)
 
-    getInput("axiom").addEventListener("input", showPreview)
+    getInput("drawing_standard_degrees").addEventListener("input", showPreview)
     showPreview()
 
 }

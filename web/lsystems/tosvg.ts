@@ -135,7 +135,6 @@ export class State {
 }
 export function toSVGCommands(str: Array<string>, drawingCommands: Map<string, Command>, iteration: number): Array<string> | string {
     var state = new State(iteration)
-    console.log(drawingCommands)
     for (const symbol of str) {
         if (drawingCommands.has(symbol)) {
             try {
@@ -155,7 +154,7 @@ export function toDataUrl(svg: string): string {
     return `data:image/svg+xml;utf8,` + svg
 }
 
-export function toSVG(commands: Array<string>, addTo: HTMLElement, boxWidth: number) {
+export function toSVG(commands: Array<string>, addTo: HTMLElement, iteration: number): number {
     let draw = SVG().addTo(addTo).size(200, 200)
 
     let strokeWidth = 2
@@ -181,18 +180,15 @@ export function toSVG(commands: Array<string>, addTo: HTMLElement, boxWidth: num
     bbox.y -= 0.025 * bbox.height
     bbox.height *= 1.05
     bbox.width *= 1.05
-    // let box = draw.rect(bbox.width, bbox.height).attr({
-    //     fill: "transparent",
-    //     stroke: "gray",
-    //     "stroke-width": `${boxWidth}px`
-    // })
-    // box.x(bbox.x)
-    // box.y(bbox.y)
 
     draw.viewbox(bbox)
 
     let scaleFactor = bbox.width / draw.width()
     path.attr("stroke-width", `${strokeWidth * scaleFactor}px`)
-    // box.attr("stroke-width", `${boxWidth * scaleFactor}px`)
+    let text = draw.text(`#${iteration}`)
+    text.move(bbox.x + 5, bbox.y + 5)
+    console.log(bbox)
+    text.font("size", `${scaleFactor}rem`)
+    return scaleFactor
 
 }
