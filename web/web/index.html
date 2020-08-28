@@ -55,20 +55,20 @@
                         <dd class="col-sm-11 font-weight-bold">means</dd>
 
                         <dt class="col-sm-1">F,G</dt>
-                        <dd class="col-sm-11">draw a straight line one step forwards</dd>
+                        <dd class="col-sm-11">both draw a straight line one step forwards</dd>
 
-                        <dt class="col-sm-1">+,X</dt>
-                        <dd class="col-sm-11">turn right by <input class="number ml-2" id="drawing_standard_degrees" type="number" /> degrees</dd>
-                        <dt class="col-sm-1">-,Y</dt>
-                        <dd class="col-sm-11">turn left by the same angle as above</dd>
+                        <dt class="col-sm-1">+,-</dt>
+                        <dd class="col-sm-11">turn right/left by <input class="number ml-2" id="drawing_standard_degrees" type="number" value="70" /> degrees</dd>
+                        <dt class="col-sm-1">X,Y</dt>
+                        <dd class="col-sm-11">turn right/left by the same angle as above. (Note these extra direction commands are useful to align all the iterations the same way TODO better)</dd>
 
                         <dt class="col-sm-1">[</dt>
-                        <dd class="col-sm-11">save position and heading (TODO step length??) to a stack</dd>
+                        <dd class="col-sm-11">save position and heading (TODO step length??) to a stack, so <code>F[+F]F</code> would draw 1 step forwards, draw one step to the right, and then return to the end of the first line and draw 1 step parallel to the first line.</dd>
 
                         <dt class="col-sm-1">]</dt>
                         <dd class="col-sm-11">restore the last saved position and heading</dd>
                     </dl>
-                    All other characters have no effect on drawing.
+                    <b>All other characters</b> have no effect on drawing.
                 </div>
                 <div id="custom_drawing_commands">
                     <table class="table" id="rules-table">
@@ -94,7 +94,7 @@
         <div class="form-group row">
             <label for="axiom" class="col-sm-1 col-form-label">Axiom</label>
             <div class="col-sm-4">
-                <input id="axiom" type="text" class="form-control" placeholder="F" />
+                <input id="axiom" type="text" class="form-control" value="F" />
             </div>
             <div class="col-sm-7 col-form-label">the zero-th iteration - this is normally a single character, say <code>F</code> for a line, or a non-drawing character</div>
         </div>
@@ -102,7 +102,7 @@
         <div class="form-group row">
             <label for="rules" class="col-sm-1 col-form-label">Rules</label>
             <div class="col-sm-4">
-                <textarea id="rules" value="" class="form-control" placeholder="F>G-F-G&#10;G>F+G+F"></textarea>
+                <textarea id="rules" value="" class="form-control" value="F=>F+F-F-F+F"></textarea>
             </div>
             <div class="col-sm-7 col-form-label">The rules that are applied to each iteration to generate the next one - write each on a separate line in the form <code>A>B+C-D...</code>, mapping 1 letter to 0 or more other ones (so for the placeholder example <code>+</code> and <code>-</code> will always stay the same). If you don't include a letter then the program will assume it will stay the same.</div>
         </div>
@@ -137,7 +137,7 @@
 
                     <div id="collapseText" class="collapse show" aria-labelledby="headingText">
                         <div class="card-body" style="padding-bottom: 0;">
-                            <pre class="pre-scrollable" id="lsys-preview"></pre>
+                            <pre class="" id="lsys-preview"></pre>
                         </div>
                     </div>
                 </div>

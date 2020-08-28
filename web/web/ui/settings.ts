@@ -13,7 +13,7 @@ export function parseSettings(ignore3d = false): Object {
     let rules = getInput("rules").value;
     let rulesMap = new Map();
     for (let line of rules.split("\n")) {
-        let parts = line.split(">")
+        let parts = line.split("=>")
         if (parts.length > 1)
             rulesMap.set(parts[0], parts[1].split(""))
     }
