@@ -42,7 +42,7 @@ pub(crate) struct Trapezium3d {
 }
 
 impl Trapezium3d {
-    pub(crate) fn hole(&self, frame_factor: f64) -> Trapezium3d {
+    pub(crate) fn hole(&self, frame_factor: f64) -> Option<Trapezium3d> {
         let shortest_side_length = self
             .edges
             .iter()
@@ -76,13 +76,16 @@ impl Trapezium3d {
         return Trapezium3d { edges, plane };
     }
 
-    fn offset(&self, offset: f64) -> Trapezium3d {
+    fn offset(&self, offset: f64) -> Option<Trapezium3d> {
+        self.offset_internal(offset, false)
+    }
+    fn offset_internal(&self, offset: f64, repeat: bool) -> Option<Trapezium3d> {
         // to test which way the loop goes, we take a point and offset it, and then
         // check if the point is in it.
         let test_point = offset_intersection2(self.edges[0], self.edges[1], offset);
         let tri = Tri2d::from_sp(self.edges[0], self.edges[1].end);
         let new_offset = if tri.contains_point(test_point) { -1.0 } else { 1.0 } * offset;
-
+        println!("t {}, {}", new_offset, offset);
         let trap = Trapezium3d {
             plane: self.plane,
             edges: [
@@ -112,7 +115,19 @@ impl Trapezium3d {
                 ),
             ],
         };
-        trap
+        // sometimes the check above fails and this retries - if it fails again, then we
+        // just don't draw a hole
+        let tot_prev: f64 = self.edges.iter().map(|e| e.length).sum();
+        let tot_new: f64 = trap.edges.iter().map(|e| e.length).sum();
+        if tot_new > tot_prev {
+            if !repeat {
+                self.offset_internal(offset * -1.0, true)
+            } else {
+                None
+            }
+        } else {
+            Some(trap)
+        }
     }
 }
 

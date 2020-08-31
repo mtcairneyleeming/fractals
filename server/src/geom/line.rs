@@ -99,12 +99,15 @@ impl Line for Line3d {
         let a = self;
         let trap = Trapezium3d::from_parallel_lines(a, b);
         let hole_trap = trap.hole(frame_factor);
+        if hole_trap.is_none() {
+            return self.join_to(b, 1);
+        }
         let mut tris = vec![];
         for i in 0..4 {
             tris.extend_from_slice(
                 &(join_planar_lines(
                     trap.plane.unproject_line(trap.edges[i]),
-                    trap.plane.unproject_line(hole_trap.edges[i]),
+                    trap.plane.unproject_line(hole_trap.unwrap().edges[i]),
                 )),
             );
         }
@@ -219,9 +222,14 @@ impl Line for ThickLine3d {
         let mut tris = vec![];
         // note each pair are on the same plane
         let inner_trap = Trapezium3d::from_parallel_lines(self.inner, other.inner);
-        let inner_hole = inner_trap.hole(frame);
+        let op_inner_hole = inner_trap.hole(frame);
         let outer_trap = Trapezium3d::from_parallel_lines(self.outer, other.outer);
-        let outer_hole = outer_trap.hole(frame);
+        let op_outer_hole = outer_trap.hole(frame);
+        if op_inner_hole.is_none() || op_outer_hole.is_none() {
+            return self.join_to(other, 1); // since parallel
+        }
+        let inner_hole = op_inner_hole.unwrap();
+        let outer_hole = op_outer_hole.unwrap();
         for i in 0..4 {
             // inner tris
             tris.extend_from_slice(
