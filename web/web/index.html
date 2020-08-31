@@ -25,7 +25,68 @@
                 <form>Presets form TODO</form>
             </div>
         </div>
-        <p class="small">If you don't know what a Lindenmayer-system is, read / watch ??? to get started.</p>
+        <p>If you don't know what a Lindenmayer-system is, read / watch ??? to get started.</p>
+        <div class="card">
+            <div class="card-header" id="lsysExplHeader" style="padding: 0px">
+                <h2 class="mb-0">
+                    <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#lsysExplCollapse" aria-expanded="true" aria-controls="lsysExplCollapse">
+                        How Lindenmayer Systems work
+                    </button>
+                </h2>
+            </div>
+
+            <div id="lsysExplCollapse" class="collapse show" aria-labelledby="lsysExplHeader">
+                <div class="card-body lsys-expl-body" style="padding-bottom: 0;">
+
+                    <p>Lindenmayer systems (L-systems) are made up of symbols, single characters - in this case you can use A-Z, 1-9, and punctuation. </p>
+                    <p>The most important part of an L-system is the rules, for example <code>A=>BCD</code> or <code>B=>BB</code>. The computer uses these rules to generate successive iterations of the L-systems's output.</p>
+                    <p> The zero-th iteration is often called the axiom, and is normally just 1 or 2 symbols (but never 0 *). To generate the first iteration, the computer reads through the zero-th one, and looks at each symbol. If there's a rule which starts with that symbol (the bit before the <code>=></code> in a rule), then it replaces the symbol with the second half of the rule, otherwise it leaves the symbol where it is. For example, if the axiom was <code>AB</code> and our rules were <code>D=>EF</code> and <code>B=>DC</code>, then the first iteration would be <code>ADC</code>, since there aren't any rules that start with <code>A</code>, so the <code>A</code> in the axiom stays where it is, but there is a rule for the <code>B</code>, <code>B=>DC</code>, so we use that. </p>
+
+                    <p>The computer uses this same process to generate the second iteration from the first, and so on. Here's a diagram showing the process in detail for a couple of iterations: </p>
+
+
+                    <div id="lsys-explanation-diagram">
+                        <div id="lsys-svg-container">
+                            <svg id="lsys-explanation-svg" width="0" height="0"></svg>
+                        </div>
+                        <table class="table " style="width: 25rem;">
+                            <thead>
+
+                                <th>#</th>
+                                <th colspan="4">Iteration</th>
+
+                            </thead>
+                            <tr>
+                                <td class="label">0 (Axiom)</td>
+                                <td class="iteration"><span id="0A">A</span></td>
+                                <td class="iteration" colspan="3"><span id="0B">B</span></td>
+
+                            </tr>
+                            <tr>
+                                <td class="label">1</td>
+                                <td class="iteration"><span id="1A">A</span></td>
+                                <td class="iteration" colspan="2"><span id="1D">D</span></td>
+                                <td class="iteration"><span id="1C">C</span> </td>
+
+                            </tr>
+                            <tr>
+                                <td class="label">2</td>
+                                <td class="iteration"><span id="2A">A</span></td>
+                                <td class="iteration"><span id="2E">E</span></td>
+                                <td class="iteration"><span id="2F">F</span></td>
+                                <td class="iteration"><span id="2C">C</span></td>
+
+                            </tr>
+                            <tr>
+                                <td>⋮</td>
+                                <td class="iteration" colspan="4">⋮</td>
+                            </tr>
+                        </table>
+                        <p style="font-size: smaller">The grey lines show a symbol that isn't replaced by a rule, the violet shows the rule <code>D=>EF</code>, and the light blue <code>B=>DC</code></p>
+                    </div>
+                </div>
+            </div>
+        </div>
         <!-- L-systems input-->
         <div class="col-sm-9 alert alert-danger" role="alert" id="url-alert-box" style="display: none;">
             <h5 class="alert-heading">We're sorry, we couldn't load your settings</h5>
