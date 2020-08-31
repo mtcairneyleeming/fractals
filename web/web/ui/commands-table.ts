@@ -21,10 +21,10 @@ export function createAllEditors() {
 export function addRow(symbol: string = "", func: string = "") {
     let table = document.getElementById("rulesBody")
     table.insertAdjacentHTML("beforeend", `
-    <tr>
-        <td><input placeholder="Symbol" class="symbol-input" value=${symbol}></td>
-        <td><textarea placeholder="Function" class="edit">${func}</textarea></td>
-        <td>
+    <tr class="m-0">
+        <td class="t-small"><input placeholder="Symbol" class="symbol-input table-input" value=${symbol}></td>
+        <td class="t-large"><textarea placeholder="Function" class="edit">${func}</textarea></td>
+        <td class="t-small">
             <button class="btn btn-link delete-row-button">
                 <i class="fa fa-times" aria-hidden="true" aria-label="Delete row"></i>
             </button>
