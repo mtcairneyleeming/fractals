@@ -1,7 +1,10 @@
 pub mod curves;
 mod develop;
 mod holes;
+mod simplify;
 
 
+pub use curves::curve_layers;
 pub use develop::develop;
-pub(crate) use holes::HoleOptions;
+pub use holes::HoleOptions;
+pub use simplify::simplify;

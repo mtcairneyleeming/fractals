@@ -56,7 +56,8 @@ where
                         tris.extend(prev_line.join_to(new_part, layer_steps));
                     }
                     HoleOptions::ParallelOnly { frame_factor } => {
-                        if prev_line.is_parallel_to(new_part) && new_part.length() > 0.1 * curr_layer.length()
+                        if prev_line.is_parallel_to(new_part)
+                            && new_part.length() > 0.01 * curr_layer.length()
                         {
                             tris.extend(prev_line.join_to_with_hole(new_part, frame_factor));
                         } else {

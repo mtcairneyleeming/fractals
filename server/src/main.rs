@@ -58,16 +58,18 @@ fn stl(
         .map(|l| Layer::<Line3d> { lines: l.to_vec() })
         .collect();
     let start = Instant::now();
-    let processed = if curve.is_some() && curve.unwrap() {
-        curves::curve_layers(layers, max_curve_frac.unwrap(), curve_steps_mult.unwrap())
+    let possibly_curved = if curve.is_some() && curve.unwrap() {
+        simple::curve_layers(layers, max_curve_frac.unwrap(), curve_steps_mult.unwrap())
     } else {
         layers
     };
+    let simplified = simple::simplify(possibly_curved);
+
     let tris: Vec<Tri3d> = if thicken {
-        let thickened = processed.iter().map(|l| l.thicken(thickness.unwrap())).collect();
+        let thickened = simplified.iter().map(|l| l.thicken(thickness.unwrap())).collect();
         simple::develop(thickened, hole_options, init_steps, step_scale)
     } else {
-        simple::develop(processed, hole_options, init_steps, step_scale)
+        simple::develop(simplified, hole_options, init_steps, step_scale)
     };
     println!(
         "Calculated {} in {:.2}s",
