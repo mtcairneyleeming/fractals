@@ -8,6 +8,18 @@
     font-size: 0.9rem;
 }
 
+.t-small {
+    width: 15%;
+}
+
+.t-large {
+    width: 70%;
+}
+
+.table-input {
+    width: 100%
+}
+
 td.label {
     padding-right: 2rem;
 }
