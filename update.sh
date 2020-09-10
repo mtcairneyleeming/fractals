@@ -4,6 +4,7 @@ git pull
 cd ./server
 cargo build --release
 cd ../web
+yarn install
 parcel build web/*.html
 cd ../
 systemctl restart caddy.service
