@@ -1,4 +1,4 @@
-import { importAllSettings, exportAllSettings } from "./settings"
+import { importAllSettings, exportAllSettings, setDefaultAdvancedCommands } from "./settings"
 
 export function toQueryStringInURL() {
     let settings = exportAllSettings()
@@ -18,6 +18,8 @@ export function fromQueryString() {
             // not much point in precise detail as there isn't any
             document.getElementById("url-alert-box").style.display = "block"
         }
+    } else {
+        setDefaultAdvancedCommands();
     }
 
 }
