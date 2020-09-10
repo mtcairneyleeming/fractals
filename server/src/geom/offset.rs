@@ -84,29 +84,16 @@ pub(super) fn offset_intersection2(prev: Line2d, next: Line2d, offset: f64) -> P
         Ok((vect, angle)) => next.start.add(vect.scale(offset / angle.sin())),
     }
 }
-pub(super) fn offset_intersection(prev: Line3d, next: Line3d, offset: f64) -> Point3d {
-    check_lines(prev, next);
-
-    Point3d::from2d(
-        offset_intersection2(prev.to2d(), next.to2d(), offset),
-        prev.end().z,
-    )
-}
-
+/// Offsets an endpoint (which one is controlled by `start`) of the provided
+/// line by `offset`. Note offset is multiplied by -1 to ensure consistency with
+/// the other offsetting methods.
 pub(super) fn offset_line_endpoint2(line: Line2d, offset: f64, start: bool) -> Point2d {
     let dir = line.end.sub(line.start);
     let norm = dir.scale(1.0 / dir.norm());
     let ccw = Point2d::new(-norm.y, norm.x);
     if start { line.start } else { line.end }.add(ccw.scale(-offset))
 }
-/// Offsets an endpoint (which one is controlled by `start`) of the provided
-/// line by `offset`. Note offset is multiplied by -1 to ensure consistency with
-/// the other offsetting methods.
-pub(super) fn offset_line_endpoint(line: Line3d, offset: f64, start: bool) -> Point3d {
-    check_line(line);
 
-    Point3d::from2d(offset_line_endpoint2(line.to2d(), offset, start), line.start().z)
-}
 
 /// Given a line, and possibly two lines that join it, offset the line by
 /// offset.
