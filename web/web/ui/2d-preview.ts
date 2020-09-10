@@ -42,7 +42,6 @@ export function showPreview() {
     for (let j = 1; j < wholeScaleFactors.length; j++) {
         sfs.push(wholeScaleFactors[j - 1] / wholeScaleFactors[j])
     }
-    console.log(wholeScaleFactors, sfs)
     let avg = sfs.reduce((x, y) => x + y, 0) / sfs.length
     let desc = document.createElement("p")
     desc.innerText = `Suggested scale factor (see below) based from drawing these previews is ${Math.round(avg * 1e6) / 1e6}`

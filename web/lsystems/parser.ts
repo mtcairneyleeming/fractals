@@ -22,7 +22,6 @@ export class Parser {
                 next.push(symbol)
             }
         }
-        //console.log(next)
         this.iterations.push(next)
         return next
     }
