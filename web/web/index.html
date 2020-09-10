@@ -132,6 +132,91 @@
                     <b>All other characters</b> have no effect on drawing.
                 </div>
                 <div id="custom_drawing_commands">
+                    <div class="card mb-3">
+                        <div class="card-header" id="headingAdvancedCommands" style="padding: 0px">
+                            <h5 class="mb-0">
+                                <button class="btn btn-link" data-toggle="collapse" data-target="#collapseAdvancedCommands" aria-expanded="false" aria-controls="collapseAdvancedCommands">
+                                    Advanced commands explained (click to expand)
+                                </button>
+                            </h5>
+                        </div>
+                        <div id="collapseAdvancedCommands" class="collapse" aria-labelledby="headingAdvancedCommands">
+                            <div class="card-body">
+
+                                <p>Use the table below to set up drawing rules for each symbolyou've used. If you don't provide an entry for a symbol, it will be assumed that it has no effect on the drawing. (e.g. the symbol X in the <a href="https://en.wikipedia.org/wiki/L-system#Example_6:_Dragon_curve">Dragon Curve <small>[wikipedia]</small></a>) </p>
+
+                                <p>In the editors below, you should write the body of a function that draws what the corresponding symbol represents. For example, the code that goes where the comment is below: </p>
+                                <textarea id="example-function" class="edit readonly-edit">
+function draw(state){
+    // your code here
+}
+                                </textarea>
+                                <h5 class="mt-3">Methods available on <code>state</code>:</h5>
+                                <p>There are 2 sets of commands available. The simpler works like the turtle drawing system: </p>
+
+                                <p class="ml-3">
+                                    You can draw or move forward 1 step, adjust the step by a multiplicative factor, turn left or right by an angle, or push/pop (save, restore respectively) the current state (incl position, angle and step). Angles are in degrees.</p>
+
+                                <p>And the more advanced set exposes most of the relative SVG commands: </p>
+                                <p class="ml-3">
+                                    These commands do not use or change any state, so you'll need to pass in the stored angle (from angle()) or step(), for example). Also, you can store whatever state you like in the state dictionary. (Note that the basic commands refer to <code>state["angle"]</code> and <code>state["step"]</code>, if you want to mix and match between command sets).
+                                </p>
+
+                                <p class="ml-3">
+                                    Note 'z' has not been implemented because the drawn output is supposed to be a line, not a closed shape. In addition, the lineA and moveA commands have been added to save trig calculations. </p>
+
+                                <p>Please refer to the <a href="https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/d#Path_commands">MDN documentation on SVGs</a> to learn about the SVG commands available.
+                                </p>
+
+                                <p> <span style="font-weight: bold;">Warning:</span> the code in the table will be run on your computer in this browser tab. I have taken <span style="font-weight: bold;">no</span> security precautions, so you could be vulnerable to XSS, for example. Check the code below carefully if you didn't write it.</p>
+
+
+                                <textarea id="state-object" class="edit readonly-edit">
+interface State {
+    // basic drawing functions:
+    draw()
+    move()
+
+    setStep(factor: number)
+    right(angle: number
+    left(angle: number)
+
+    // state management
+    save()
+    restore()
+
+    // getters:
+    angle(): number
+    step(): number
+
+    // Advanced functions:
+
+    public currentPosition: [number, number]
+    public state: Map&lt;string, object&gt; 
+    
+    // extra
+    lineA(length: number, angle: number)
+    moveA(length: number, angle: number)
+
+    // SVG commands
+    m(dx: number, dy: number) 
+    l(dx: number, dy: number) 
+    h(length: number) 
+    v(length: number) 
+    c(dx1: number, dy1: number, dx2: number, dy2: number, dx: number, dy: number)
+    s(dx2: number, dy2: number, dx: number, dy: number) 
+    q(dx1: number, dy1: number, dx: number, dy: number) 
+    t(dx: number, dy: number) 
+    a(rx: number, ry: number, angle: number, large: number, sweep: number, dx: number, dy: number) 
+
+    // NB: close is not allowed as paths must produce a line not a shape
+
+}
+                                                </textarea>
+
+                            </div>
+                        </div>
+                    </div>
                     <table class="table" id="rules-table" style="table-layout: fixed;">
                         <thead>
                             <th scope="col" class="t-small">Symbol</th>

@@ -1,6 +1,7 @@
 import * as CodeMirror from "codemirror"
 import "codemirror/lib/codemirror.css"
 import "codemirror/mode/javascript/javascript"
+import "codemirror/addon/display/autorefresh"
 import { State } from "../../lsystems/tosvg"
 import { showPreview } from "./2d-preview";
 export function createAllEditors() {
@@ -85,6 +86,15 @@ export function setupTables() {
 
     document.querySelectorAll(".delete-row-button").forEach(item => {
         item.addEventListener("click", deleteRow, false)
+    })
+
+    document.querySelectorAll(".edit.readonly-edit").forEach((el: HTMLTextAreaElement) => {
+        CodeMirror.fromTextArea(el, {
+            lineNumbers: true,
+            mode: "text/typescript",
+            viewportMargin: Infinity,
+            autoRefresh: true
+        })
     })
 
 }
