@@ -15,6 +15,9 @@ import 'bootstrap'
 import 'bootstrap/dist/css/bootstrap.css' // Import precompiled Bootstrap css
 import '@fortawesome/fontawesome-free/css/all.css'
 
+
+import { encode, decode } from "@msgpack/msgpack"
+
 // to fix parcel
 import 'regenerator-runtime/runtime'
 
@@ -39,8 +42,7 @@ async function runE() {
 
     let fractalGenerator = new SimpleDevFract(settings["axiom"], settings["rules"], settings["commands"])
 
-    let segments = fractalGenerator.runN(settings["scale_factor"], settings["layer_dist"], settings["scale_factor"], settings["num_layers"], settings["draw_axiom_check"])
-
+    let layers = fractalGenerator.runN(settings["scale_factor"], settings["layer_dist"], settings["scale_factor"], settings["num_layers"], settings["draw_axiom_check"])
     let query = new URLSearchParams("");
     query.set("thicken", settings["thicken"])
     if (settings["thicken"]) {
@@ -55,12 +57,19 @@ async function runE() {
     query.set("init_steps", "15")
     query.set("step_scale", "1.0")
 
+    let small_layers = layers.map((layer) =>
+        layer.map((line) => [line.start.x, line.start.y, line.start.z, line.end.x, line.end.y, line.end.z])
+    )
+    let data = [small_layers, settings["hole"]]
+
+    let msgpack = encode(data)
+
     let response = await fetch(`/api/stl?${query.toString()}`, {
         method: "POST",
         headers: {
-            "Content-Type": "application/json"
+            "Content-Type": "application/msgpack"
         },
-        body: JSON.stringify({ "data": [segments, settings["hole"]] })
+        body: msgpack
     })
     if (!response.ok) {
         throw new Error(`The server returned an error: code ${response.status}, body: ${response.body}`)

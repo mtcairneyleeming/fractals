@@ -7,13 +7,13 @@ mod simple;
 #[macro_use]
 extern crate rocket;
 extern crate rocket_contrib;
-use geom::{Layer, Line3d, Tri3d};
+use geom::{Layer, Line3d, Point3d, Tri3d};
 use simple::*;
 use stl_io::*;
 
-use rocket_contrib::json::*;
+use rocket_contrib::msgpack::MsgPack;
 use rocket_contrib::serve::StaticFiles;
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 use std::time::Instant;
 
 fn tris_to_binary_stl(tris: Vec<Tri3d>) -> Vec<u8> {
@@ -32,18 +32,19 @@ fn tris_to_binary_stl(tris: Vec<Tri3d>) -> Vec<u8> {
     stl_io::write_stl(&mut binary_stl, mesh.iter()).unwrap();
     binary_stl
 }
-#[derive(Deserialize)]
+#[derive(Deserialize, Serialize)]
 struct Data {
-    data: (Vec<Vec<Line3d>>, HoleOptions),
+    layers: Vec<Vec<[f64; 6]>>,
+    holes: HoleOptions,
 }
 
 #[post(
     "/stl?<thicken>&<thickness>&<curve>&<max_curve_frac>&<curve_steps_mult>&<init_steps>&<step_scale>",
-    format = "application/json",
+    format = "msgpack",
     data = "<tuple>"
 )]
 fn stl(
-    tuple: Json<Data>,
+    tuple: MsgPack<Data>,
     thicken: bool,
     thickness: Option<f64>,
     curve: Option<bool>,
@@ -52,10 +53,22 @@ fn stl(
     init_steps: i64,
     step_scale: f64,
 ) -> Vec<u8> {
-    let (lines, hole_options) = tuple.into_inner().data;
-    let layers = lines
+    let data = tuple.into_inner();
+
+    let layers = data
+        .layers
         .iter()
-        .map(|l| Layer::<Line3d> { lines: l.to_vec() })
+        .map(|l| Layer::<Line3d> {
+            lines: l
+                .iter()
+                .map(|line| {
+                    Line3d::new(
+                        Point3d::new(line[0], line[1], line[2]),
+                        Point3d::new(line[3], line[4], line[5]),
+                    )
+                })
+                .collect(),
+        })
         .collect();
     let start = Instant::now();
     let possibly_curved = if curve.is_some() && curve.unwrap() {
@@ -67,9 +80,9 @@ fn stl(
 
     let tris: Vec<Tri3d> = if thicken {
         let thickened = simplified.iter().map(|l| l.thicken(thickness.unwrap())).collect();
-        simple::develop(thickened, hole_options, init_steps, step_scale)
+        simple::develop(thickened, data.holes, init_steps, step_scale)
     } else {
-        simple::develop(simplified, hole_options, init_steps, step_scale)
+        simple::develop(simplified, data.holes, init_steps, step_scale)
     };
     println!(
         "Calculated {} in {:.2}s",

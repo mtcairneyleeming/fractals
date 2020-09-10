@@ -750,6 +750,27 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "41cc0f7e4d5d4544e8861606a285bb08d3e70712ccc7d2b84d7c0ccfaf4b05ce"
 
 [[package]]
+name = "rmp"
+version = "0.8.9"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "0f10b46df14cf1ee1ac7baa4d2fbc2c52c0622a4b82fa8740e37bc452ac0184f"
+dependencies = [
+ "byteorder",
+ "num-traits",
+]
+
+[[package]]
+name = "rmp-serde"
+version = "0.13.7"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "011e1d58446e9fa3af7cdc1fb91295b10621d3ac4cb3a85cc86385ee9ca50cd3"
+dependencies = [
+ "byteorder",
+ "rmp",
+ "serde",
+]
+
+[[package]]
 name = "rocket"
 version = "0.4.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -793,9 +814,9 @@ checksum = "e3946ca815127041d8f64455561031d058c22ae1b135251502c5ea523cf9e14b"
 dependencies = [
  "log 0.4.11",
  "notify",
+ "rmp-serde",
  "rocket",
  "serde",
- "serde_json",
 ]
 
 [[package]]

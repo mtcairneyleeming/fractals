@@ -92,9 +92,10 @@ export function parseSettings(ignore3d = false): Object {
         }
 
         let hole_radio = (document.querySelector('input[name="hole_radio"]:checked') as HTMLInputElement).value;
+        // Note arrays are because rust msgpack serialises oddly - the arrays are in the same format as the rust enum HoleOptions
         switch (hole_radio) {
             case "None":
-                settings["hole"] = "None"
+                settings["hole"] = [1, []]
                 break;
             case "ParallelOnly":
                 let str = getInput("frame_factor").value
@@ -102,11 +103,7 @@ export function parseSettings(ignore3d = false): Object {
                 if (isNaN(val) || !isFinite(val) || val < 0 || val > 50) {
                     throw new Error(`The frame size you input, "${str}" was not a valid, finite number between 0 and 50%.`)
                 }
-                settings["hole"] = {
-                    "ParallelOnly": {
-                        "frame_factor": val * 0.01 // to convert to server range, [0, 0.5]
-                    }
-                }
+                settings["hole"] = [1, [val * 0.01]]
                 break;
             case "Everywhere":
                 let holeStr = getInput("ev_hole_number").value
@@ -129,14 +126,14 @@ export function parseSettings(ignore3d = false): Object {
                 let pair = 1 + ratio
                 let pair_frac = 1.0 / (num_holes * (1 + ratio))
 
-                settings["hole"] = {
-                    "Everywhere": {
-                        "hole_frac": 1 / pair * pair_frac,
-                        "spacing_frac": ratio / pair * pair_frac,
-                        "scaling_factor": settings["scale_factor"],
-                        "frame_factor": 0.01 * fval
-                    }
-                }
+                settings["hole"] = [2,
+                    [
+                        1 / pair * pair_frac,
+                        ratio / pair * pair_frac,
+                        settings["scale_factor"],
+                        0.01 * fval
+                    ]
+                ]
                 break;
 
         }
@@ -237,5 +234,26 @@ export function importAllSettings(settings: Object) {
             addRow(pair[0], pair[1])
         }
     }
+    else {
+        setDefaultAdvancedCommands()
+    }
 
+
+}
+
+export function setDefaultAdvancedCommands() {
+    let standardCommands = [
+        ["F", "state.draw();"],
+        ["G", "state.draw(); "],
+        ["+", "state.right(60);"],
+        ["-", "state.left(60);"],
+        ["X", "state.right(60);"],
+        ["Y", "state.left(60);"],
+        ["[", "state.save();"],
+        ["]", "state.restore();"],
+    ]
+
+    for (let pair of standardCommands) {
+        addRow(pair[0], pair[1])
+    }
 }
