@@ -42,7 +42,7 @@ async function runE() {
 
     let fractalGenerator = new SimpleDevFract(settings["axiom"], settings["rules"], settings["commands"])
 
-    let layers = fractalGenerator.runN(settings["scale_factor"], settings["layer_dist"], settings["scale_factor"], settings["num_layers"], settings["draw_axiom_check"])
+    let layers = fractalGenerator.runN(settings["scale_factor"], settings["layer_dist"], settings["scale_factor"], settings["num_layers"], settings["centre_check"])
     let query = new URLSearchParams("");
     query.set("thicken", settings["thicken"])
     if (settings["thicken"]) {

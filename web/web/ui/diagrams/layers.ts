@@ -17,7 +17,7 @@ export function layersSetup() {
 
 
     getInput("num_layers").addEventListener("input", draw)
-    getInput("draw_axiom_check").addEventListener("input", draw)
+    getInput("centre_check").addEventListener("input", draw)
     getInput("layer_dist").addEventListener("input", draw)
 
     document.querySelectorAll("#scale_radio_container>label").forEach(el => el.addEventListener("click", draw))
@@ -33,15 +33,15 @@ function draw() {
     //context.scale(1, -1)
 
     let num_layers = Math.max(parseInt(getInput("num_layers").value), 1)
-    let draw_axiom = getInput("draw_axiom_check").checked;
+    let centre = getInput("centre_check").checked;
     let dist_between = Math.max(0, Math.min(1.0, 0.01 * parseFloat(getInput("layer_dist").value)))
     let scale_factor = parseScaleFactor()
     let tot_height = 0
     let step = 1;
-    for (let i = 0; i < num_layers; i++) {
-        if (i != 0 || draw_axiom) {
-            tot_height += dist_between * step;
-        }
+    for (let i = 1; i < num_layers; i++) {
+
+        tot_height += dist_between * step;
+
         step *= scale_factor
 
     }
@@ -53,21 +53,18 @@ function draw() {
     context.textAlign = "left"
     context.textBaseline = "top"
     let oldHeight = Number.POSITIVE_INFINITY
-    for (let i = 0; i <= num_layers; i++) {
-        if (i != 0 || draw_axiom) {
-            let currHeight = layersCanvas.height - (yScale * currPos + offsetY)
-            layers.line(0.05 * layersCanvas.width, currHeight, (0.05 + step * 0.45) * layersCanvas.width, currHeight)
+    for (let i = 1; i <= num_layers; i++) {
 
-            if (i == 0 && draw_axiom) {
-                context.fillText("Axiom (Layer #0)", 0.55 * layersCanvas.width, currHeight)
-            }
-            else {
-                context.fillText(`Layer #${i}`, 0.55 * layersCanvas.width, currHeight)
-                layers.line((0.05 + step * 0.45) * layersCanvas.width, currHeight, (0.05 + step * 0.45) * layersCanvas.width, oldHeight, { stroke: "blue" })
-            }
-            oldHeight = currHeight
-            currPos += dist_between * step
-        }
+        let currHeight = layersCanvas.height - (yScale * currPos + offsetY)
+        layers.line(0.05 * layersCanvas.width, currHeight, (0.05 + step * 0.45) * layersCanvas.width, currHeight)
+
+
+        context.fillText(`Layer #${i}`, 0.55 * layersCanvas.width, currHeight)
+        layers.line((0.05 + step * 0.45) * layersCanvas.width, currHeight, (0.05 + step * 0.45) * layersCanvas.width, oldHeight, { stroke: "blue" })
+
+        oldHeight = currHeight
+        currPos += dist_between * step
+
         step *= scale_factor
     }
 }

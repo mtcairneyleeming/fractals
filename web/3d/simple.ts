@@ -18,7 +18,7 @@ export class Simple3D {
     }
 
 
-    runN(zFactor: number, initDeltaZ: number, xyFactor: number, n: number, drawAxiom: boolean = true): Line3d[][] {
+    runN(zFactor: number, initDeltaZ: number, xyFactor: number, n: number, centre: boolean = false): Line3d[][] {
         // initial layer state
         let z = 0
         let xyScale = 1
@@ -26,7 +26,7 @@ export class Simple3D {
         let layers: Line3d[][] = []
 
         // draw axiom wireframe
-        layers.push(this.drawLayer(this.axiom, new State(0), z, 1, 0))
+        layers.push(this.drawLayer(this.axiom, new State(0), z, 1, 0, centre))
 
         let layerString = this.axiom
 
@@ -64,12 +64,15 @@ export class Simple3D {
                     }
                 }
             }
+            if (centre) {
+                layer = centreLayer(layer)
+            }
             layers.push(layer)
             layerString = newString
         }
-        if (!drawAxiom) {
-            layers.splice(0, 1)
-        }
+
+        layers.splice(0, 1)
+
         return layers
 
     }
@@ -81,7 +84,7 @@ export class Simple3D {
      * @param xyFactor the scaling factor to apply to the drawing
      * @returns list of lines
      */
-    drawLayer(str: Array<string>, state: State, z: number, xyScale: number, prevIndex): Line3d[] {
+    drawLayer(str: string, state: State, z: number, xyScale: number, prevIndex, centre: boolean): Line3d[] {
         let out = []
         let pos = new Point3d(0, 0, z)
         for (let symbol of str) {
@@ -91,7 +94,7 @@ export class Simple3D {
                 pos = lines[lines.length - 1].end
             }
         }
-        return out
+        return centre ? centreLayer(out) : out
     }
 
     drawSymbol(state: State, symbol: string, currPos: Point3d, xyScale: number, prevIndex: number): Line3d[] {
@@ -123,4 +126,24 @@ export class Simple3D {
         else return []
 
     }
+}
+
+function centreLayer(layer: Line3d[]): Line3d[] {
+    let xWeight = 0.0
+    let yWeight = 0.0
+    let totWeight = 0.0
+    for (let line of layer) {
+        let mid = line.point(0.5)
+        xWeight += mid.x * line.length;
+        yWeight += mid.y * line.length;
+        totWeight += line.length
+    }
+    let out = []
+    xWeight /= totWeight
+    yWeight /= totWeight
+    for (let line of layer) {
+        out.push(new Line3d(new Point3d(line.start.x - xWeight, line.start.y - yWeight, line.start.z),
+            new Point3d(line.end.x - xWeight, line.end.y - yWeight, line.end.z)))
+    }
+    return out;
 }

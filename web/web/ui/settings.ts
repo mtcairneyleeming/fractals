@@ -55,7 +55,7 @@ export function parseSettings(ignore3d = false): Object {
         }
         settings["num_layers"] = nlInt
 
-        settings["draw_axiom_check"] = getInput("draw_axiom_check").checked
+        settings["centre_check"] = getInput("centre_check").checked
 
         let ldStr = getInput("layer_dist").value
         let ldFloat = parseFloat(ldStr)
@@ -183,7 +183,7 @@ let all_inputs = [
     "frame_factor"
 ]
 let all_checks = [
-    "draw_axiom_check",
+    "centre_check",
     "thicken_check",
     "curve_check"
 ]
