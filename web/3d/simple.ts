@@ -7,11 +7,11 @@ import { Line3d } from "./types/Line3d"
 
 export class Simple3D {
 
-    private axiom: string[]
+    private axiom: string
     private rules: Map<string, Array<string>>
     private commands: Map<string, (state: State) => void>
 
-    constructor(axiom: string[], rules: Map<string, string[]>, commands: Map<string, (state: State) => void>) {
+    constructor(axiom: string, rules: Map<string, string[]>, commands: Map<string, (state: State) => void>) {
         this.rules = rules
         this.axiom = axiom
         this.commands = commands
