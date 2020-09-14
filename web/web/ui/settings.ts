@@ -95,7 +95,7 @@ export function parseSettings(ignore3d = false): Object {
         // Note arrays are because rust msgpack serialises oddly - the arrays are in the same format as the rust enum HoleOptions
         switch (hole_radio) {
             case "None":
-                settings["hole"] = [1, []]
+                settings["hole"] = [0, []]
                 break;
             case "ParallelOnly":
                 let str = getInput("frame_factor").value
