@@ -163,9 +163,10 @@ export function toSVG(commands: Array<string>, addTo: HTMLElement, iteration: nu
         fill: "transparent",
         stroke: "black",
         "stroke-width": `${strokeWidth}px`
-    }).transform({
-        flip: "y"
     })
+    //     .transform({
+    //     flip: "y"
+    // })
 
     let bbox = path.bbox()
     if (bbox.width < bbox.height) {
