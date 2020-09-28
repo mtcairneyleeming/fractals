@@ -133,12 +133,12 @@ export class State {
 
 
 }
-export function toSVGCommands(str: Array<string>, drawingCommands: Map<string, Command>, iteration: number): Array<string> | string {
+export function toSVGCommands(str: Array<string>, drawingCommands: Map<string, string>, iteration: number): Array<string> | string {
     var state = new State(iteration)
     for (const symbol of str) {
         if (drawingCommands.has(symbol)) {
             try {
-                drawingCommands.get(symbol)(state)
+                (new Function("state", drawingCommands.get(symbol)))(state)
 
 
             } catch (err) {
