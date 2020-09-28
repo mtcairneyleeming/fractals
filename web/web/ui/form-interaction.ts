@@ -1,4 +1,4 @@
-import { showPreview } from "./2d-preview"
+import { showPreview } from "./previews/controller"
 
 function getInput(id: string): HTMLInputElement {
     return document.getElementById(id) as unknown as HTMLInputElement

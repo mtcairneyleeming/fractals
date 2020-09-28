@@ -3,7 +3,7 @@ import "codemirror/lib/codemirror.css"
 import "codemirror/mode/javascript/javascript"
 import "codemirror/addon/display/autorefresh"
 import { State } from "../../lsystems/tosvg"
-import { showPreview } from "./2d-preview";
+import { showPreview } from "./previews/controller";
 export function createAllEditors() {
     document.querySelectorAll("textarea.edit").forEach(element => {
         if ((element as HTMLTextAreaElement).style.display != "none") {
@@ -52,9 +52,9 @@ export function deleteRow(event: Event) {
     let row = btn.parentElement.parentElement as HTMLTableRowElement
     row.parentElement.removeChild(row)
 }
-export function getDrawingCommands(ignoreErrors = false): [Map<string, (state: State) => void>, any[]] {
+export function getDrawingCommands(ignoreErrors = false): [Map<string, string>, any[]] {
     let table = document.getElementById("rulesBody")
-    let functions = new Map<string, (state: State) => void>()
+    let functions = new Map<string, string>()
     let strings = [];// new Map<string, string>()
     for (let child of Array.from(table.children)) {
 
@@ -67,7 +67,7 @@ export function getDrawingCommands(ignoreErrors = false): [Map<string, (state: S
         try {
             let func = new Function("state", functionStr)
             // @ts-ignore - this is to avoid function typing issues
-            functions.set(symbol, func)
+            functions.set(symbol, functionStr)
             strings.push([symbol, functionStr])
         } catch (e) {
             if (!ignoreErrors) {

@@ -27,14 +27,14 @@ export function parseSettings(ignore3d = false): Object {
                 throw new Error(`There was a problem with the angle you specified - "${getInput("drawing_standard_degrees").value}" is not a valid, finite number.`)
             }
             let map = new Map();
-            map.set("F", (state) => state.draw())
-            map.set("G", (state) => state.draw())
-            map.set("+", (state) => state.right(angle))
-            map.set("-", (state) => state.left(angle))
-            map.set("X", (state) => state.right(angle))
-            map.set("Y", (state) => state.left(angle))
-            map.set("[", (state) => state.save())
-            map.set("]", (state) => state.restore())
+            map.set("F", "state.draw()")
+            map.set("G", "state.draw()")
+            map.set("+", `state.right(${angle})`)
+            map.set("-", `state.left(${angle})`)
+            map.set("X", `state.right(${angle})`)
+            map.set("Y", `state.left(${angle})`)
+            map.set("[", "state.save()")
+            map.set("]", "state.restore()")
             settings["commands"] = map;
 
             break;

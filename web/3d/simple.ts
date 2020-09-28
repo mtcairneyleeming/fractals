@@ -9,9 +9,9 @@ export class Simple3D {
 
     private axiom: string
     private rules: Map<string, Array<string>>
-    private commands: Map<string, (state: State) => void>
+    private commands: Map<string, string>
 
-    constructor(axiom: string, rules: Map<string, string[]>, commands: Map<string, (state: State) => void>) {
+    constructor(axiom: string, rules: Map<string, string[]>, commands: Map<string, string>) {
         this.rules = rules
         this.axiom = axiom
         this.commands = commands
@@ -103,7 +103,7 @@ export class Simple3D {
             // get newly added SVG commands
             let prevLength = state.commands.length
             try {
-                this.commands.get(symbol)(state)
+                (new Function("state", this.commands.get(symbol)))(state)
             }
             catch (e) {
                 throw new Error("There was a problem with your drawing commands:\n" + e.message)
