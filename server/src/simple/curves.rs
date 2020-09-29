@@ -36,7 +36,8 @@ fn fix_lines(lines: Vec<Line2d>) -> Vec<Line2d> {
     }
     let mut out_lines = vec![lines[0]];
     for i in 1..lines.len() {
-        if (*out_lines.last().unwrap()).is_parallel_to(lines[i]) {
+        let last = *out_lines.last().unwrap();
+        if last.is_parallel_to(lines[i]) && last.direction().add(lines[i].direction()).norm() > 1e-7 {
             let prev = out_lines.pop().unwrap();
             out_lines.push(Line2d::new(prev.start, lines[i].end))
         } else {
