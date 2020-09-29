@@ -262,7 +262,7 @@ impl Line for ThickLine3d {
         if skips.is_some() {
             let (from, until) = skips.unwrap();
             // TODO why???
-            let top_thickness = (from - 1) as f64 / steps as f64;
+            let top_thickness = (from) as f64 / steps as f64;
 
             let bottom_thickness = (until) as f64 / steps as f64;
             // joins to make solid
