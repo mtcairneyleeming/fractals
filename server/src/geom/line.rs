@@ -1,12 +1,11 @@
 use super::point::*;
 use super::threed::{Trapezium3d, Tri3d};
-use core::fmt::Debug;
 use serde::Deserialize;
 use std::f64::consts;
-use std::fmt;
+use std::fmt::*;
 
 
-pub trait Line: Debug + Sized {
+pub trait Line: Debug + Sized + Display {
     fn start(&self) -> Point3d;
     fn end(&self) -> Point3d;
 
@@ -155,14 +154,14 @@ pub(super) fn join_planar_lines(a: Line3d, b: Line3d) -> [Tri3d; 2] {
     return [Tri3d::from_sp(&a, &b.start), Tri3d::from_sp(&b, &a.end)];
 }
 
-impl fmt::Display for Line3d {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+impl Display for Line3d {
+    fn fmt(&self, f: &mut Formatter<'_>) -> Result {
         write!(f, "{}->{}", self.start, self.end)
     }
 }
-impl fmt::Debug for Line3d {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{}->{}", self.start, self.end)
+impl Debug for Line3d {
+    fn fmt(&self, f: &mut Formatter<'_>) -> Result {
+        write!(f, "{:.3}->{:.3}", self.start, self.end)
     }
 }
 
@@ -317,6 +316,11 @@ impl Line for ThickLine3d {
         tris
     }
 }
+impl Display for ThickLine3d {
+    fn fmt(&self, f: &mut Formatter<'_>) -> Result {
+        write!(f, "{:?}", self)
+    }
+}
 
 
 #[derive(Copy, Clone)]
@@ -369,13 +373,13 @@ impl Line2d {
     }
 }
 
-impl fmt::Display for Line2d {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+impl Display for Line2d {
+    fn fmt(&self, f: &mut Formatter<'_>) -> Result {
         write!(f, "{}->{}", self.start, self.end)
     }
 }
-impl fmt::Debug for Line2d {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+impl Debug for Line2d {
+    fn fmt(&self, f: &mut Formatter<'_>) -> Result {
         write!(f, "{}->{}", self.start, self.end)
     }
 }

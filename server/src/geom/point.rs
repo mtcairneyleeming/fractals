@@ -4,7 +4,7 @@ use std::f64::EPSILON;
 use std::fmt;
 pub const EPS: f64 = EPSILON * 10.0;
 
-#[derive(Copy, Clone, Debug, Deserialize, Serialize, PartialEq)]
+#[derive(Copy, Clone, Deserialize, Serialize, PartialEq)]
 pub struct Point3d {
     pub x: f64,
     pub y: f64,
@@ -65,7 +65,11 @@ impl fmt::Display for Point3d {
         write!(f, "({:.6}, {:.6}, {:.6})", self.x, self.y, self.z)
     }
 }
-
+impl fmt::Debug for Point3d {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "({:.3}, {:.3}, {:.3})", self.x, self.y, self.z)
+    }
+}
 
 #[derive(Copy, Clone, Debug)]
 pub struct Point2d {

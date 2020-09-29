@@ -55,7 +55,7 @@ fn stl(
 ) -> Vec<u8> {
     let data = tuple.into_inner();
 
-    let layers = data
+    let layers: Vec<Layer<Line3d>> = data
         .layers
         .iter()
         .map(|l| Layer::<Line3d> {

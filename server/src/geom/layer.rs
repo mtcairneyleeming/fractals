@@ -1,15 +1,17 @@
 use super::line::*;
+use std::fmt::{Debug, Display};
 
+#[derive(Debug)]
 pub struct Layer<T>
 where
-    T: Line + Copy,
+    T: Line + Copy + Debug + Display,
 {
     pub lines: Vec<T>,
 }
 
 impl<T> Layer<T>
 where
-    T: Line + Copy,
+    T: Line + Copy + Debug + Display,
 {
     pub fn new(lines: Vec<T>) -> Self {
         Self { lines }

@@ -105,24 +105,23 @@ where
                             // we've just added an endcap if necessary at start_frac
                             draw(start_frac, hole_regions[j], j % 2 == 0, &mut tris);
                             /* the loop below works as follows:
-                                    - the invariant is that everything up to hole_regions[curr_change_index] has been drawn properly
-                                    - thus each iteration must fully draw [ho
-                                it draws all the regions from hole_regions[j] up to and including the last complete one before end_frac
+                                    - the invariant is that everything up to hole_regions[j] has been drawn properly
+                                    - thus each iteration must fully draw all the regions from hole_regions[j] up to and including the last complete one before end_frac
                             */
                             // index of the region up to which we have already drawn
                             // check to make sure we haven't reached end, and if not whether the
                             // whole hole/solid region is in this line part
                             while j + 1 < hole_regions.len() && hole_regions[j + 1] < end_frac {
                                 // so this full hole/space is in this line part
-                                draw(hole_regions[j], hole_regions[j + 1], j % 2 == 0, &mut tris);
                                 j += 1;
+                                draw(hole_regions[j - 1], hole_regions[j], j % 2 == 0, &mut tris);
                             }
                             // now draw from hole_regions[curr_change_index] to end_frac (if
                             // they're not the same)
                             // the next endcap will be dealt with by the next line/ the very end
                             // of the layer
                             if end_frac < 1.0 - 1e-8 && end_frac - hole_regions[j] > 1e-7 {
-                                draw(hole_regions[j], end_frac, j % 2 == 1, &mut tris);
+                                draw(hole_regions[j], end_frac, (j + 1) % 2 == 0, &mut tris);
                             }
                         }
                     }

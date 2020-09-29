@@ -85,7 +85,6 @@ impl Trapezium3d {
         let test_point = offset_intersection2(self.edges[0], self.edges[1], offset);
         let tri = Tri2d::from_sp(self.edges[0], self.edges[1].end);
         let new_offset = if tri.contains_point(test_point) { -1.0 } else { 1.0 } * offset;
-        println!("t {}, {}", new_offset, offset);
         let trap = Trapezium3d {
             plane: self.plane,
             edges: [
