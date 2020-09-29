@@ -25,8 +25,8 @@ pub(super) fn calc_hole_regions(hole_options: &HoleOptions, hole_scale: i64) -> 
     {
         let num_holes = orig_num * hole_scale;
         let pair_frac = 1.0 / num_holes as f64;
-        let spacing_frac = 1.0 / (1.0 + ratio) * pair_frac;
-        let hole_frac = ratio / (1.0 + ratio) * pair_frac;
+        let spacing_frac = ratio / (1.0 + ratio) * pair_frac;
+        let hole_frac = 1.0 / (1.0 + ratio) * pair_frac;
         let mut regions = vec![];
         let mut pos = 0.0;
         regions.push(0.0);
