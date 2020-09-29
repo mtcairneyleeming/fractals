@@ -265,7 +265,7 @@ impl Line for ThickLine3d {
             // TODO why???
             let top_thickness = (from - 1) as f64 / steps as f64;
 
-            let bottom_thickness = (until - 1) as f64 / steps as f64;
+            let bottom_thickness = (until) as f64 / steps as f64;
             // joins to make solid
             let outer_start = Line3d::new(other.outer.start, self.outer.start);
             let inner_start = Line3d::new(other.inner.start, self.inner.start);
