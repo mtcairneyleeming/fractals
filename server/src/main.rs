@@ -76,7 +76,7 @@ fn stl(
     } else {
         layers
     };
-    let simplified = simple::simplify(possibly_curved);
+    let simplified = possibly_curved; // simple::simplify(possibly_curved);
 
     let tris: Vec<Tri3d> = if thicken {
         let thickened = simplified.iter().map(|l| l.thicken(thickness.unwrap())).collect();
