@@ -18,7 +18,9 @@ fn angle_bisector2(a: Line2d, b: Line2d) -> Point2d {
 }
 
 fn smallest_angle_between(a: Point2d, b: Point2d) -> f64 {
-    if a.sub(b).norm() < EPS {
+    if a.sub(b).norm() < 1e-9 {
+        std::f64::consts::PI
+    } else if a.add(b).norm() < 1e-9 {
         0.0
     } else {
         a.dot(b).acos()
@@ -66,9 +68,8 @@ fn curve_intersection(
     // angle between AB & BC
     let angle_between_lines = smallest_angle_between(pv, nv.scale(-1.0)) % PI;
     if angle_between_lines.abs() < 1e-7 || (angle_between_lines - PI).abs() < 1e-7 {
-        // i.e. parallel
         return vec![if return_next { next } else { prev }];
-    }
+    };
     let bisect_tangent_angle = (std::f64::consts::PI - angle_between_lines) / 2.0;
     let smaller_side_length = prev.length.min(next.length) * max_curve_frac;
 
