@@ -23,12 +23,12 @@ pub trait Line: Debug + Sized + Display {
         self.join_non_parallel(other, steps, None)
     }
     fn join_to_with_hole(self, other: Self, frame: f64) -> Vec<Tri3d>;
-    fn join_non_parallel(self, other: Self, steps: i64, skips: Option<(i64, i64)>) -> Vec<Tri3d>;
+    fn join_non_parallel(self, other: Self, steps: i64, hole_skips: Option<(i64, i64)>) -> Vec<Tri3d>;
 
     // so we can draw edges round the thick lines
     fn draw_layer(layer: &Vec<Self>) -> Vec<Tri3d>;
 
-    fn draw_edges(curr: &Vec<Self>, prev: &Vec<Self>, steps: i64) -> Vec<Tri3d>;
+    fn endcap(self, other: Self, point: f64, steps: i64) -> Vec<Tri3d>;
 }
 
 
@@ -113,27 +113,25 @@ impl Line for Line3d {
         tris
     }
 
-    fn join_non_parallel(self, b: Self, steps: i64, skips: Option<(i64, i64)>) -> Vec<Tri3d> {
+    // completely ignore endcaps because this is a thin object
+    fn join_non_parallel(self, b: Self, steps: i64, hole_skips: Option<(i64, i64)>) -> Vec<Tri3d> {
         let a = self;
         let mut tris = Vec::new();
         let starts = Line3d::new(a.start, b.start);
         let ends = Line3d::new(a.end, b.end);
 
-        if skips.is_some() {
-            let (f, u) = skips.unwrap();
+        if hole_skips.is_some() {
+            let (f, u) = hole_skips.unwrap();
             if f < 1 || u > steps - 1 || u <= f {
                 panic!("Step ranges malformed: f {}, u {}, steps {}", f, u, steps)
             }
-            true
-        } else {
-            false
-        };
+        }
         let mut prev = a;
         for i in 1..=steps {
             let adj_start = starts.point(i as f64 / steps as f64);
             let adj_end = ends.point(i as f64 / steps as f64);
             let new_line = Line3d::new(adj_start, adj_end);
-            if skips.is_none() || (i <= skips.unwrap().0 || i > skips.unwrap().1) {
+            if hole_skips.is_none() || (i <= hole_skips.unwrap().0 || i > hole_skips.unwrap().1) {
                 tris.extend_from_slice(&join_planar_lines(prev, new_line));
             }
             prev = new_line;
@@ -145,7 +143,7 @@ impl Line for Line3d {
         vec![]
     }
 
-    fn draw_edges(_curr: &Vec<Self>, _prev: &Vec<Self>, _steps: i64) -> Vec<Tri3d> {
+    fn endcap(self, _other: Self, _point: f64, _steps: i64) -> Vec<Tri3d> {
         vec![]
     }
 }
@@ -254,35 +252,32 @@ impl Line for ThickLine3d {
         }
         tris
     }
-    fn join_non_parallel(self, other: Self, steps: i64, skips: Option<(i64, i64)>) -> Vec<Tri3d> {
+    fn join_non_parallel(self, other: Self, steps: i64, hole_skips: Option<(i64, i64)>) -> Vec<Tri3d> {
         let mut tris = vec![];
-        tris.extend(self.inner.join_non_parallel(other.inner, steps, skips));
+        tris.extend(self.inner.join_non_parallel(other.inner, steps, hole_skips));
 
-        tris.extend(self.outer.join_non_parallel(other.outer, steps, skips));
-        if skips.is_some() {
-            let (from, until) = skips.unwrap();
-            // TODO why???
-            let top_thickness = (from) as f64 / steps as f64;
+        tris.extend(self.outer.join_non_parallel(other.outer, steps, hole_skips));
 
-            let bottom_thickness = (until) as f64 / steps as f64;
+        if hole_skips.is_some() {
+            let (from, until) = hole_skips.unwrap();
+
+            let top = (from) as f64 / steps as f64;
+
+            let bot = (until) as f64 / steps as f64;
             // joins to make solid
-            let outer_start = Line3d::new(other.outer.start, self.outer.start);
-            let inner_start = Line3d::new(other.inner.start, self.inner.start);
-            let outer_end = Line3d::new(other.outer.end, self.outer.end);
-            let inner_end = Line3d::new(other.inner.end, self.inner.end);
+            let outer_starts = Line3d::new(other.outer.start, self.outer.start);
+            let inner_starts = Line3d::new(other.inner.start, self.inner.start);
+            let outer_ends = Line3d::new(other.outer.end, self.outer.end);
+            let inner_ends = Line3d::new(other.inner.end, self.inner.end);
+            // Top hole inside
             tris.extend_from_slice(&join_planar_lines(
-                Line3d::new(outer_start.point(top_thickness), outer_end.point(top_thickness)),
-                Line3d::new(inner_start.point(top_thickness), inner_end.point(top_thickness)),
+                Line3d::new(outer_starts.point(top), outer_ends.point(top)),
+                Line3d::new(inner_starts.point(top), inner_ends.point(top)),
             ));
+            //Bottom hole inside
             tris.extend_from_slice(&join_planar_lines(
-                Line3d::new(
-                    inner_start.point(bottom_thickness),
-                    inner_end.point(bottom_thickness),
-                ),
-                Line3d::new(
-                    outer_start.point(bottom_thickness),
-                    outer_end.point(bottom_thickness),
-                ),
+                Line3d::new(outer_starts.point(bot), outer_ends.point(bot)),
+                Line3d::new(inner_starts.point(bot), inner_ends.point(bot)),
             ));
         }
         tris
@@ -297,23 +292,12 @@ impl Line for ThickLine3d {
         return tris;
     }
 
-    fn draw_edges(curr: &Vec<Self>, prev: &Vec<Self>, steps: i64) -> Vec<Tri3d> {
-        let mut tris = vec![];
-        tris.extend(
-            Line3d::new(curr[0].inner.start, curr[0].outer.start).join_non_parallel(
-                Line3d::new(prev[0].inner.start, prev[0].outer.start),
-                steps,
-                None,
-            ),
-        );
-        tris.extend(
-            Line3d::new(curr.last().unwrap().inner.end, curr.last().unwrap().outer.end).join_non_parallel(
-                Line3d::new(prev.last().unwrap().inner.end, prev.last().unwrap().outer.end),
-                steps,
-                None,
-            ),
-        );
-        tris
+    fn endcap(self, other: Self, point: f64, steps: i64) -> Vec<Tri3d> {
+        Line3d::new(self.inner.point(point), self.outer.point(point)).join_non_parallel(
+            Line3d::new(other.inner.point(point), other.outer.point(point)),
+            steps,
+            None,
+        )
     }
 }
 impl Display for ThickLine3d {

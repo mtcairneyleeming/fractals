@@ -20,7 +20,12 @@ where
         let prev_layer = &layers[(i - 1) as usize];
         let curr_layer = &layers[i as usize];
 
-        tris.extend(T::draw_edges(&curr_layer.lines, &prev_layer.lines, layer_steps));
+        tris.extend(curr_layer.lines[0].endcap(prev_layer.lines[0], 0.0, layer_steps));
+        tris.extend(curr_layer.lines.last().unwrap().endcap(
+            *(prev_layer.lines.last().unwrap()),
+            1.0,
+            layer_steps,
+        ));
 
         // find where the holes should go (if we're using HoleRegions::Everywhere)
         let (hole_regions, new_hole_scale) = calc_hole_regions(&hole_options, hole_scale);
@@ -73,24 +78,9 @@ where
 
                         let layer_frac_to_part_frac =
                             |layer_frac: f64| (layer_frac - start_frac) / (end_frac - start_frac);
-                        let draw = |first: f64, second: f64, hole: bool, tris: &mut Vec<Tri3d>| {
-                            let skips = if hole {
-                                Some((
-                                    (frame_factor * layer_steps as f64).round() as i64,
-                                    ((1.0 - frame_factor) * layer_steps as f64).round() as i64,
-                                ))
-                            } else {
-                                None
-                            };
-                            let prev = prev_line
-                                .section(layer_frac_to_part_frac(first), layer_frac_to_part_frac(second));
 
-                            let next = new_part
-                                .section(layer_frac_to_part_frac(first), layer_frac_to_part_frac(second));
-
-
-                            tris.extend(prev.join_non_parallel(next, layer_steps, skips));
-                        };
+                        let mut split_lines = vec![];
+                        let mut endcaps_to_draw = vec![];
 
                         let mut j = 1;
                         while start_frac >= hole_regions[j] {
@@ -98,31 +88,62 @@ where
                         }
                         // so start_frac is in [hole_regions[j-1], hole_regions[j])
 
+                        // add an endcap at start if necessary, and now draw up to j, not including the
+                        // end cap.
+                        if start_frac == hole_regions[j - 1] && j - 1 > 0 {
+                            endcaps_to_draw.push(hole_regions[j - 1])
+                        }
+
+
                         if end_frac < hole_regions[j] {
-                            // this line is fully within this hole/space region
-                            draw(start_frac, end_frac, j % 2 == 0, &mut tris)
+                            split_lines.push((start_frac, end_frac, j));
                         } else {
-                            // we've just added an endcap if necessary at start_frac
-                            draw(start_frac, hole_regions[j], j % 2 == 0, &mut tris);
-                            /* the loop below works as follows:
-                                    - the invariant is that everything up to hole_regions[j] has been drawn properly
-                                    - thus each iteration must fully draw all the regions from hole_regions[j] up to and including the last complete one before end_frac
-                            */
-                            // index of the region up to which we have already drawn
-                            // check to make sure we haven't reached end, and if not whether the
-                            // whole hole/solid region is in this line part
-                            while j + 1 < hole_regions.len() && hole_regions[j + 1] < end_frac {
+                            split_lines.push((start_frac, hole_regions[j], j));
+
+                            j += 1;
+                            // the invariant is that all sections prior to hole_regions[j-1] not including
+                            // the endcap there, have been drawn successfully.
+                            // note this can draw everything incl the last section.
+                            while j < hole_regions.len() && hole_regions[j] < end_frac {
                                 // so this full hole/space is in this line part
+                                split_lines.push((hole_regions[j - 1], hole_regions[j], j));
+                                endcaps_to_draw.push(hole_regions[j - 1]);
                                 j += 1;
-                                draw(hole_regions[j - 1], hole_regions[j], j % 2 == 0, &mut tris);
                             }
-                            // now draw from hole_regions[curr_change_index] to end_frac (if
-                            // they're not the same)
-                            // the next endcap will be dealt with by the next line/ the very end
-                            // of the layer
-                            if end_frac < 1.0 - 1e-8 && end_frac - hole_regions[j] > 1e-7 {
-                                draw(hole_regions[j], end_frac, (j + 1) % 2 == 0, &mut tris);
+
+                            if j < hole_regions.len() {
+                                // now draw from hole_regions[curr_change_index] to end_frac (if
+                                // they're not the same)
+                                // the next endcap will be dealt with by the next line/ the very end
+                                // of the layer
+                                endcaps_to_draw.push(hole_regions[j - 1]);
+
+                                split_lines.push((hole_regions[j - 1], end_frac, j));
                             }
+                        }
+
+                        for (s, e, j) in split_lines {
+                            let skips = if j % 2 == 0 {
+                                Some((
+                                    (frame_factor * layer_steps as f64).round() as i64,
+                                    ((1.0 - frame_factor) * layer_steps as f64).round() as i64,
+                                ))
+                            } else {
+                                None
+                            };
+                            let prev =
+                                prev_line.section(layer_frac_to_part_frac(s), layer_frac_to_part_frac(e));
+
+                            let next =
+                                new_part.section(layer_frac_to_part_frac(s), layer_frac_to_part_frac(e));
+
+
+                            tris.extend(prev.join_non_parallel(next, layer_steps, skips));
+                        }
+
+
+                        for e in endcaps_to_draw {
+                            tris.extend(prev_line.endcap(new_part, layer_frac_to_part_frac(e), layer_steps));
                         }
                     }
                 }
