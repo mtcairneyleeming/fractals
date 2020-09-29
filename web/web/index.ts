@@ -51,10 +51,10 @@ async function runE() {
     query.set("curve", settings["curve"].toString())
     if (settings["curve"]) {
         query.set("max_curve_frac", (0.01 * settings["curve_frac"]).toString())
-        query.set("curve_steps_mult", "7.0") // TODO add presets
+        query.set("curve_steps_mult", "4.0") // TODO add presets
     }
 
-    query.set("init_steps", "15")
+    query.set("init_steps", "9")
     query.set("step_scale", "1.0")
 
     let small_layers = layers.map((layer) =>
