@@ -28,7 +28,7 @@ export class Simple3D {
         // draw axiom wireframe
         layers.push(this.drawLayer(this.axiom, new State(0), z, 1, 0, centre))
 
-        let layerString = this.axiom
+        let prevLayer = this.axiom
 
         for (let layerIndex = 1; layerIndex <= n; layerIndex++) {
             // update layer state
@@ -39,20 +39,20 @@ export class Simple3D {
 
             // create state to run user commands against
             let state = new State(layerIndex)
-            let newString = ""
+            let currLayer = ""
 
 
             // the lines that will make up the next plane of the wireframe
             let layer: Line3d[] = []
 
             // draw 'evolution' of each previous symbol
-            for (let prevIndex = 0; prevIndex < layerString.length; prevIndex++) {
+            for (let prevIndex = 0; prevIndex < prevLayer.length; prevIndex++) {
 
-                let prevSymbol = layerString[prevIndex]
+                let prevSymbol = prevLayer[prevIndex]
 
                 // get new symbols to draw
                 let newSymbols = this.rules.has(prevSymbol) ? this.rules.get(prevSymbol) : [prevSymbol]
-                newString += newSymbols.join("")
+                currLayer += newSymbols.join("")
                 // draw each of the new symbols as a wireframe on the xy plane z = currPos.
                 // with the appropriate drawing state, scale, etc.
                 for (let symbol of newSymbols) {
@@ -68,7 +68,7 @@ export class Simple3D {
                 layer = centreLayer(layer)
             }
             layers.push(layer)
-            layerString = newString
+            prevLayer = currLayer
         }
 
         layers.splice(0, 1)
