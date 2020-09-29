@@ -187,6 +187,7 @@ let all_inputs = [
     "thicken_width",
     "curve_frac",
     "ev_hole_number",
+    "ev_hole_scale",
     "ev_ratio",
     "ev_frame_percent",
     "frame_factor"

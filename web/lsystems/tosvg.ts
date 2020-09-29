@@ -13,7 +13,7 @@ export class State {
     // using an array as a stack, as it has push, pop
     private stateStack: Array<Object> = []
     public state: Object = {
-        step: 100,
+        step: 150,
         angle: 0,
         currentPosition: [0, 0]
 
