@@ -109,28 +109,37 @@ export function parseSettings(ignore3d = false): Object {
                 let holeStr = getInput("ev_hole_number").value
                 let num_holes = parseInt(holeStr, 10)
                 if (isNaN(num_holes) || !isFinite(num_holes) || val < 1) {
-                    throw new Error(`The number of holes you asked for, "${str}" was not a valid, finite integer above 0`)
+                    throw new Error(`The number of holes you asked for, "${holeStr}" was not a valid, finite integer above 0`)
+                }
+
+                let sfStr = getInput("ev_hole_scale").value
+                let sf = parseInt(sfStr, 10)
+                if (isNaN(sf) || !isFinite(sf) || sf < 1) {
+                    throw new Error(`The scaling factor you set, "${sfStr}" was not a valid, finite integer above 0`)
                 }
 
                 let ratioStr = getInput("ev_ratio").value
                 let ratio = parseFloat(ratioStr)
                 if (isNaN(ratio) || !isFinite(ratio) || ratio < 0) {
-                    throw new Error(`Your hole:solid ratio, "${str}" was not a valid, postive, finite number.`)
+                    throw new Error(`Your hole:solid ratio, "${ratioStr}" was not a valid, postive, finite number.`)
                 }
 
                 let fstr = getInput("ev_frame_percent").value
                 let fval = parseFloat(fstr)
                 if (isNaN(fval) || !isFinite(fval) || fval < 0 || fval > 50) {
-                    throw new Error(`The frame size you input, "${str}" was not a valid, finite number between 0 and 50%.`)
+                    throw new Error(`The frame size you input, "${fstr}" was not a valid, finite number between 0 and 50%.`)
                 }
-                let pair = 1 + ratio
-                let pair_frac = 1.0 / (num_holes * (1 + ratio))
-
+                console.log([
+                    num_holes,
+                    ratio,
+                    sf,
+                    0.01 * fval
+                ])
                 settings["hole"] = [2,
                     [
-                        1 / pair * pair_frac,
-                        ratio / pair * pair_frac,
-                        settings["scale_factor"],
+                        num_holes,
+                        ratio,
+                        sf,
                         0.01 * fval
                     ]
                 ]

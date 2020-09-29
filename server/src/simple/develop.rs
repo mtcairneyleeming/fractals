@@ -15,7 +15,7 @@ where
 
     tris.extend(T::draw_layer(&layers.last().unwrap().lines));
     let mut layer_steps = init_steps;
-    let mut hole_scale = 1.0; //only useful if using HoleOptions::Everywhere
+    let mut hole_scale = 1; //only useful if using HoleOptions::Everywhere
     for i in 1..layers.len() {
         let prev_layer = &layers[(i - 1) as usize];
         let curr_layer = &layers[i as usize];
@@ -63,8 +63,8 @@ where
                         }
                     }
                     HoleOptions::Everywhere {
-                        hole_frac: _,
-                        spacing_frac: _,
+                        num_holes: _,
+                        ratio: _,
                         scaling_factor: _,
                         frame_factor,
                     } => {

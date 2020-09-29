@@ -439,6 +439,15 @@ interface State {
                                 <label for="ev_hole_number" class="col-sm-6 col-form-label">How many holes?</label>
                                 <input id="ev_hole_number" type="number" min="1" value="5" step="1" class="form-control col-sm-6" />
 
+                                <label for="ev_hole_scale" class="col-sm-6 col-form-label  mt-3">Scaling factor for num. of holes</label>
+                                <div class="input-group pl-0 pr-0 col-sm-6 mt-3">
+                                    <input type="text" class="form-control" id="ev_hole_scale" min="1" max="50" value="2" step="1" />
+
+                                    <small id="hole_scale_help" class="form-text">
+                                        The factor to multiply the number of holes by on each iteration - so if the first iteration has <output id="hole_scale_help_num">5</output> holes in it, the second iteration has <output id="hole_scale_help_mult">5x2=10</output> holes in it.
+                                    </small>
+                                </div>
+
                                 <label for="ev_ratio" class="col-sm-6 col-form-label mt-3">Hole to solid ratio</label>
                                 <div class="input-group pl-0 pr-0 col-sm-6 mt-3">
                                     <div class="input-group-prepend" style="display: inline;">

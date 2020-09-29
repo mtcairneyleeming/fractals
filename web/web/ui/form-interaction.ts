@@ -143,4 +143,17 @@ function updateLiveOutputs() {
     }
     thickenWidth()
     document.getElementById("thicken_form").addEventListener("input", thickenWidth)
+
+    function evHoleScale() {
+        let num = parseInt(getInput("ev_hole_number").value)
+        let fac = parseInt(getInput("ev_hole_scale").value)
+        getOutput("hole_scale_help_num").value = num.toString()
+
+        getOutput("hole_scale_help_mult").value = `${fac}x${num}=${fac * num}`
+    }
+    evHoleScale()
+    document.getElementById("ev_hole_number").addEventListener("input", evHoleScale)
+
+    document.getElementById("ev_hole_scale").addEventListener("input", evHoleScale)
+
 }
