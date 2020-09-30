@@ -11,9 +11,9 @@ where
     T: Line + Copy,
 {
     let mut tris: Vec<Tri3d> = Vec::new();
-    tris.extend(T::draw_layer(&layers[0].lines));
+    tris.extend(T::draw_layer(&layers[0].lines, -1.0));
 
-    tris.extend(T::draw_layer(&layers.last().unwrap().lines));
+    tris.extend(T::draw_layer(&layers.last().unwrap().lines, 1.0));
     let mut layer_steps = init_steps;
     let mut hole_scale = 1; //only useful if using HoleOptions::Everywhere
     for i in 1..layers.len() {

@@ -26,7 +26,7 @@ pub trait Line: Debug + Sized + Display {
     fn join_non_parallel(self, other: Self, steps: i64, hole_skips: Option<(i64, i64)>) -> Vec<Tri3d>;
 
     // so we can draw edges round the thick lines
-    fn draw_layer(layer: &Vec<Self>) -> Vec<Tri3d>;
+    fn draw_layer(layer: &Vec<Self>, thickness: f64) -> Vec<Tri3d>;
 
     fn endcap(self, other: Self, point: f64, steps: i64) -> Vec<Tri3d>;
 }
@@ -139,7 +139,7 @@ impl Line for Line3d {
         tris
     }
 
-    fn draw_layer(_layer: &Vec<Self>) -> Vec<Tri3d> {
+    fn draw_layer(_layer: &Vec<Self>, _thickness: f64) -> Vec<Tri3d> {
         vec![]
     }
 
@@ -283,11 +283,33 @@ impl Line for ThickLine3d {
         tris
     }
 
-    fn draw_layer(layer: &Vec<Self>) -> Vec<Tri3d> {
+    fn draw_layer(layer: &Vec<Self>, thickness: f64) -> Vec<Tri3d> {
         let mut tris = vec![];
 
-        for i in 0..layer.len() {
-            tris.extend_from_slice(&join_planar_lines(layer[i].inner, layer[i].outer));
+        let adjust = Point3d::new(0.0, 0.0, thickness);
+        let adjusted = if thickness.abs() < 1e-7 {
+            layer
+                .iter()
+                .map(|line| ThickLine3d::new(line.original, line.outer, line.inner))
+                .collect::<Vec<Self>>()
+        } else {
+            layer
+                .iter()
+                .map(|line| {
+                    ThickLine3d::new(
+                        Line3d::new(line.original.start.add(adjust), line.original.end.add(adjust)),
+                        Line3d::new(line.outer.start.add(adjust), line.outer.end.add(adjust)),
+                        Line3d::new(line.inner.start.add(adjust), line.inner.end.add(adjust)),
+                    )
+                })
+                .collect::<Vec<Self>>()
+        };
+
+        for i in 0..adjusted.len() {
+            tris.extend_from_slice(&join_planar_lines(adjusted[i].inner, adjusted[i].outer));
+            if thickness.abs() > 1e-7 {
+                tris.extend(adjusted[i].join_to(layer[i], 1));
+            }
         }
         return tris;
     }
