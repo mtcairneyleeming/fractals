@@ -1,22 +1,13 @@
 # Fractals
 
-A program to create 3d developing fractals ([paper](https://doi.org/10.1080/17513472.2013.852399)) from Lindenmayer systems ([wikipedia](https://en.wikipedia.org/wiki/L-system?oldformat=true)).
+A website for designing fractals and turning them into 3d printable models.
 
-## Modules
-There are 4 major modules that make up this project
+It's based on the idea of a developing fractal from ([this paper](https://doi.org/10.1080/17513472.2013.852399)), and `server` contains all the geometry code needed to implement and run this successfully, for a subset of fractals that you can generate with Lindenmayer systems (on [wikipedia](https://en.wikipedia.org/wiki/L-system)) that contain only straight lines.
 
-### L-systems parser
-A simple parser for context-free, deterministic Lindenmayer systems.
+`web` contains the frontend, which has the UI to actually design the fractal, and to preview it too, with a large amount of help text also included. 
 
-### L-systems to SVG
-Some code to draw an SVG from a L-system state.
+The generated developing fractals can have smooth curves on their corners, as well as 'windows' to speed print time by making the models lighter.
 
+## Build/setup
 
-### Straight-lines developing fractals
-Given a mapping from the L-systems alphabet to 'turtle' drawing commands using (only) straight lines, this produces a developing fractal from the selected iterations. 
-
-Support for 'windows' may come later
-
-
-### Curved developing fractals
-This module would allow any description of the alphabet to drawing mapping (incl. curves) and then produce a developing fractal, using one of the approaches in the paper linked above. This will definitely come later.
+To develop, you can use `cargo run` in the server directory and `parcel watch web/index.html` in the web directory, and the `update.sh` script will download changes and rebuild everything for production use. I've used caddy to setup HTTPS. Note that the rust server also serves the compiled files for the front end.
