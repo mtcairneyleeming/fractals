@@ -249,7 +249,10 @@ interface State {
         <div class="form-group row">
             <label for="rules" class="col-sm-1 col-form-label">Rules</label>
             <div class="col-sm-4">
-                <textarea id="rules" value="" class="form-control" value="F=>G+F+G\nG=>F-G-F" placeholder="F=>G+F+G\nG=>F-G-F"></textarea>
+                <textarea id="rules" value="" class="form-control" placeholder="F=>G+F+G">
+F=>G+F+G
+G=>F-G-F
+                </textarea>
             </div>
             <div class="col-sm-7 col-form-label">The rules that are applied to each iteration to generate the next one - write each on a separate line in the form <code>A>B+C-D...</code>, mapping 1 letter to 0 or more other ones (so for the placeholder example <code>+</code> and <code>-</code> will always stay the same). If you don't include a letter then the program will assume it will stay the same.</div>
         </div>
