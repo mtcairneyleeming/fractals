@@ -19,13 +19,14 @@
         <!-- L-systems header -->
         <div class="row justify-content-between">
             <div class="col-md-auto mt-5">
-                <h3>Describe your fractal <small>or choose from one of the presets:</small></h3>
+                <h3>Describe your fractal: <!--<small>or choose from one of the presets:</small>--></h3>
             </div>
+            <!--
             <div class="col-md-auto">
                 <form>Presets form TODO</form>
             </div>
+            -->
         </div>
-        <p>If you don't know what a Lindenmayer-system is, read / watch ??? to get started.</p>
         <div class="card">
             <div class="card-header" id="lsysExplHeader" style="padding: 0px">
                 <h2 class="mb-0">
@@ -248,7 +249,7 @@ interface State {
         <div class="form-group row">
             <label for="rules" class="col-sm-1 col-form-label">Rules</label>
             <div class="col-sm-4">
-                <textarea id="rules" value="" class="form-control" value="F=>F+F-F-F+F"></textarea>
+                <textarea id="rules" value="" class="form-control" value="F=>G+F+G\nG=>F-G-F" placeholder="F=>G+F+G\nG=>F-G-F"></textarea>
             </div>
             <div class="col-sm-7 col-form-label">The rules that are applied to each iteration to generate the next one - write each on a separate line in the form <code>A>B+C-D...</code>, mapping 1 letter to 0 or more other ones (so for the placeholder example <code>+</code> and <code>-</code> will always stay the same). If you don't include a letter then the program will assume it will stay the same.</div>
         </div>
@@ -437,7 +438,7 @@ interface State {
                         <div class="col-sm-6">
                             <div class="form-group row">
                                 <label for="ev_hole_number" class="col-sm-6 col-form-label">How many holes?</label>
-                                <input id="ev_hole_number" type="number" min="1" value="5" step="1" class="form-control col-sm-6" />
+                                <input id="ev_hole_number" type="number" min="1" value="6" step="1" class="form-control col-sm-6" />
 
                                 <label for="ev_hole_scale" class="col-sm-6 col-form-label  mt-3">Scaling factor for num. of holes</label>
                                 <div class="input-group pl-0 pr-0 col-sm-6 mt-3">
@@ -453,7 +454,7 @@ interface State {
                                     <div class="input-group-prepend" style="display: inline;">
                                         <span class="input-group-text" id="ev_ratio_prepend">1:</span>
                                     </div>
-                                    <input type="number" min="0" class="form-control" id="ev_ratio" value="2" />
+                                    <input type="number" min="0" class="form-control" id="ev_ratio" value="1" />
                                 </div>
 
                                 <label for="ev_frame_percent" class="col-sm-6 col-form-label  mt-3">Frame size</label>
