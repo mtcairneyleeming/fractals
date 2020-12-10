@@ -7,7 +7,7 @@ import { STLLoader } from "three/examples/jsm/loaders/STLLoader"
 // TODO: autoresize
 
 let triScene: THREE.Scene = null;
-let triMaterial = new THREE.MeshLambertMaterial({ color: 0x909090, wireframe: false, side: THREE.FrontSide, flatShading: true, vertexColors: false })
+let triMaterial = new THREE.MeshLambertMaterial({ color: "#d43535", wireframe: false, side: THREE.FrontSide, flatShading: true, vertexColors: false })
 let trisMesh: THREE.Mesh = null;
 let camera: THREE.OrthographicCamera = null
 let ambientLight: THREE.AmbientLight = null
@@ -107,17 +107,21 @@ export async function displaySTL(stl: Blob) {
         let x = Math.cos(angle) * rad
         let y = Math.sin(angle) * rad
 
-        let topLight = new THREE.PointLight(0xffffff, 1, 100)
+        let topLight = new THREE.PointLight(0xffffff, 10, 100)
         topLight.position.set(x, y, z)
         triScene.add(topLight)
 
-        let bottom = new THREE.PointLight(0xffffff, 1, 100)
+        let bottom = new THREE.PointLight(0xffffff, 10, 100)
         bottom.position.set(x, y, -1.0 * z)
         triScene.add(bottom)
-        console.log(x, y, z)
-        console.log(x, y, -z)
+
         lights.push(topLight, bottom)
     }
+    let centre = new THREE.PointLight(0xffffff, 3, 100)
+    centre.position.set(0, 0, 0)
+    triScene.add(centre)
+
+    lights.push(centre)
 
 
 
