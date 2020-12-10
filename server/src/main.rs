@@ -32,12 +32,13 @@ fn tris_to_binary_stl(tris: Vec<Tri3d>) -> Vec<u8> {
     stl_io::write_stl(&mut binary_stl, mesh.iter()).unwrap();
     binary_stl
 }
+
+
 #[derive(Deserialize, Serialize)]
 struct Data {
     layers: Vec<Vec<[f64; 6]>>,
     holes: HoleOptions,
 }
-
 #[post(
     "/stl?<thicken>&<thickness>&<curve>&<max_curve_frac>&<curve_steps_mult>&<init_steps>&<step_scale>",
     format = "msgpack",
@@ -53,6 +54,28 @@ fn stl(
     init_steps: i64,
     step_scale: f64,
 ) -> Vec<u8> {
+    tris_to_binary_stl(create_triangles(
+        tuple,
+        thicken,
+        thickness,
+        curve,
+        max_curve_frac,
+        curve_steps_mult,
+        init_steps,
+        step_scale,
+    ))
+}
+
+fn create_triangles(
+    tuple: MsgPack<Data>,
+    thicken: bool,
+    thickness: Option<f64>,
+    curve: Option<bool>,
+    max_curve_frac: Option<f64>,
+    curve_steps_mult: Option<f64>,
+    init_steps: i64,
+    step_scale: f64,
+) -> Vec<Tri3d> {
     let data = tuple.into_inner();
 
     let layers: Vec<Layer<Line3d>> = data
@@ -89,7 +112,7 @@ fn stl(
         if thicken { "thick" } else { "thin" },
         start.elapsed().as_secs_f32()
     );
-    tris_to_binary_stl(tris)
+    tris
 }
 
 fn main() {
