@@ -21,7 +21,7 @@ pub trait Line: Debug + Sized + Display {
 
     // draw a complete surface between two not necessarily parallel lines
     fn join_to(self, other: Self, steps: i64) -> Vec<Tri3d> {
-        self.join_non_parallel(other, steps, vec![], false)
+        self.join_non_parallel(other, steps, None, false)
     }
     // join two parallel lines with a hole in the middle
     fn join_to_with_hole(self, other: Self, frame: f64, reverse: bool) -> Vec<Tri3d>;

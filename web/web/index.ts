@@ -45,8 +45,10 @@ async function runE() {
     let query = new URLSearchParams("");
     query.set("thicken", settings["thicken"])
     if (settings["thicken"]) {
-        query.set("thickness", settings["thickness"].toString())
+        query.set("top_thickness", settings["top_thickness"].toString())
+        query.set("bottom_thickness", settings["bottom_thickness"].toString())
     }
+
     query.set("curve", settings["curve"].toString())
     if (settings["curve"]) {
         query.set("max_curve_frac", (0.01 * settings["curve_frac"]).toString())

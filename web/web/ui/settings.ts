@@ -72,11 +72,17 @@ export function parseSettings(ignore3d = false): Object {
         let thicken_check = getInput("thicken_check").checked
         settings["thicken"] = thicken_check
         if (thicken_check) {
-            let str = getInput("thicken_width").value
+            let str = getInput("top_thicken_width").value
             let val = parseFloat(str)
-            settings["thickness"] = val
+            settings["top_thickness"] = val
             if (isNaN(val) || !isFinite(val)) {
-                throw new Error(`The thickness you gave, "${str}" was not a valid, finite number.`)
+                throw new Error(`The thickness at the top you gave, "${str}" was not a valid, finite number.`)
+            }
+            str = getInput("bottom_thicken_width").value
+            val = parseFloat(str)
+            settings["bottom_thickness"] = val
+            if (isNaN(val) || !isFinite(val)) {
+                throw new Error(`The thickness at the bottom you gave, "${str}" was not a valid, finite number.`)
             }
         }
 
@@ -184,7 +190,8 @@ let all_inputs = [
     "scaling_factor_other",
     "num_layers",
     "layer_dist",
-    "thicken_width",
+    "top_thicken_width",
+    "bottom_thicken_width",
     "curve_frac",
     "ev_hole_number",
     "ev_hole_scale",

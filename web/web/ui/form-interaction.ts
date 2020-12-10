@@ -77,7 +77,9 @@ function updateThickenAndCurve() {
     document.getElementById("curve-diagram-help").style.display = curve ? "block" : "none"
 
     let thicken = getInput("thicken_check").checked
-    getInput("thicken_width").disabled = !thicken;
+    getInput("top_thicken_width").disabled = !thicken;
+
+    getInput("bottom_thicken_width").disabled = !thicken;
 }
 
 export function setupInteractions() {
@@ -136,13 +138,6 @@ function updateLiveOutputs() {
     }
     stepLength()
     document.getElementById("step_length_form").addEventListener("input", stepLength)
-
-    function thickenWidth() {
-
-        getOutput("thicken_output").value = getInput("thicken_width").value
-    }
-    thickenWidth()
-    document.getElementById("thicken_form").addEventListener("input", thickenWidth)
 
     function evHoleScale() {
         let num = parseInt(getInput("ev_hole_number").value)

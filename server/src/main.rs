@@ -40,14 +40,15 @@ struct Data {
     holes: HoleOptions,
 }
 #[post(
-    "/stl?<thicken>&<thickness>&<curve>&<max_curve_frac>&<curve_steps_mult>&<init_steps>&<step_scale>",
+    "/stl?<thicken>&<top_thickness>&<bottom_thickness>&<curve>&<max_curve_frac>&<curve_steps_mult>&<init_steps>&<step_scale>",
     format = "msgpack",
     data = "<tuple>"
 )]
 fn stl(
     tuple: MsgPack<Data>,
     thicken: bool,
-    thickness: Option<f64>,
+    top_thickness: Option<f64>,
+    bottom_thickness: Option<f64>,
     curve: Option<bool>,
     max_curve_frac: Option<f64>,
     curve_steps_mult: Option<f64>,
@@ -57,7 +58,8 @@ fn stl(
     tris_to_binary_stl(create_triangles(
         tuple,
         thicken,
-        thickness,
+        top_thickness,
+        bottom_thickness,
         curve,
         max_curve_frac,
         curve_steps_mult,
@@ -69,7 +71,8 @@ fn stl(
 fn create_triangles(
     tuple: MsgPack<Data>,
     thicken: bool,
-    thickness: Option<f64>,
+    top_thickness: Option<f64>,
+    bottom_thickness: Option<f64>,
     curve: Option<bool>,
     max_curve_frac: Option<f64>,
     curve_steps_mult: Option<f64>,
@@ -102,11 +105,14 @@ fn create_triangles(
     let simplified = simple::simplify(possibly_curved);
 
     let tris: Vec<Tri3d> = if thicken {
-        let thickened = vec![];
-        let t = thickness.unwrap();
+        let mut thickened = vec![];
+        let t = top_thickness.unwrap();
+        let b = bottom_thickness.unwrap();
         for i in 0..simplified.len() {
-            thickened.push(simplified[i].thicken(t * (i as f64) / (simplified.len() as f64)))
+            dbg!(t - (t - b) * (i as f64) / (simplified.len() as f64));
+            thickened.push(simplified[i].thicken(t - (t - b) * (i as f64) / (simplified.len() as f64)))
         }
+        dbg!(simplified.len());
         simple::develop(thickened, data.holes, init_steps, step_scale)
     } else {
         simple::develop(simplified, data.holes, init_steps, step_scale)
