@@ -19,7 +19,9 @@
         <!-- L-systems header -->
         <div class="row justify-content-between">
             <div class="col-md-auto mt-5">
-                <h3>Describe your fractal: <!--<small>or choose from one of the presets:</small>--></h3>
+                <h3>Describe your fractal:
+                    <!--<small>or choose from one of the presets:</small>-->
+                </h3>
             </div>
             <!--
             <div class="col-md-auto">
@@ -336,8 +338,8 @@ G=>F-G-F
                     </div>
                     <label for="layer_dist" class="col-sm-4 col-form-label">Distance between layers</label>
                     <form class="col-sm-8 d-flex flex-row mt-2" id="step_length_form">
-                        <input type="range" class="custom-range pr-2" id="layer_dist" />
-                        <output for="layer_dist" id="slider_val"> 50% of the step length on each layer</output>
+                        <input type="range" class="custom-range pr-2" id="layer_dist" min="1" max="300" value="100" step="1" />
+                        <output for="layer_dist" id="slider_val"> 100% of the step length on each layer</output>
                     </form>
                     <p class="col-sm-8 offset-sm-4" style="font-size: smaller;">TODO: better diagram that actually shows this distance </p>
                 </div>
