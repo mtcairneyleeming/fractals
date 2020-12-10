@@ -7,7 +7,7 @@ import { STLLoader } from "three/examples/jsm/loaders/STLLoader"
 // TODO: autoresize
 
 let triScene: THREE.Scene = null;
-let triMaterial = new THREE.MeshLambertMaterial({ color: 0x909090, wireframe: false, side: THREE.DoubleSide, flatShading: true, vertexColors: false })
+let triMaterial = new THREE.MeshLambertMaterial({ color: 0x909090, wireframe: false, side: THREE.FrontSide, flatShading: true, vertexColors: false })
 let trisMesh: THREE.Mesh = null;
 let camera: THREE.OrthographicCamera = null
 let ambientLight: THREE.AmbientLight = null

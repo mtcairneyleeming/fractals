@@ -11,20 +11,21 @@ where
     T: Line + Copy,
 {
     let mut tris: Vec<Tri3d> = Vec::new();
-    tris.extend(T::draw_layer(&layers[0].lines, -1.0));
+    tris.extend(T::draw_layer(&layers[0].lines, 1.0, false));
 
-    tris.extend(T::draw_layer(&layers.last().unwrap().lines, 1.0));
+    tris.extend(T::draw_layer(&layers.last().unwrap().lines, 1.0, true));
     let mut layer_steps = init_steps;
     let mut hole_scale = 1; //only useful if using HoleOptions::Everywhere
     for i in 1..layers.len() {
         let prev_layer = &layers[(i - 1) as usize];
         let curr_layer = &layers[i as usize];
 
-        tris.extend(curr_layer.lines[0].endcap(prev_layer.lines[0], 0.0, layer_steps));
+        tris.extend(curr_layer.lines[0].endcap(prev_layer.lines[0], 0.0, layer_steps, true));
         tris.extend(curr_layer.lines.last().unwrap().endcap(
             *(prev_layer.lines.last().unwrap()),
             1.0,
             layer_steps,
+            false,
         ));
 
         // find where the holes should go (if we're using HoleRegions::Everywhere)
@@ -62,7 +63,7 @@ where
                     }
                     HoleOptions::ParallelOnly { frame_factor } => {
                         if prev_line.is_parallel_to(new_part) && new_part.length() > 0.1 {
-                            tris.extend(prev_line.join_to_with_hole(new_part, frame_factor));
+                            tris.extend(prev_line.join_to_with_hole(new_part, frame_factor, false));
                         } else {
                             tris.extend(prev_line.join_to(new_part, layer_steps));
                         }
@@ -91,7 +92,7 @@ where
                         // add an endcap at start if necessary, and now draw up to j, not including the
                         // end cap.
                         if start_frac == hole_regions[j - 1] && j - 1 > 0 {
-                            endcaps_to_draw.push(hole_regions[j - 1])
+                            endcaps_to_draw.push((hole_regions[j - 1], j % 2 == 0))
                         }
 
 
@@ -107,7 +108,7 @@ where
                             while j < hole_regions.len() && hole_regions[j] < end_frac {
                                 // so this full hole/space is in this line part
                                 split_lines.push((hole_regions[j - 1], hole_regions[j], j));
-                                endcaps_to_draw.push(hole_regions[j - 1]);
+                                endcaps_to_draw.push((hole_regions[j - 1], j % 2 == 0));
                                 j += 1;
                             }
 
@@ -116,7 +117,7 @@ where
                                 // they're not the same)
                                 // the next endcap will be dealt with by the next line/ the very end
                                 // of the layer
-                                endcaps_to_draw.push(hole_regions[j - 1]);
+                                endcaps_to_draw.push((hole_regions[j - 1], j % 2 == 0));
 
                                 split_lines.push((hole_regions[j - 1], end_frac, j));
                             }
@@ -138,12 +139,17 @@ where
                                 new_part.section(layer_frac_to_part_frac(s), layer_frac_to_part_frac(e));
 
 
-                            tris.extend(prev.join_non_parallel(next, layer_steps, skips));
+                            tris.extend(prev.join_non_parallel(next, layer_steps, skips, false));
                         }
 
 
-                        for e in endcaps_to_draw {
-                            tris.extend(prev_line.endcap(new_part, layer_frac_to_part_frac(e), layer_steps));
+                        for (e, dir) in endcaps_to_draw {
+                            tris.extend(prev_line.endcap(
+                                new_part,
+                                layer_frac_to_part_frac(e),
+                                layer_steps,
+                                dir,
+                            ));
                         }
                     }
                 }

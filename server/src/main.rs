@@ -20,7 +20,7 @@ fn tris_to_binary_stl(tris: Vec<Tri3d>) -> Vec<u8> {
     let mesh: Vec<Triangle> = tris
         .into_iter()
         .map(|t| stl_io::Triangle {
-            normal: [1.0, 0.0, 0.0],
+            normal: [t.n.x as f32, t.n.y as f32, t.n.z as f32],
             vertices: [
                 [t.a.x as f32, t.a.y as f32, t.a.z as f32],
                 [t.b.x as f32, t.b.y as f32, t.b.z as f32],

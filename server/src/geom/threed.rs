@@ -9,11 +9,12 @@ pub struct Tri3d {
     pub a: Point3d,
     pub b: Point3d,
     pub c: Point3d,
+    pub n: Point3d,
 }
 
 impl Tri3d {
-    pub fn new(a: Point3d, b: Point3d, c: Point3d) -> Self {
-        Tri3d { a, b, c }
+    pub fn new(a: Point3d, b: Point3d, c: Point3d, n: Point3d) -> Self {
+        Tri3d { a, b, c, n }
     }
 
     pub fn sides(&self) -> Vec<Line3d> {
@@ -28,8 +29,22 @@ impl Tri3d {
         return self.a.add(self.b).add(self.c).scale(1.0 / 3.0);
     }
 
-    pub fn from_sp(side: &Line3d, point: &Point3d) -> Tri3d {
-        return Tri3d::new(side.start(), side.end(), *point);
+    pub fn from_sp(side: &Line3d, point: &Point3d, rev: bool) -> Tri3d {
+        let a = side.start();
+        let b = side.end();
+        let c = *point;
+        let A = b.sub(a);
+        let B = c.sub(a);
+        let norm = Point3d::new(
+            A.y * B.z - A.z * B.y,
+            A.z * B.x - A.x * B.z,
+            A.x * B.y - A.y * B.x,
+        );
+        return if rev {
+            Tri3d::new(a, c, b, norm.scale(-1.0))
+        } else {
+            Tri3d::new(a, b, c, norm)
+        };
     }
 }
 

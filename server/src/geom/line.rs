@@ -19,16 +19,28 @@ pub trait Line: Debug + Sized + Display {
         self.to2d().is_parallel_to(other.to2d())
     }
 
+    // draw a complete surface between two not necessarily parallel lines
     fn join_to(self, other: Self, steps: i64) -> Vec<Tri3d> {
-        self.join_non_parallel(other, steps, None)
+        self.join_non_parallel(other, steps, vec![], false)
     }
-    fn join_to_with_hole(self, other: Self, frame: f64) -> Vec<Tri3d>;
-    fn join_non_parallel(self, other: Self, steps: i64, hole_skips: Option<(i64, i64)>) -> Vec<Tri3d>;
+    // join two parallel lines with a hole in the middle
+    fn join_to_with_hole(self, other: Self, frame: f64, reverse: bool) -> Vec<Tri3d>;
+    // join two non-parallel lines, but skipping a bit in the middle of it
+    fn join_non_parallel(
+        self,
+        other: Self,
+        steps: i64,
+        hole_skips: Option<(i64, i64)>,
+        reverse: bool,
+    ) -> Vec<Tri3d>;
 
-    // so we can draw edges round the thick lines
-    fn draw_layer(layer: &Vec<Self>, thickness: f64) -> Vec<Tri3d>;
+    // shouldn't really be here, but a method to draw out the entire layer with a
+    // certain thickness
+    fn draw_layer(layer: &Vec<Self>, thickness: f64, isTop: bool) -> Vec<Tri3d>;
 
-    fn endcap(self, other: Self, point: f64, steps: i64) -> Vec<Tri3d>;
+    // for lines with thickness, draw an endcap at point/1.0 along the line, joining
+    // it to other.
+    fn endcap(self, other: Self, point: f64, steps: i64, reverse: bool) -> Vec<Tri3d>;
 }
 
 
@@ -94,7 +106,7 @@ impl Line for Line3d {
     }
 
     /// Join two parallel lines with a polygon with a hole cut out of it
-    fn join_to_with_hole(self, b: Line3d, frame_factor: f64) -> Vec<Tri3d> {
+    fn join_to_with_hole(self, b: Line3d, frame_factor: f64, reverse: bool) -> Vec<Tri3d> {
         let a = self;
         let trap = Trapezium3d::from_parallel_lines(a, b);
         let hole_trap = trap.hole(frame_factor);
@@ -107,6 +119,7 @@ impl Line for Line3d {
                 &(join_planar_lines(
                     trap.plane.unproject_line(trap.edges[i]),
                     trap.plane.unproject_line(hole_trap.unwrap().edges[i]),
+                    reverse,
                 )),
             );
         }
@@ -114,7 +127,13 @@ impl Line for Line3d {
     }
 
     // completely ignore endcaps because this is a thin object
-    fn join_non_parallel(self, b: Self, steps: i64, hole_skips: Option<(i64, i64)>) -> Vec<Tri3d> {
+    fn join_non_parallel(
+        self,
+        b: Self,
+        steps: i64,
+        hole_skips: Option<(i64, i64)>,
+        reverse: bool,
+    ) -> Vec<Tri3d> {
         let a = self;
         let mut tris = Vec::new();
         let starts = Line3d::new(a.start, b.start);
@@ -132,24 +151,27 @@ impl Line for Line3d {
             let adj_end = ends.point(i as f64 / steps as f64);
             let new_line = Line3d::new(adj_start, adj_end);
             if hole_skips.is_none() || (i <= hole_skips.unwrap().0 || i > hole_skips.unwrap().1) {
-                tris.extend_from_slice(&join_planar_lines(prev, new_line));
+                tris.extend_from_slice(&join_planar_lines(prev, new_line, reverse));
             }
             prev = new_line;
         }
         tris
     }
 
-    fn draw_layer(_layer: &Vec<Self>, _thickness: f64) -> Vec<Tri3d> {
+    fn draw_layer(_layer: &Vec<Self>, _thickness: f64, isTop: bool) -> Vec<Tri3d> {
         vec![]
     }
 
-    fn endcap(self, _other: Self, _point: f64, _steps: i64) -> Vec<Tri3d> {
+    fn endcap(self, _other: Self, _point: f64, _steps: i64, reverse: bool) -> Vec<Tri3d> {
         vec![]
     }
 }
 
-pub(super) fn join_planar_lines(a: Line3d, b: Line3d) -> [Tri3d; 2] {
-    return [Tri3d::from_sp(&a, &b.start), Tri3d::from_sp(&b, &a.end)];
+pub(super) fn join_planar_lines(a: Line3d, b: Line3d, reverse: bool) -> [Tri3d; 2] {
+    return [
+        Tri3d::from_sp(&a, &b.start, reverse),
+        Tri3d::from_sp(&b, &a.end, !reverse),
+    ];
 }
 
 impl Display for Line3d {
@@ -215,7 +237,7 @@ impl Line for ThickLine3d {
     fn to2d(&self) -> Line2d {
         self.original.to2d()
     }
-    fn join_to_with_hole(self, other: Self, frame: f64) -> Vec<Tri3d> {
+    fn join_to_with_hole(self, other: Self, frame: f64, reverse: bool) -> Vec<Tri3d> {
         let mut tris = vec![];
         // note each pair are on the same plane
         let inner_trap = Trapezium3d::from_parallel_lines(self.inner, other.inner);
@@ -233,6 +255,7 @@ impl Line for ThickLine3d {
                 &(join_planar_lines(
                     inner_trap.plane.unproject_line(inner_trap.edges[i]),
                     inner_hole.plane.unproject_line(inner_hole.edges[i]),
+                    !reverse,
                 )),
             );
             // outer tris
@@ -240,6 +263,7 @@ impl Line for ThickLine3d {
                 &(join_planar_lines(
                     outer_trap.plane.unproject_line(outer_trap.edges[i]),
                     outer_hole.plane.unproject_line(outer_hole.edges[i]),
+                    reverse,
                 )),
             );
             // link outer & inner
@@ -247,16 +271,29 @@ impl Line for ThickLine3d {
                 &(join_planar_lines(
                     outer_hole.plane.unproject_line(outer_hole.edges[i]),
                     inner_hole.plane.unproject_line(inner_hole.edges[i]),
+                    false,
                 )),
             );
         }
         tris
     }
-    fn join_non_parallel(self, other: Self, steps: i64, hole_skips: Option<(i64, i64)>) -> Vec<Tri3d> {
+    fn join_non_parallel(
+        self,
+        other: Self,
+        steps: i64,
+        hole_skips: Option<(i64, i64)>,
+        reverse: bool,
+    ) -> Vec<Tri3d> {
         let mut tris = vec![];
-        tris.extend(self.inner.join_non_parallel(other.inner, steps, hole_skips));
 
-        tris.extend(self.outer.join_non_parallel(other.outer, steps, hole_skips));
+        tris.extend(
+            self.inner
+                .join_non_parallel(other.inner, steps, hole_skips, !reverse),
+        );
+        tris.extend(
+            self.outer
+                .join_non_parallel(other.outer, steps, hole_skips, reverse),
+        );
 
         if hole_skips.is_some() {
             let (from, until) = hole_skips.unwrap();
@@ -273,21 +310,25 @@ impl Line for ThickLine3d {
             tris.extend_from_slice(&join_planar_lines(
                 Line3d::new(outer_starts.point(top), outer_ends.point(top)),
                 Line3d::new(inner_starts.point(top), inner_ends.point(top)),
+                true,
             ));
             //Bottom hole inside
             tris.extend_from_slice(&join_planar_lines(
                 Line3d::new(outer_starts.point(bot), outer_ends.point(bot)),
                 Line3d::new(inner_starts.point(bot), inner_ends.point(bot)),
+                false,
             ));
         }
         tris
     }
-
-    fn draw_layer(layer: &Vec<Self>, thickness: f64) -> Vec<Tri3d> {
+    // draw the layer in it's entirety, thickened by thickness (a positive number)
+    // either upwards (is_top = true) or downwards.
+    fn draw_layer(layer: &Vec<Self>, thickness: f64, is_top: bool) -> Vec<Tri3d> {
         let mut tris = vec![];
 
-        let adjust = Point3d::new(0.0, 0.0, thickness);
-        let adjusted = if thickness.abs() < 1e-7 {
+        let adjust = Point3d::new(0.0, 0.0, if is_top { 1.0 } else { -1.0 } * thickness);
+        // adjust if thickening the top and bottom in the vertical direction
+        let adjusted = if thickness < 1e-7 {
             layer
                 .iter()
                 .map(|line| ThickLine3d::new(line.original, line.outer, line.inner))
@@ -304,21 +345,32 @@ impl Line for ThickLine3d {
                 })
                 .collect::<Vec<Self>>()
         };
+        // if thickening vertically, add endcaps at both ends
+        if thickness.abs() >= 1e-7 {
+            tris.extend(layer[0].endcap(adjusted[0], 0.0, 1, !is_top));
 
+            tris.extend(
+                layer
+                    .last()
+                    .unwrap()
+                    .endcap(*adjusted.last().unwrap(), 1.0, 1, is_top),
+            );
+        }
+        // draw very top and very bottom
         for i in 0..adjusted.len() {
-            tris.extend_from_slice(&join_planar_lines(adjusted[i].inner, adjusted[i].outer));
-            if thickness.abs() > 1e-7 {
-                tris.extend(adjusted[i].join_to(layer[i], 1));
+            tris.extend_from_slice(&join_planar_lines(adjusted[i].inner, adjusted[i].outer, is_top));
+            if thickness > 1e-7 {
+                tris.extend(adjusted[i].join_non_parallel(layer[i], 1, None, is_top));
             }
         }
         return tris;
     }
-
-    fn endcap(self, other: Self, point: f64, steps: i64) -> Vec<Tri3d> {
+    fn endcap(self, other: Self, point: f64, steps: i64, reverse: bool) -> Vec<Tri3d> {
         Line3d::new(self.inner.point(point), self.outer.point(point)).join_non_parallel(
             Line3d::new(other.inner.point(point), other.outer.point(point)),
             steps,
             None,
+            reverse,
         )
     }
 }
