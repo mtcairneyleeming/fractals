@@ -102,7 +102,11 @@ fn create_triangles(
     let simplified = simple::simplify(possibly_curved);
 
     let tris: Vec<Tri3d> = if thicken {
-        let thickened = simplified.iter().map(|l| l.thicken(thickness.unwrap())).collect();
+        let thickened = vec![];
+        let t = thickness.unwrap();
+        for i in 0..simplified.len() {
+            thickened.push(simplified[i].thicken(t * (i as f64) / (simplified.len() as f64)))
+        }
         simple::develop(thickened, data.holes, init_steps, step_scale)
     } else {
         simple::develop(simplified, data.holes, init_steps, step_scale)
