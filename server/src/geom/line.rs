@@ -40,7 +40,14 @@ pub trait Line: Debug + Sized + Display {
 
     // for lines with thickness, draw an endcap at point/1.0 along the line, joining
     // it to other.
-    fn endcap(self, other: Self, point: f64, steps: i64, reverse: bool) -> Vec<Tri3d>;
+    fn endcap(
+        self,
+        other: Self,
+        point: f64,
+        steps: i64,
+        hole_skips: Option<(i64, i64)>,
+        reverse: bool,
+    ) -> Vec<Tri3d>;
 }
 
 
@@ -162,7 +169,14 @@ impl Line for Line3d {
         vec![]
     }
 
-    fn endcap(self, _other: Self, _point: f64, _steps: i64, reverse: bool) -> Vec<Tri3d> {
+    fn endcap(
+        self,
+        _other: Self,
+        _point: f64,
+        _steps: i64,
+        _hole_skips: Option<(i64, i64)>,
+        _reverse: bool,
+    ) -> Vec<Tri3d> {
         vec![]
     }
 }
@@ -347,13 +361,13 @@ impl Line for ThickLine3d {
         };
         // if thickening vertically, add endcaps at both ends
         if thickness.abs() >= 1e-7 {
-            tris.extend(layer[0].endcap(adjusted[0], 0.0, 1, !is_top));
+            tris.extend(layer[0].endcap(adjusted[0], 0.0, 1, None, !is_top));
 
             tris.extend(
                 layer
                     .last()
                     .unwrap()
-                    .endcap(*adjusted.last().unwrap(), 1.0, 1, is_top),
+                    .endcap(*adjusted.last().unwrap(), 1.0, 1, None, is_top),
             );
         }
         // draw very top and very bottom
@@ -365,13 +379,36 @@ impl Line for ThickLine3d {
         }
         return tris;
     }
-    fn endcap(self, other: Self, point: f64, steps: i64, reverse: bool) -> Vec<Tri3d> {
-        Line3d::new(self.inner.point(point), self.outer.point(point)).join_non_parallel(
-            Line3d::new(other.inner.point(point), other.outer.point(point)),
-            steps,
-            None,
-            reverse,
-        )
+    fn endcap(
+        self,
+        other: Self,
+        point: f64,
+        steps: i64,
+        hole_skips: Option<(i64, i64)>,
+        reverse: bool,
+    ) -> Vec<Tri3d> {
+       
+        return if hole_skips.is_none() {
+            Line3d::new(self.inner.point(point), self.outer.point(point)).join_non_parallel(
+                Line3d::new(other.inner.point(point), other.outer.point(point)),
+                steps,
+                hole_skips,
+                reverse,
+            )
+        } else {
+            let inners = Line3d::new(self.inner.point(point), other.inner.point(point));
+            let outers = Line3d::new(self.outer.point(point), other.outer.point(point));
+            let skips = hole_skips.unwrap();
+            let top = skips.0 as f64 / steps as f64;
+
+            let bottom = skips.1 as f64 / steps as f64;
+            Line3d::new(inners.point(top), outers.point(top)).join_non_parallel(
+                Line3d::new(inners.point(bottom), outers.point(bottom)),
+                skips.1 - skips.0,
+                None,
+                !reverse,
+            )
+        };
     }
 }
 impl Display for ThickLine3d {

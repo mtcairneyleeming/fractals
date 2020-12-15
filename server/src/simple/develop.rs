@@ -23,12 +23,12 @@ where
         tris.extend(
             curr_layer
                 .first()
-                .endcap(prev_layer.first(), 0.0, layer_steps,  true),
+                .endcap(prev_layer.first(), 0.0, layer_steps, None, true),
         );
         tris.extend(
             curr_layer
                 .last()
-                .endcap(prev_layer.last(), 1.0, layer_steps,  false),
+                .endcap(prev_layer.last(), 1.0, layer_steps, None, false),
         );
 
         // find where the holes should go (if we're using HoleRegions::Everywhere)
@@ -86,6 +86,11 @@ where
                         let mut split_lines = vec![];
                         let mut endcaps_to_draw = vec![];
 
+                        let skips = Some((
+                            (frame_factor * layer_steps as f64).round() as i64,
+                            ((1.0 - frame_factor) * layer_steps as f64).round() as i64,
+                        ));
+
                         let mut j = 1;
                         while start_frac >= hole_regions[j] {
                             j += 1
@@ -127,14 +132,7 @@ where
                         }
 
                         for (s, e, j) in split_lines {
-                            let skips = if j % 2 == 0 {
-                                Some((
-                                    (frame_factor * layer_steps as f64).round() as i64,
-                                    ((1.0 - frame_factor) * layer_steps as f64).round() as i64,
-                                ))
-                            } else {
-                                None
-                            };
+                            let these_skips = if j % 2 == 0 { skips } else { None };
                             let prev =
                                 prev_line.section(layer_frac_to_part_frac(s), layer_frac_to_part_frac(e));
 
@@ -142,17 +140,19 @@ where
                                 new_part.section(layer_frac_to_part_frac(s), layer_frac_to_part_frac(e));
 
 
-                            tris.extend(prev.join_non_parallel(next, layer_steps, skips, false));
+                            tris.extend(prev.join_non_parallel(next, layer_steps, these_skips, false));
                         }
 
 
                         for (e, dir) in endcaps_to_draw {
-                            tris.extend(prev_line.endcap(
-                                new_part,
+                            let new_tris = new_part.endcap(
+                                prev_line,
                                 layer_frac_to_part_frac(e),
                                 layer_steps,
+                                skips,
                                 dir,
-                            ));
+                            );
+                            tris.extend(new_tris);
                         }
                     }
                 }
