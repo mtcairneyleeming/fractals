@@ -6,18 +6,18 @@ use crate::geom::*;
 pub fn simplify(layers: Vec<Layer<Line3d>>) -> Vec<Layer<Line3d>> {
     let mut out = vec![];
     for old_layer in layers {
-        let mut layer = vec![old_layer.lines[0]];
-        for line in old_layer.lines.iter().skip(1) {
-            let prev = &layer.last().unwrap();
+        let mut new_layer = vec![old_layer.first()];
+        for line in old_layer.lines().iter().skip(1) {
+            let prev = new_layer.last().unwrap();
             if prev.is_parallel_to(*line) && prev.direction().add(line.direction()).norm() > 1e-7 {
                 let new_line = Line3d::new(prev.start(), line.end());
-                layer.pop();
-                layer.push(new_line)
+                new_layer.pop();
+                new_layer.push(new_line)
             } else {
-                layer.push(*line);
+                new_layer.push(*line);
             }
         }
-        out.push(Layer::<Line3d> { lines: layer });
+        out.push(Layer::<Line3d>::new(new_layer));
     }
     out
 }

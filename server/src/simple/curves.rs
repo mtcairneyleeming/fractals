@@ -186,14 +186,10 @@ fn curve_layer(layer: Layer<Line3d>, max_curve_frac: f64, steps_multiplier: f64)
         }
         _ => {
             let len = layer.count();
-            let lines = &layer.lines;
-            new_lines.extend(curve_line(
-                layer.first().to2d(),
-                None,
-                Some(lines[1].to2d()),
-                max_curve_frac,
-                steps_multiplier,
-            ));
+            let lines = layer.lines();
+            new_lines.extend(
+                layer
+                    .first()
             for i in 1..len - 1 {
                 new_lines.extend(curve_line(
                     lines[i].to2d(),
@@ -214,12 +210,10 @@ fn curve_layer(layer: Layer<Line3d>, max_curve_frac: f64, steps_multiplier: f64)
         }
     };
     let fixed_lines = fix_lines(new_lines);
-    Layer::<Line3d> {
-        lines: fixed_lines
+    Layer::<T>::new(fixed_lines
             .into_iter()
             .map(|l| Line3d::from2d(l, start.z))
-            .collect(),
-    }
+            .collect(),)
 }
 
 pub fn curve_layers(

@@ -84,16 +84,17 @@ fn create_triangles(
     let layers: Vec<Layer<Line3d>> = data
         .layers
         .iter()
-        .map(|l| Layer::<Line3d> {
-            lines: l
-                .iter()
-                .map(|line| {
-                    Line3d::new(
-                        Point3d::new(line[0], line[1], line[2]),
-                        Point3d::new(line[3], line[4], line[5]),
-                    )
-                })
-                .collect(),
+        .map(|l| {
+            Layer::<Line3d>::new(
+                l.iter()
+                    .map(|line| {
+                        Line3d::new(
+                            Point3d::new(line[0], line[1], line[2]),
+                            Point3d::new(line[3], line[4], line[5]),
+                        )
+                    })
+                    .collect(),
+            )
         })
         .collect();
     let start = Instant::now();

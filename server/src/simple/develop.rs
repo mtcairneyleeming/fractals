@@ -11,22 +11,25 @@ where
     T: Line + Copy,
 {
     let mut tris: Vec<Tri3d> = Vec::new();
-    tris.extend(T::draw_layer(&layers[0].lines, 1.0, false));
+    tris.extend(T::draw_layer(&layers[0].lines(), 1.0, false));
 
-    tris.extend(T::draw_layer(&layers.last().unwrap().lines, 1.0, true));
+    tris.extend(T::draw_layer(&layers.last().unwrap().lines(), 1.0, true));
     let mut layer_steps = init_steps;
     let mut hole_scale = 1; //only useful if using HoleOptions::Everywhere
     for i in 1..layers.len() {
         let prev_layer = &layers[(i - 1) as usize];
         let curr_layer = &layers[i as usize];
 
-        tris.extend(curr_layer.lines[0].endcap(prev_layer.lines[0], 0.0, layer_steps, true));
-        tris.extend(curr_layer.lines.last().unwrap().endcap(
-            *(prev_layer.lines.last().unwrap()),
-            1.0,
-            layer_steps,
-            false,
-        ));
+        tris.extend(
+            curr_layer
+                .first()
+                .endcap(prev_layer.first(), 0.0, layer_steps,  true),
+        );
+        tris.extend(
+            curr_layer
+                .last()
+                .endcap(prev_layer.last(), 1.0, layer_steps,  false),
+        );
 
         // find where the holes should go (if we're using HoleRegions::Everywhere)
         let (hole_regions, new_hole_scale) = calc_hole_regions(&hole_options, hole_scale);
@@ -37,7 +40,7 @@ where
         let layer_length: f64 = curr_layer.length();
 
 
-        for line in &curr_layer.lines {
+        for line in curr_layer.lines() {
             // find section of previous layer to join to self line
 
             /* note the section may be multiple lines as there are no enforced

@@ -6,7 +6,9 @@ pub struct Layer<T>
 where
     T: Line + Copy + Debug + Display,
 {
-    pub lines: Vec<T>,
+    lines: Vec<T>,
+    length: f64,
+    fracs: Vec<f64>,
 }
 
 impl<T> Layer<T>
@@ -14,17 +16,23 @@ where
     T: Line + Copy + Debug + Display,
 {
     pub fn new(lines: Vec<T>) -> Self {
-        Self { lines }
+        let mut length = 0.0;
+        let mut fracs = vec![0.0];
+        for line in &lines {
+            length += line.length();
+            fracs.push(length);
+        }
+
+        Self { lines, length, fracs }
     }
     pub fn length(&self) -> f64 {
-        let mut length = 0.0;
-        for line in &self.lines {
-            length += line.length();
-        }
-        length
+        self.length
     }
     pub fn count(&self) -> usize {
         self.lines.len()
+    }
+    pub fn lines(&self) -> &Vec<T> {
+        &self.lines
     }
     pub fn first(&self) -> T {
         self.lines[0]
@@ -38,16 +46,14 @@ where
             panic!("Cannot get section of empty layer");
         } else {
             let mut out: Vec<T> = Vec::new();
-            let mut curr_frac: f64 = 0.0;
-            let ov_length = self.length();
-            for line in self.lines.as_slice() {
-                let line_frac = line.length() / ov_length;
-                let line_start = curr_frac;
-                let line_end = curr_frac + line_frac;
-                if end >= line_start && start <= line_end {
-                    out.push(line.section((start - line_start) / line_frac, (end - line_start) / line_frac));
+            for i in 0..self.count() {
+                if end >= self.fracs[i] && start <= self.fracs[i + 1] {
+                    let line_frac = self.fracs[i + 1] - self.fracs[i];
+                    out.push(self.lines[i].section(
+                        (start - self.fracs[i]) / line_frac,
+                        (end - self.fracs[i]) / line_frac,
+                    ));
                 }
-                curr_frac += line_frac
             }
             out
         };
