@@ -1,6 +1,6 @@
 use super::holes::*;
 use crate::geom::*;
-
+use log::info;
 pub fn develop<T>(
     layers: Vec<Layer<T>>,
     hole_options: HoleOptions,
@@ -19,6 +19,7 @@ where
     for i in 1..layers.len() {
         let prev_layer = &layers[(i - 1) as usize];
         let curr_layer = &layers[i as usize];
+        info!("Doing layer {}", i);
 
         tris.extend(
             curr_layer

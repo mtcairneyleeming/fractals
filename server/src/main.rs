@@ -8,13 +8,13 @@ mod simple;
 extern crate rocket;
 extern crate rocket_contrib;
 use geom::{Layer, Line3d, Point3d, Tri3d};
-use simple::*;
-use stl_io::*;
-
+use log::info;
 use rocket_contrib::msgpack::MsgPack;
 use rocket_contrib::serve::StaticFiles;
 use serde::{Deserialize, Serialize};
+use simple::*;
 use std::time::Instant;
+use stl_io::*;
 
 fn tris_to_binary_stl(tris: Vec<Tri3d>) -> Vec<u8> {
     let mesh: Vec<Triangle> = tris
@@ -81,7 +81,7 @@ fn create_triangles(
 ) -> Vec<Tri3d> {
     let data = tuple.into_inner();
 
-    let layers: Vec<Layer<Line3d>> = data
+    let mut layers: Vec<Layer<Line3d>> = data
         .layers
         .iter()
         .map(|l| {
@@ -98,27 +98,28 @@ fn create_triangles(
         })
         .collect();
     let start = Instant::now();
-    let possibly_curved = if curve.is_some() && curve.unwrap() {
-        simple::curve_layers(layers, max_curve_frac.unwrap(), curve_steps_mult.unwrap())
-    } else {
-        layers
-    };
-    let simplified = simple::simplify(possibly_curved);
+    layers = simple::simplify(layers);
 
     let tris: Vec<Tri3d> = if thicken {
         let mut thickened = vec![];
         let t = top_thickness.unwrap();
         let b = bottom_thickness.unwrap();
-        for i in 0..simplified.len() {
-            dbg!(t - (t - b) * (i as f64) / (simplified.len() as f64));
-            thickened.push(simplified[i].thicken(t - (t - b) * (i as f64) / (simplified.len() as f64)))
+        for i in 0..layers.len() {
+            thickened.push(layers[i].thicken(t - (t - b) * (i as f64) / (layers.len() as f64 - 1.0)))
         }
-        dbg!(simplified.len());
+        if curve.is_some() && curve.unwrap() {
+            thickened = simple::curve_layers(thickened, max_curve_frac.unwrap(), curve_steps_mult.unwrap())
+        };
+        info!("Done curve generation");
+       
         simple::develop(thickened, data.holes, init_steps, step_scale)
     } else {
-        simple::develop(simplified, data.holes, init_steps, step_scale)
+        if curve.is_some() && curve.unwrap() {
+            layers = simple::curve_layers(layers, max_curve_frac.unwrap(), curve_steps_mult.unwrap())
+        };
+        simple::develop(layers, data.holes, init_steps, step_scale)
     };
-    println!(
+    info!(
         "Calculated {} in {:.2}s",
         if thicken { "thick" } else { "thin" },
         start.elapsed().as_secs_f32()
