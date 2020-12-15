@@ -1,9 +1,9 @@
 use super::point::*;
 use super::threed::{Trapezium3d, Tri3d};
+use crate::simple::curves;
 use serde::Deserialize;
 use std::f64::consts;
 use std::fmt::*;
-
 
 pub trait Line: Debug + Sized + Display {
     fn start(&self) -> Point3d;
@@ -18,6 +18,8 @@ pub trait Line: Debug + Sized + Display {
     fn is_parallel_to(&self, other: Self) -> bool {
         self.to2d().is_parallel_to(other.to2d())
     }
+
+    fn merge_with_parallel(&self, other: Self) -> Self;
 
     // draw a complete surface between two not necessarily parallel lines
     fn join_to(self, other: Self, steps: i64) -> Vec<Tri3d> {
@@ -36,7 +38,7 @@ pub trait Line: Debug + Sized + Display {
 
     // shouldn't really be here, but a method to draw out the entire layer with a
     // certain thickness
-    fn draw_layer(layer: &Vec<Self>, thickness: f64, isTop: bool) -> Vec<Tri3d>;
+    fn draw_layer(layer: &Vec<Self>, thickness: f64, is_top: bool) -> Vec<Tri3d>;
 
     // for lines with thickness, draw an endcap at point/1.0 along the line, joining
     // it to other.
@@ -48,6 +50,14 @@ pub trait Line: Debug + Sized + Display {
         hole_skips: Option<(i64, i64)>,
         reverse: bool,
     ) -> Vec<Tri3d>;
+
+    fn curve(
+        self,
+        prev: Option<Self>,
+        next: Option<Self>,
+        max_curve_frac: f64,
+        steps_multiplier: f64,
+    ) -> Vec<Self>;
 }
 
 
@@ -112,6 +122,10 @@ impl Line for Line3d {
         return Line2d::new(self.start.to2d(), self.end.to2d());
     }
 
+    fn merge_with_parallel(&self, other: Self) -> Self {
+        Line3d::new(self.start(), other.end())
+    }
+
     /// Join two parallel lines with a polygon with a hole cut out of it
     fn join_to_with_hole(self, b: Line3d, frame_factor: f64, reverse: bool) -> Vec<Tri3d> {
         let a = self;
@@ -165,7 +179,7 @@ impl Line for Line3d {
         tris
     }
 
-    fn draw_layer(_layer: &Vec<Self>, _thickness: f64, isTop: bool) -> Vec<Tri3d> {
+    fn draw_layer(_layer: &Vec<Self>, _thickness: f64, _is_top: bool) -> Vec<Tri3d> {
         vec![]
     }
 
@@ -178,6 +192,15 @@ impl Line for Line3d {
         _reverse: bool,
     ) -> Vec<Tri3d> {
         vec![]
+    }
+    fn curve(
+        self,
+        prev: Option<Line3d>,
+        next: Option<Line3d>,
+        max_curve_frac: f64,
+        steps_multiplier: f64,
+    ) -> Vec<Line3d> {
+        curves::curve_line(self, prev, next, max_curve_frac, steps_multiplier)
     }
 }
 
@@ -251,6 +274,16 @@ impl Line for ThickLine3d {
     fn to2d(&self) -> Line2d {
         self.original.to2d()
     }
+
+    fn merge_with_parallel(&self, other: Self) -> Self {
+        ThickLine3d::new(
+            self.original.merge_with_parallel(other.original),
+            self.outer.merge_with_parallel(other.outer),
+            self.inner.merge_with_parallel(other.inner),
+        )
+    }
+
+
     fn join_to_with_hole(self, other: Self, frame: f64, reverse: bool) -> Vec<Tri3d> {
         let mut tris = vec![];
         // note each pair are on the same plane
@@ -409,6 +442,48 @@ impl Line for ThickLine3d {
                 !reverse,
             )
         };
+    }
+
+
+    
+    fn curve(
+        self,
+        prev: Option<ThickLine3d>,
+        next: Option<ThickLine3d>,
+        max_curve_frac: f64,
+        steps_multiplier: f64,
+    ) -> Vec<ThickLine3d> {
+        let outers = curves::curve_line(
+            self.outer,
+            prev.map(|l| l.outer),
+            next.map(|l| l.outer),
+            max_curve_frac,
+            steps_multiplier,
+        );
+
+        let origis = curves::curve_line(
+            self.original,
+            prev.map(|l| l.original),
+            next.map(|l| l.original),
+            max_curve_frac,
+            steps_multiplier,
+        );
+
+        let inners = curves::curve_line(
+            self.inner,
+            prev.map(|l| l.inner),
+            next.map(|l| l.inner),
+            max_curve_frac,
+            steps_multiplier,
+        );
+        if outers.len() != origis.len() || origis.len() != inners.len() {
+            panic!("Wrong lengths!!!!");
+        }
+        let mut lines = vec![];
+        for i in 0..outers.len() {
+            lines.push(ThickLine3d::new(origis[i], outers[i], inners[i]))
+        }
+        lines
     }
 }
 impl Display for ThickLine3d {
