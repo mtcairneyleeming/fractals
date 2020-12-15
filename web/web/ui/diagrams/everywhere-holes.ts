@@ -80,7 +80,7 @@ function draw() {
     context.textAlign = "left"
     context.textBaseline = "top"
     context.fillText("1:", x - 5, y + 5)
-    context.textAlign = "center"
+    context.textAlign = "left"
     context.fillText(ratio.toString(), x2, y2 + 5)
 }
 
