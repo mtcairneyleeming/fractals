@@ -33,12 +33,12 @@ impl Tri3d {
         let a = side.start();
         let b = side.end();
         let c = *point;
-        let A = b.sub(a);
-        let B = c.sub(a);
+        let f = b.sub(a);
+        let g = c.sub(a);
         let norm = Point3d::new(
-            A.y * B.z - A.z * B.y,
-            A.z * B.x - A.x * B.z,
-            A.x * B.y - A.y * B.x,
+            f.y * g.z - f.z * g.y,
+            f.z * g.x - f.x * g.z,
+            f.x * g.y - f.y * g.x,
         );
         return if rev {
             Tri3d::new(a, c, b, norm.scale(-1.0))
