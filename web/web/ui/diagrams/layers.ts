@@ -20,8 +20,7 @@ export function layersSetup() {
     getInput("centre_check").addEventListener("input", draw)
     getInput("layer_dist").addEventListener("input", draw)
 
-    document.querySelectorAll("#scale_radio_container>label").forEach(el => el.addEventListener("click", draw))
-    getInput("scaling_factor_other").addEventListener("input", draw)
+    getInput("scaling_factor").addEventListener("input", draw)
     draw()
 }
 

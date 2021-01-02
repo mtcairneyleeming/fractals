@@ -1,5 +1,5 @@
 import { showPreview } from "./previews/controller"
-
+import { evaluate, round } from "mathjs"
 function getInput(id: string): HTMLInputElement {
     return document.getElementById(id) as unknown as HTMLInputElement
 }
@@ -30,13 +30,7 @@ function updateDrawingOptions() {
     setDrawingType(standard)
 }
 
-function updateScalingFactor() {
-    document.querySelectorAll(".scale_label").forEach(el => {
-        el.classList.remove("active")
-    })
-    let checkedRadio = (document.querySelector('input[name="scale_radio"]:checked') as HTMLInputElement)
-    checkedRadio.parentElement.classList.add("active")
-}
+
 
 export enum HoleType {
     None = 1,
@@ -86,7 +80,6 @@ export function setupInteractions() {
     // Initial setup
 
     updateDrawingOptions()
-    updateScalingFactor()
 
     setHoles(-1, true)
 
@@ -99,15 +92,6 @@ export function setupInteractions() {
             }
         })
     })
-
-    document.querySelectorAll("#scale_radio_container>label").forEach(element => {
-        element.addEventListener("click", updateScalingFactor);
-    });
-    getInput("scaling_factor_other").addEventListener("input", () => {
-        let label = getInput("scale_other");
-        (label.firstElementChild as HTMLInputElement).checked = true;
-        updateScalingFactor();
-    });
 
     getInput("curve_check").addEventListener("click", updateThickenAndCurve)
 
@@ -150,5 +134,15 @@ function updateLiveOutputs() {
     document.getElementById("ev_hole_number").addEventListener("input", evHoleScale)
 
     document.getElementById("ev_hole_scale").addEventListener("input", evHoleScale)
+    function scaleFactor() {
+        let val = "";
+        try { val = round(evaluate(getInput("scaling_factor").value), 5) }
+        catch (e) {
+            val = "invalid expression"
+        }
+        getOutput("scaling_factor_out").value = val
+    }
+    getInput("scaling_factor").addEventListener("input", scaleFactor);
+    scaleFactor()
 
 }

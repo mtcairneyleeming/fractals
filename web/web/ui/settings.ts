@@ -1,5 +1,5 @@
 import { getDrawingCommands, addRow } from "./commands-table"
-import { setDrawingType } from "./form-interaction"
+import { evaluate } from "mathjs";
 function getInput(id: string): HTMLInputElement {
     return document.getElementById(id) as unknown as HTMLInputElement
 }
@@ -157,37 +157,14 @@ export function parseSettings(ignore3d = false): Object {
 }
 
 export function parseScaleFactor() {
-    let sf = null
-    let scale_radio = (document.querySelector('input[name="scale_radio"]:checked') as HTMLInputElement).value;
-    switch (scale_radio) {
-        case "half":
-            sf = 1 / 2.0
-            break;
-        case "sqrt2":
-            sf = Math.SQRT1_2
-            break;
-        case "sqrt3":
-            sf = 1.0 / Math.sqrt(3)
-            break;
-        case "other":
-            let str = getInput("scaling_factor_other").value
-            let val = parseFloat(str)
-            sf = val
-            if (isNaN(val) || !isFinite(val)) {
-                throw new Error(`The scaling factor you input, "${str}" was not a valid, finite number.`)
-            }
-            break;
-        default:
-            throw new Error(`An error occured - the scale was set to an invalid value, "${scale_radio}"`)
-    }
-    return sf
+    return evaluate(getInput("scaling_factor").value);
 }
 
 let all_inputs = [
     "drawing_standard_degrees",
     "axiom",
     "rules",
-    "scaling_factor_other",
+    "scaling_factor",
     "num_layers",
     "layer_dist",
     "top_thicken_width",
@@ -207,7 +184,6 @@ let all_checks = [
 
 let all_radios = [
     "drawingRadio",
-    "scale_radio",
     "hole_radio"
 ]
 
