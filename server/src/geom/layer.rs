@@ -47,11 +47,11 @@ where
         } else {
             let mut out: Vec<T> = Vec::new();
             for i in 0..self.count() {
-                if end >= self.fracs[i] && start <= self.fracs[i + 1] {
-                    let line_frac = self.fracs[i + 1] - self.fracs[i];
+                if end >= self.fracs[i] / self.length && start <= self.fracs[i + 1] / self.length {
+                    let line_frac = (self.fracs[i + 1] - self.fracs[i]) / self.length;
                     out.push(self.lines[i].section(
-                        (start - self.fracs[i]) / line_frac,
-                        (end - self.fracs[i]) / line_frac,
+                        (start - self.fracs[i] / self.length) / line_frac,
+                        (end - self.fracs[i] / self.length) / line_frac,
                     ));
                 }
             }
