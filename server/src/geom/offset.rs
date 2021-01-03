@@ -127,8 +127,8 @@ impl Line3d {
     pub(crate) fn thicken(self, thickness: f64, prev: Option<Line3d>, next: Option<Line3d>) -> ThickLine3d {
         ThickLine3d::new(
             self,
-            offset_line(self, prev, next, thickness),
-            offset_line(self, prev, next, -thickness),
+            offset_line(self, prev, next, thickness / 2.0),
+            offset_line(self, prev, next, -thickness / 2.0),
         )
     }
 }
