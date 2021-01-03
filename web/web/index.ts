@@ -42,10 +42,8 @@ async function runE(download: boolean) {
     removeDisplay();
     document.getElementById("url-alert-box").style.display = "none"
     let settings = parseSettings();
-
     let fractalGenerator = new SimpleDevFract(settings["axiom"], settings["rules"], settings["commands"])
-
-    let layers = fractalGenerator.runN(settings["scale_factor"], settings["layer_dist"], settings["scale_factor"], settings["num_layers"], settings["centre_check"])
+    let layers = fractalGenerator.runN(settings["scale_factor"], settings["layer_dist"] * settings["line_length"], settings["line_length"], settings["num_layers"], settings["centre_check"])
     let query = new URLSearchParams("");
     query.set("thicken", settings["thicken"])
     if (settings["thicken"]) {
@@ -59,9 +57,14 @@ async function runE(download: boolean) {
         query.set("curve_steps_mult", "7.0") // TODO add presets
     }
 
+    query.set("extrude", settings["extrude"].toString())
+    if (settings["extrude"]) {
+        query.set("extrude_dist", settings["extrude_dist"].toString())
+
+    }
+
     query.set("init_steps", "12")
     query.set("step_scale", "1.0")
-
     let small_layers = layers.map((layer) =>
         layer.map((line) => [line.start.x, line.start.y, line.start.z, line.end.x, line.end.y, line.end.z])
     )

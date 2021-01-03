@@ -6,14 +6,15 @@ pub fn develop<T>(
     hole_options: HoleOptions,
     init_steps: i64,
     step_scale: f64,
+    extrude_dist: f64,
 ) -> Vec<Tri3d>
 where
     T: Line + Copy,
 {
     let mut tris: Vec<Tri3d> = Vec::new();
-    tris.extend(T::draw_layer(&layers[0].lines(), 1.0, false));
+    tris.extend(T::draw_layer(&layers[0].lines(), extrude_dist, false));
 
-    tris.extend(T::draw_layer(&layers.last().unwrap().lines(), 1.0, true));
+    tris.extend(T::draw_layer(&layers.last().unwrap().lines(), extrude_dist, true));
     let mut layer_steps = init_steps;
     let mut hole_scale = 1; //only useful if using HoleOptions::Everywhere
     for i in 1..layers.len() {

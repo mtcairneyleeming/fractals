@@ -55,6 +55,13 @@ export function parseSettings(ignore3d = false): Object {
         }
         settings["num_layers"] = nlInt
 
+        let llStr = getInput("line_length").value
+        let llInt = parseFloat(llStr)
+        if (isNaN(nlInt) || !isFinite(llInt) || llInt < 0) {
+            throw new Error(`The line length you gave, "${llStr}" was not a valid, finite number above 0.`)
+        }
+        settings["line_length"] = llInt
+
         settings["centre_check"] = getInput("centre_check").checked
 
         let ldStr = getInput("layer_dist").value
@@ -62,9 +69,19 @@ export function parseSettings(ignore3d = false): Object {
         if (isNaN(ldFloat) || !isFinite(ldFloat) || nlInt < 0) {
             throw new Error(`The thickness you gave, "${ldStr}" was not a valid, finite number above 0.`)
         }
-        settings["layer_dist"] = ldFloat
+        settings["layer_dist"] = ldFloat * 0.01
 
+        let extrude_check = getInput("extrude_check").checked
+        settings["extrude"] = extrude_check
+        if (extrude_check) {
+            let str = getInput("extrude_dist").value
+            let val = parseFloat(str)
+            if (isNaN(val) || !isFinite(val)) {
+                throw new Error(`The extrusion distance you gave, "${str}" was not a valid, finite number.`)
+            }
+            settings["extrude_dist"] = val
 
+        }
 
 
         settings["scale_factor"] = parseScaleFactor()
@@ -135,12 +152,6 @@ export function parseSettings(ignore3d = false): Object {
                 if (isNaN(fval) || !isFinite(fval) || fval < 0 || fval > 50) {
                     throw new Error(`The frame size you input, "${fstr}" was not a valid, finite number between 0 and 50%.`)
                 }
-                console.log([
-                    num_holes,
-                    ratio,
-                    sf,
-                    0.01 * fval
-                ])
                 settings["hole"] = [2,
                     [
                         num_holes,
@@ -156,7 +167,7 @@ export function parseSettings(ignore3d = false): Object {
     return settings
 }
 
-export function parseScaleFactor() {
+export function parseScaleFactor(): number {
     return evaluate(getInput("scaling_factor").value);
 }
 
@@ -165,8 +176,10 @@ let all_inputs = [
     "axiom",
     "rules",
     "scaling_factor",
+    "line_length",
     "num_layers",
     "layer_dist",
+    "extrude_dist",
     "top_thicken_width",
     "bottom_thicken_width",
     "curve_frac",
@@ -178,6 +191,7 @@ let all_inputs = [
 ]
 let all_checks = [
     "centre_check",
+    "extrude_check",
     "thicken_check",
     "curve_check"
 ]

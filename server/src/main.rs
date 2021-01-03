@@ -40,7 +40,7 @@ struct Data {
     holes: HoleOptions,
 }
 #[post(
-    "/stl?<thicken>&<top_thickness>&<bottom_thickness>&<curve>&<max_curve_frac>&<curve_steps_mult>&<init_steps>&<step_scale>",
+    "/stl?<thicken>&<top_thickness>&<bottom_thickness>&<curve>&<max_curve_frac>&<curve_steps_mult>&<init_steps>&<step_scale>&<extrude>&<extrude_dist>",
     format = "msgpack",
     data = "<tuple>"
 )]
@@ -54,6 +54,8 @@ fn stl(
     curve_steps_mult: Option<f64>,
     init_steps: i64,
     step_scale: f64,
+    extrude: bool,
+    extrude_dist: Option<f64>,
 ) -> Vec<u8> {
     tris_to_binary_stl(create_triangles(
         tuple,
@@ -65,6 +67,8 @@ fn stl(
         curve_steps_mult,
         init_steps,
         step_scale,
+        extrude,
+        extrude_dist,
     ))
 }
 
@@ -78,6 +82,8 @@ fn create_triangles(
     curve_steps_mult: Option<f64>,
     init_steps: i64,
     step_scale: f64,
+    extrude: bool,
+    extrude_dist: Option<f64>,
 ) -> Vec<Tri3d> {
     let data = tuple.into_inner();
 
@@ -111,13 +117,24 @@ fn create_triangles(
             thickened = simple::curve_layers(thickened, max_curve_frac.unwrap(), curve_steps_mult.unwrap())
         };
         info!("Done curve generation");
-       
-        simple::develop(thickened, data.holes, init_steps, step_scale)
+        simple::develop(
+            thickened,
+            data.holes,
+            init_steps,
+            step_scale,
+            if extrude { extrude_dist.unwrap() } else { 0.0 },
+        )
     } else {
         if curve.is_some() && curve.unwrap() {
             layers = simple::curve_layers(layers, max_curve_frac.unwrap(), curve_steps_mult.unwrap())
         };
-        simple::develop(layers, data.holes, init_steps, step_scale)
+        simple::develop(
+            layers,
+            data.holes,
+            init_steps,
+            step_scale,
+            if extrude { extrude_dist.unwrap() } else { 0.0 },
+        )
     };
     info!(
         "Calculated {} in {:.2}s",

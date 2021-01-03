@@ -4,20 +4,21 @@ type Command = (state: State) => void
 
 
 export class State {
-    constructor(iteration: number) {
+    constructor(iteration: number, step: number) {
         this.iteration = iteration;
+        this.state = {
+            step: step,
+            angle: 0,
+            currentPosition: [0, 0]
+
+        }
     }
 
     // Internal state:
     public commands: Array<string> = ["M 0 0"]
     // using an array as a stack, as it has push, pop
     private stateStack: Array<Object> = []
-    public state: Object = {
-        step: 150,
-        angle: 0,
-        currentPosition: [0, 0]
-
-    }
+    public state: Object
     public iteration: number;
 
 
@@ -136,7 +137,7 @@ export class State {
 export function toSVGCommands(str: Array<string>, drawingCommands: Map<string, string>, iteration: number): Array<string> | string {
     let functions = new Map()
     drawingCommands.forEach((val, key) => functions.set(key, new Function("state", val)))
-    var state = new State(iteration)
+    var state = new State(iteration, 100)
     for (const symbol of str) {
         if (drawingCommands.has(symbol)) {
             try {
