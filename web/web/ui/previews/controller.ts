@@ -13,11 +13,18 @@ function showWarning() {
 
 }
 
+function showFailure(err) {
+    let msg = `Generating preview failed, with error:<br/><small>e.toString()</small>`
+    let svgOut = document.getElementById("2d-preview-box")
+    document.getElementById("lsys-preview").innerHTML = msg
+    svgOut.innerHTML = msg
+}
+
 export function showPreview() {
     if (worker != null) {
         worker.terminate()
         clearTimeout(slowTimeout)
-        console.log("Terminated")
+
     }
     worker = new Worker("worker.js")
 
@@ -40,6 +47,7 @@ export function showPreview() {
             // TODO: subtle error message
             if (typeof commands == "string") {
                 console.error(commands)
+                showFailure(commands)
                 return
             }
             let sf = toSVG(commands, svgOut, i)
