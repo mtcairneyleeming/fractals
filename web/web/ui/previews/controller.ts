@@ -1,6 +1,8 @@
 import { parseSettings } from "../settings"
 import { toSVG } from "../../../lsystems/tosvg"
-
+import { updateEstimatesFromPreviews } from "../form-interaction";
+import { getInput } from "../diagrams/helpers";
+import { max } from "mathjs"
 
 
 let worker: Worker = null
@@ -40,6 +42,7 @@ export function showPreview() {
         // show drawn form
 
         let wholeScaleFactors = []
+        let dims = []
 
         let i = 0
         for (let commands of e.data["iterations"]) {
@@ -50,8 +53,9 @@ export function showPreview() {
                 showFailure(commands)
                 return
             }
-            let sf = toSVG(commands, svgOut, i)
+            let [sf, w, h] = toSVG(commands, svgOut, i)
             wholeScaleFactors.push(sf)
+            dims.push([w, h])
 
             i++
         }
@@ -59,10 +63,15 @@ export function showPreview() {
         for (let j = 1; j < wholeScaleFactors.length; j++) {
             sfs.push(wholeScaleFactors[j - 1] / wholeScaleFactors[j])
         }
-        let avg = sfs.reduce((x, y) => x + y, 0) / sfs.length
-        let desc = document.createElement("p")
-        desc.innerText = `Suggested scale factor (see below) based from drawing these previews is ${Math.round(avg * 1e6) / 1e6}`
-        svgOut.appendChild(desc)
+        let avgSF = sfs.reduce((x, y) => x + y, 0) / sfs.length
+        let correctedDims = dims.slice(1).map((d, i) => [d[0] * Math.pow(avgSF, i), d[1] * Math.pow(avgSF, i)])
+
+        let maxX = max(correctedDims.map(d => d[0]))
+
+        let maxY = max(correctedDims.map(d => d[1]))
+        updateEstimatesFromPreviews(avgSF, maxX, maxY)
+        getInput("hidden_x_dim").value = maxX;
+        getInput("hidden_y_dim").value = maxY;
     }
 
 }

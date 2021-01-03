@@ -40,7 +40,7 @@ export function setupScene() {
     camera.updateProjectionMatrix()
 
 
-    ambientLight = new THREE.AmbientLight(0x202020)
+    ambientLight = new THREE.AmbientLight(0x999999)
     triScene.add(ambientLight);
 
 
@@ -55,7 +55,6 @@ export function setupScene() {
         triRenderer.render(triScene, camera)
     }
     update();
-    setupSTLExport();
 
 }
 
@@ -83,7 +82,6 @@ export async function displaySTL(stl: Blob) {
     geom.computeVertexNormals()
     geom.computeBoundingBox()
     let box = geom.boundingBox
-    console.log(box)
 
     let midx = (box.min.x + box.max.x) / 2;
     let midy = (box.min.y + box.max.y) / 2;
@@ -100,49 +98,30 @@ export async function displaySTL(stl: Blob) {
 
     let max_dim = Math.max(box.max.x - box.min.x, box.max.y - box.max.y, box.max.z - box.min.z)
 
-    let rad = max_dim * 0.75
-    let z = 0.75 * box.max.z - box.min.z
+    let rad = max_dim * 0.5
+    let z = 0.25 * box.max.z - box.min.z
     for (let j = 0; j < 5; j++) {
         let angle = Math.PI * 2 * j / 5
         let x = Math.cos(angle) * rad
         let y = Math.sin(angle) * rad
 
-        let topLight = new THREE.PointLight(0xffffff, 10, 100)
+
+        let topLight = new THREE.PointLight(0xffffff, 2, 100);
         topLight.position.set(x, y, z)
         triScene.add(topLight)
 
-        let bottom = new THREE.PointLight(0xffffff, 10, 100)
+        let bottom = new THREE.PointLight(0xffffff, 2, 100)
         bottom.position.set(x, y, -1.0 * z)
         triScene.add(bottom)
 
         lights.push(topLight, bottom)
     }
-    let centre = new THREE.PointLight(0xffffff, 3, 100)
+    let centre = new THREE.PointLight(0xffffff, 1, 100)
     centre.position.set(0, 0, 0)
     triScene.add(centre)
 
     lights.push(centre)
 
 
-
-}
-// STL exporting
-function setupSTLExport() {
-    var saveLink = document.createElement('a')
-    saveLink.style.display = 'none'
-    document.body.appendChild(saveLink)
-
-    function exportSTL() {
-        var exporter = new STLExporter()
-        if (trisMesh != null) {
-            var res = exporter.parse(trisMesh)
-
-            saveLink.href = URL.createObjectURL(new Blob([res], { type: 'text/plain' }))
-            saveLink.download = "fractal.stl"
-            saveLink.click()
-        }
-    }
-
-    document.getElementById("meshSave").addEventListener("click", exportSTL)
 
 }

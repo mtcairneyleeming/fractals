@@ -1,5 +1,6 @@
 import { showPreview } from "./previews/controller"
 import { evaluate, round } from "mathjs"
+import { parseScaleFactor } from "./settings"
 function getInput(id: string): HTMLInputElement {
     return document.getElementById(id) as unknown as HTMLInputElement
 }
@@ -118,7 +119,7 @@ export function setupInteractions() {
 
 function updateLiveOutputs() {
     function stepLength() {
-        getOutput("slider_val").value = parseInt(getInput("layer_dist").value) + '% of the step length on each layer'
+        getOutput("slider_val").value = round(parseFloat(getInput("layer_dist").value), 1) + '% of the step length on each layer'
     }
     stepLength()
     document.getElementById("step_length_form").addEventListener("input", stepLength)
@@ -145,4 +146,63 @@ function updateLiveOutputs() {
     getInput("scaling_factor").addEventListener("input", scaleFactor);
     scaleFactor()
 
+
+    function layerLengths() {
+        let len = round(parseFloat(getInput("line_length").value), 2);
+        let sf = parseScaleFactor()
+
+        getOutput("first_layer_line_length").value = len.toString() + "mm";
+        getOutput("first_layer_line_length2").value = len.toString() + "mm";
+        getOutput("second_layer_line_length").value = round(len * sf, 2).toString() + "mm";
+
+    }
+    layerLengths()
+    getInput("line_length").addEventListener("input", layerLengths)
+
+    getInput("scaling_factor").addEventListener("input", layerLengths)
+
+    function extrudeDist() {
+        getOutput("extrude_dist_out").value = parseInt(getInput("extrude_dist").value) + 'mm'
+    }
+    extrudeDist()
+    document.getElementById("extrude_dist").addEventListener("input", extrudeDist)
+
+    function modelHeight() {
+        let num_layers = Math.max(parseInt(getInput("num_layers").value), 1)
+        let line_length = parseFloat(getInput("line_length").value)
+        let extrude = getInput("extrude_check").checked;
+        let extrude_dist = parseFloat(getInput("extrude_dist").value)
+        let dist_between = Math.max(0, Math.min(3.0, 0.01 * parseFloat(getInput("layer_dist").value)))
+        let scale_factor = parseScaleFactor()
+
+
+        let totalHeight = 0;
+        let sf = 1;
+
+        for (let i = 1; i < num_layers; i++) {
+            totalHeight += sf * dist_between * line_length;
+            sf *= scale_factor
+
+        }
+        if (extrude) {
+            totalHeight += 2 * extrude_dist
+        }
+
+        getOutput("model_height").value = round(totalHeight, 2).toString() + "mm";
+    }
+    modelHeight()
+    document.getElementById("extrude_dist").addEventListener("input", modelHeight)
+    document.getElementById("extrude_check").addEventListener("input", modelHeight)
+    document.getElementById("line_length").addEventListener("input", modelHeight)
+
+    document.getElementById("layer_dist").addEventListener("input", modelHeight)
+    document.getElementById("scaling_factor").addEventListener("input", modelHeight)
+
+}
+
+export function updateEstimatesFromPreviews(sf: number, x: number, y: number) {
+    let len = parseFloat(getInput("line_length").value);
+    getOutput("suggested_sf").value = round(sf, 5).toString();
+    // note x and y were calculated with step length = 100
+    getOutput("XY_dimensions").value = `${Math.round(x * len / 100)}mm x ${Math.round(y * len / 100)}mm`
 }

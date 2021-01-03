@@ -15,18 +15,22 @@ import 'bootstrap/dist/css/bootstrap.css' // Import precompiled Bootstrap css
 import '@fortawesome/fontawesome-free/css/all.css'
 
 
-import { encode, decode } from "@msgpack/msgpack"
+import { encode } from "@msgpack/msgpack"
 
 // to fix parcel
 import 'regenerator-runtime/runtime'
 
 
-
-// Main run method ==========
-async function run() {
+async function preview() {
+    await run(false)
+}
+async function download() {
+    await run(true)
+}
+async function run(download: boolean) {
     document.getElementById("gen-error").style.display = "none"
     try {
-        await runE()
+        await runE(download)
     } catch (e) {
         console.warn("Error thrown", e)
         document.getElementById("gen-error").style.display = "block"
@@ -34,7 +38,7 @@ async function run() {
     }
 }
 
-async function runE() {
+async function runE(download: boolean) {
     removeDisplay();
     document.getElementById("url-alert-box").style.display = "none"
     let settings = parseSettings();
@@ -76,7 +80,18 @@ async function runE() {
         throw new Error(`The server returned an error: code ${response.status}, body: ${response.body}`)
     }
     let stl = await response.blob()
-    await displaySTL(stl)
+    if (download) {
+        let a = document.createElement("a")
+        a.href = window.URL.createObjectURL(stl);
+        a.download = "fractal.stl"
+        document.body.appendChild(a)
+        a.click()
+        a.remove()
+    }
+    else {
+        await displaySTL(stl)
+    }
+
 }
 
 
@@ -85,8 +100,9 @@ async function runE() {
     fromQueryString();
     setupScene();
     setupTables();
-    document.getElementById("run").addEventListener("click", run, false);
+    document.getElementById("preview").addEventListener("click", preview);
+    document.getElementById("download_btn").addEventListener("click", download);
     setupInteractions();
-    setupDiagrams()
+    setupDiagrams();
 
 })();

@@ -156,7 +156,7 @@ export function toDataUrl(svg: string): string {
     return `data:image/svg+xml;utf8,` + svg
 }
 
-export function toSVG(commands: Array<string>, addTo: HTMLElement, iteration: number): number {
+export function toSVG(commands: Array<string>, addTo: HTMLElement, iteration: number): [number, number, number] {
     let draw = SVG().addTo(addTo).size(200, 200)
 
     let strokeWidth = 2
@@ -169,7 +169,7 @@ export function toSVG(commands: Array<string>, addTo: HTMLElement, iteration: nu
     //     .transform({
     //     flip: "y"
     // })
-
+    let originalBBox = path.bbox()
     let bbox = path.bbox()
     if (bbox.width < bbox.height) {
         bbox.x -= (bbox.height - bbox.width) / 2
@@ -191,6 +191,7 @@ export function toSVG(commands: Array<string>, addTo: HTMLElement, iteration: nu
     let text = draw.text(`#${iteration}`)
     text.move(bbox.x + 5, bbox.y + 5)
     text.font("size", `${scaleFactor}rem`)
-    return scaleFactor
+    let b = path.bbox()
+    return [scaleFactor, originalBBox.width, originalBBox.height]
 
 }
