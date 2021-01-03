@@ -39,3 +39,7 @@ td.iteration {
 .lsys-expl-body {
     columns: 2
 }
+
+.mono {
+    font-family: Consolas, Monaco, Lucida Console, Liberation Mono, DejaVu Sans Mono, Bitstream Vera Sans Mono, Courier New, monospace;
+}

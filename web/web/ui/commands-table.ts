@@ -23,7 +23,7 @@ export function addRow(symbol: string = "", func: string = "") {
     let table = document.getElementById("rulesBody")
     table.insertAdjacentHTML("beforeend", `
     <tr class="m-0">
-        <td class="t-small"><input placeholder="Symbol" class="symbol-input table-input" value=${symbol}></td>
+        <td class="t-small"><input placeholder="Symbol" class="mono symbol-input table-input" value=${symbol}></td>
         <td class="t-large"><textarea placeholder="Function" class="edit">${func}</textarea></td>
         <td class="t-small">
             <button class="btn btn-link delete-row-button">
