@@ -14,7 +14,7 @@
     "@msgpack/msgpack": "^1.12.2",
     "@svgdotjs/svg.js": "^3.0.16",
     "bootstrap": "^4.5.0",
-    "codemirror": "^5.55.0",
+    "codemirror": "^5.58.2",
     "jquery": "^3.5.1",
     "mathjs": "^8.1.1",
     "polygon-offset": "^0.3.1",
