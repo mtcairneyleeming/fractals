@@ -10,9 +10,11 @@
 
 <body>
     <nav class="navbar navbar-light bg-light sticky-top">
+        <div class="container-fluid">
         <a class="navbar-brand" href="#">fractals.maxcl.co.uk</a>
-        <span class="ml-auto mr-3 text-muted" style="display: none;" id="saveNotif">URL copied to clipboard</span>
+        <span class="ms-auto me-3 text-muted" style="display: none;" id="saveNotif">URL copied to clipboard</span>
         <button class="btn btn-outline-success" id="saveToLinkButton">Save to link</button>
+        </div>
     </nav>
 
     <main class="container-fluid" role="main">
@@ -32,7 +34,7 @@
         <div class="card">
             <div class="card-header" id="lsysExplHeader" style="padding: 0px">
                 <h2 class="mb-0">
-                    <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#lsysExplCollapse" aria-expanded="true" aria-controls="lsysExplCollapse">
+                    <button class="btn btn-link" type="button" data-bs-toggle="collapse" data-bs-target="#lsysExplCollapse" aria-expanded="true" aria-controls="lsysExplCollapse">
                         How Lindenmayer Systems work
                     </button>
                 </h2>
@@ -52,7 +54,7 @@
                         <div id="lsys-svg-container">
                             <svg id="lsys-explanation-svg" width="0" height="0"></svg>
                         </div>
-                        <table class="table " style="width: 25rem;">
+                        <table class="table" style="width: 25rem;">
                             <thead>
 
                                 <th>#</th>
@@ -96,33 +98,33 @@
             <p class="mb-0" id="url-error-body">The data in the URL you just pasted in was broken - you might have deleted a few characters from the end or miscopied, or it might be from an old version of this website.</p>
         </div>
 
-        <div class="form-group row">
+        <div class="row mb-3">
             <label for="rules" class="col-sm-12 col-form-label align-text-bottom">
-                <span class="mr-4">To describe your fractal you can use </span>
+                <span class="me-4">To describe your fractal you can use </span>
                 <!-- <div class="form-check form-check-inline align-text-bottom"> -->
                 <input class="form-check-input" type="radio" name="drawingRadio" id="drawingRadioStandard" value="Standard" checked />
                 <label class="form-check-label" for="drawingRadioStandard">standard</label>
                 <!-- </div> -->
-                <span class="mr-4"> or </span>
+                <span class="me-4"> or </span>
 
                 <input class="form-check-input" type="radio" name="drawingRadio" id="drawingRadioAdvanced" value="Advanced" />
                 <label class="form-check-label" for="drawingRadioAdvanced">advanced</label>
 
-                <span class="mr-4"> drawing commands:</span>
+                <span class="me-4"> drawing commands:</span>
             </label>
 
 
-            <div class="col-sm-11 pl-4 offset-sm-1">
+            <div class="col-sm-11 ps-4 offset-sm-1">
                 <div id="standard_drawing_commands">
                     <dl class="row">
                         <dt class="col-sm-1">Letter</dt>
-                        <dd class="col-sm-11 font-weight-bold">means</dd>
+                        <dd class="col-sm-11 fw-bold">means</dd>
 
                         <dt class="col-sm-1">F,G</dt>
                         <dd class="col-sm-11">both draw a straight line one step forwards</dd>
 
                         <dt class="col-sm-1">+,-</dt>
-                        <dd class="col-sm-11">turn right/left by <input class="number ml-2" id="drawing_standard_degrees" type="number" value="60" /> degrees</dd>
+                        <dd class="col-sm-11">turn right/left by <input class="number ms-2" id="drawing_standard_degrees" type="number" value="60" /> degrees</dd>
                         <dt class="col-sm-1">X,Y</dt>
                         <dd class="col-sm-11">turn right/left by the same angle as above. (Note these extra direction commands are useful to align all the iterations the same way TODO better)</dd>
 
@@ -138,7 +140,7 @@
                     <div class="card mb-3">
                         <div class="card-header" id="headingAdvancedCommands" style="padding: 0px">
                             <h5 class="mb-0">
-                                <button class="btn btn-link" data-toggle="collapse" data-target="#collapseAdvancedCommands" aria-expanded="false" aria-controls="collapseAdvancedCommands">
+                                <button class="btn btn-link" data-bs-toggle="collapse" data-bs-target="#collapseAdvancedCommands" aria-expanded="false" aria-controls="collapseAdvancedCommands">
                                     Advanced commands explained (click to expand)
                                 </button>
                             </h5>
@@ -157,15 +159,15 @@ function draw(state){
                                 <h5 class="mt-3">Methods available on <code>state</code>:</h5>
                                 <p>There are 2 sets of commands available. The simpler works like the turtle drawing system: </p>
 
-                                <p class="ml-3">
+                                <p class="ms-3">
                                     You can draw or move forward 1 step, adjust the step by a multiplicative factor, turn left or right by an angle, or push/pop (save, restore respectively) the current state (incl position, angle and step). Angles are in degrees.</p>
 
                                 <p>And the more advanced set exposes most of the relative SVG commands: </p>
-                                <p class="ml-3">
+                                <p class="ms-3">
                                     These commands do not use or change any state, so you'll need to pass in the stored angle (from angle()) or step(), for example). Also, you can store whatever state you like in the state dictionary. (Note that the basic commands refer to <code>state["angle"]</code> and <code>state["step"]</code>, if you want to mix and match between command sets).
                                 </p>
 
-                                <p class="ml-3">
+                                <p class="ms-3">
                                     Note 'z' has not been implemented because the drawn output is supposed to be a line, not a closed shape. In addition, the lineA and moveA commands have been added to save trig calculations. </p>
 
                                 <p>Please refer to the <a href="https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/d#Path_commands">MDN documentation on SVGs</a> to learn about the SVG commands available.
@@ -230,7 +232,7 @@ interface State {
                             <!--<tr>
                                         <td><input placeholder="Symbol" class="mono symbol-input"></td>
                                         <td><textarea placeholder="Function" class="edit"></textarea></td>
-                                        <td><button class="btn btn-link delete-row-button"><i class="fa fa-times" aria-hidden="true"
+                                        <td><button class="btn btn-link delete-row-button"><i class="fa-solid fa-xmark" aria-hidden="true"
                                                     aria-label="Delete row"></i></button></td>
                                     </tr> -->
                         </tbody>
@@ -240,7 +242,7 @@ interface State {
             </div>
         </div>
 
-        <div class="form-group row">
+        <div class="row mb-3">
             <label for="axiom" class="col-sm-1 col-form-label">Axiom</label>
             <div class="col-sm-4">
                 <input id="axiom" type="text" class="mono form-control" value="F" />
@@ -248,7 +250,7 @@ interface State {
             <div class="col-sm-7 col-form-label">the zero-th iteration - this is normally a single character, say <code>F</code> for a line, or a non-drawing character</div>
         </div>
 
-        <div class="form-group row">
+        <div class="row mb-3">
             <label for="rules" class="col-sm-1 col-form-label">Rules</label>
             <div class="col-sm-4">
                 <textarea id="rules" value="" class="mono form-control" placeholder="F=>G+F+G">
@@ -261,7 +263,7 @@ G=>F-G-F
 
 
 
-        <div class="form-group row">
+        <div class="row mb-3">
             <label for="" class="col-sm-1 col-form-label">Scale factor</label>
 
             <div class="col-sm-4">
@@ -277,7 +279,7 @@ G=>F-G-F
                 <div class="card">
                     <div class="card-header" id="headingText" style="padding: 0px">
                         <h2 class="mb-0">
-                            <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#collapseText" aria-expanded="true" aria-controls="collapseText">
+                            <button class="btn btn-link" type="button" data-bs-toggle="collapse" data-bs-target="#collapseText" aria-expanded="true" aria-controls="collapseText">
                                 Text preview
                             </button>
                         </h2>
@@ -293,7 +295,7 @@ G=>F-G-F
                 <div class="card mt-3 mb-3">
                     <div class="card-header" id="headingDrawn" style="padding: 0px">
                         <h2 class="mb-0">
-                            <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#collapseDrawn" aria-expanded="true" aria-controls="collapseDrawn">
+                            <button class="btn btn-link" type="button" data-bs-toggle="collapse" data-bs-target="#collapseDrawn" aria-expanded="true" aria-controls="collapseDrawn">
                                 Drawn preview
                             </button>
                         </h2>
@@ -329,14 +331,12 @@ G=>F-G-F
 
         <div class="row">
             <div class="col-md-6">
-                <div class="form-group row">
+                <div class="row mb-3">
                     <label for="num_layers" class="col-sm-4 col-form-label pb-4">Line length <br /><small>on first layer</small></label>
                     <div class="col-sm-8">
                         <div class="input-group mb-3">
                             <input id="line_length" type="number" min="2" step="1" value="50" class="form-control" />
-                            <div class="input-group-append">
-                                <span class="input-group-text" id="basic-addon2">mm</span>
-                            </div>
+                            <span class="input-group-text" id="basic-addon2">mm</span>
                         </div>
                     </div>
                     <label for="num_layers" class="col-sm-4 col-form-label pb-4">Number of layers</label>
@@ -345,13 +345,13 @@ G=>F-G-F
                     </div>
                     <label for="centre_check" class="col-sm-4 col-form-label">Centre the layers?</label>
                     <div class="col-sm-8 d-flex">
-                        <input class="form-control-sm form-check-input position-static ml-0" type="checkbox" id="centre_check" />
-                        <label for="centre_check" class="small ml-2 mt-2">This is useful for some fractals (like the Hilbert curve) where successive layers are larger even after they have been scaled, so the layers to be aligned.</label>
+                        <input class="form-check-input" type="checkbox" id="centre_check" />
+                        <label for="centre_check" class="small ms-2 mt-2">This is useful for some fractals (like the Hilbert curve) where successive layers are larger even after they have been scaled, so the layers to be aligned.</label>
                     </div>
                     <label for="layer_dist" class="col-sm-4 col-form-label">Distance between layers</label>
                     <div class="col-sm-8 d-flex flex-row mt-2" id="step_length_form">
                         <div class="row">
-                            <div class="col-sm-12"><input type="range" class="custom-range" id="layer_dist" min="1" max="150" value="25" step="0.5" /><br></div>
+                            <div class="col-sm-12"><input type="range" class="form-range" id="layer_dist" min="1" max="150" value="25" step="0.5" /><br></div>
                             <div class="col-sm-12"><output for="layer_dist" id="slider_val"> 25% of the step length on each layer</output></div>
                         </div>
                     </div>
@@ -359,14 +359,12 @@ G=>F-G-F
                     <label class="col-sm-4 col-form-label">Extrude top and bottom?</label>
                     <div class="col-sm-8">
                         <div class="d-flex flex-row">
-                            <input class="form-control-sm form-check-input position-static ml-0 mr-2" type="checkbox" style="align-self: start;" id="extrude_check" checked />
+                            <input class="form-check-input me-2" type="checkbox" style="align-self: start;" id="extrude_check" checked />
 
                             <label class="col-form-label">by</label>
-                            <div class="input-group ml-3" style="width: 15rem;">
+                            <div class="input-group ms-3" style="width: 15rem;">
                                 <input type="number" class="form-control" id="extrude_dist" min="0" max="50" value="1" />
-                                <div class="input-group-append" style="display: inline;">
-                                    <span class="input-group-text" id="basic-addon2">mm</span>
-                                </div>
+                                <span class="input-group-text" id="basic-addon2">mm</span>
                             </div>
                         </div>
 
@@ -385,26 +383,22 @@ G=>F-G-F
 
 
 
-        <form class="form-group row" id="thicken_form">
+        <form class="row mb-3" id="thicken_form">
             <label class="col-sm-2 col-form-label">Thicken shape?</label>
             <div class="col-sm-10 d-flex flex-row">
-                <input class="form-control-sm form-check-input position-static ml-0 mr-2" type="checkbox" style="align-self: start;" id="thicken_check" checked />
+                <input class="form-check-input me-2" type="checkbox" style="align-self: start;" id="thicken_check" checked />
 
                 <label class="col-form-label"> by </label>
-                <div class="input-group ml-2" style="width: 15rem;">
+                <div class="input-group ms-2" style="width: 15rem;">
                     <input type="number" class="form-control" aria-describedby="top_thicken_unit" id="top_thicken_width" name="top_thicken_width" value="1" step="0.01" />
-                    <div class="input-group-append" style="display: inline;">
-                        <span class="input-group-text" id="top_thicken_unit">mm</span>
-                    </div>
+                    <span class="input-group-text" id="top_thicken_unit">mm</span>
                 </div>
-                <label class="col-form-label ml-2"> at the top and </label>
-                <div class="input-group ml-2" style="width: 15rem;">
+                <label class="col-form-label ms-2"> at the top and </label>
+                <div class="input-group ms-2" style="width: 15rem;">
                     <input type="number" class="form-control" aria-describedby="bottom_thicken_unit" id="bottom_thicken_width" name="bottom_thicken_width" value="1" step="0.01" />
-                    <div class="input-group-append" style="display: inline;">
-                        <span class="input-group-text" id="bottom_thicken_unit">mm</span>
-                    </div>
+                    <span class="input-group-text" id="bottom_thicken_unit">mm</span>
                 </div>
-                <label class="col-form-label ml-2">at the bottom</label>
+                <label class="col-form-label ms-2">at the bottom</label>
 
 
 
@@ -414,18 +408,16 @@ G=>F-G-F
             </p>
         </form>
 
-        <div class="form-group row">
+        <div class="row mb-3">
             <label class="col-sm-2 col-form-label">Curve corners?</label>
             <div class="col-sm-5">
                 <div class="d-flex flex-row">
-                    <input class="form-control-sm form-check-input position-static ml-0 mr-2" type="checkbox" style="align-self: start;" id="curve_check" checked />
+                    <input class="form-check-input me-2" type="checkbox" style="align-self: start;" id="curve_check" checked />
 
                     <label class="col-form-label"> if so, how much?</label>
-                    <div class="input-group ml-3" style="width: 15rem;">
+                    <div class="input-group ms-3" style="width: 15rem;">
                         <input type="number" class="form-control" id="curve_frac" min="0" max="49" value="20" />
-                        <div class="input-group-append" style="display: inline;">
-                            <span class="input-group-text" id="basic-addon2">%</span>
-                        </div>
+                        <span class="input-group-text" id="basic-addon2">%</span>
                     </div>
                 </div>
 
@@ -440,11 +432,11 @@ G=>F-G-F
             </div>
         </div>
 
-        <div class="form-group row">
+        <div class="row mb-3">
             <div class="col-sm-2">Holes</div>
             <div class="col-sm-10">
                 <div class="mb-2">
-                    <div class="form-group row">
+                    <div class="row mb-3">
                         <div class="col-sm-12">
                             <div class="form-check form-check-inline">
                                 <input class="form-check-input" type="radio" name="hole_radio" id="hole_radio1" value="None" />
@@ -463,13 +455,11 @@ G=>F-G-F
                     <div id="parallel_hole_options" class="row">
                         <div class="col-sm-6">
                             <p class="small form-text">When a line on one level and the line it projects from the on the previous are parallel, instead of filling this trapezium in, make a hole instead.</p>
-                            <div class="form-group d-flex flex-row">
+                            <div class="d-flex flex-row mb-3">
                                 <label for="frame_factor" class="col-form-label">Frame size</label>
-                                <div class="input-group ml-3" style="width: 15rem;">
+                                <div class="input-group ms-3" style="width: 15rem;">
                                     <input type="number" class="form-control" id="frame_factor" min="0" max="50" value="10" />
-                                    <div class="input-group-append" style="display: inline;">
-                                        <span class="input-group-text" id="basic-addon2">%</span>
-                                    </div>
+                                    <span class="input-group-text" id="basic-addon2">%</span>
                                 </div>
                             </div>
                             <small id="frame_factorHelp" class="form-text">
@@ -484,32 +474,33 @@ G=>F-G-F
                     </div>
                     <div id="ev_hole_options" class="row">
                         <div class="col-sm-6">
-                            <div class="form-group row">
+                            <div class="row mb-3">
                                 <label for="ev_hole_number" class="col-sm-6 col-form-label">How many holes?</label>
-                                <input id="ev_hole_number" type="number" min="1" value="6" step="1" class="form-control col-sm-6" />
+                                <div class="col-sm-6"><input id="ev_hole_number" type="number" min="1" value="6" step="1" class="form-control" /></div>
 
-                                <label for="ev_hole_scale" class="col-sm-6 col-form-label  mt-3">Scaling factor for num. of holes</label>
-                                <div class="input-group pl-0 pr-0 col-sm-6 mt-3">
+                                <label for="ev_hole_scale" class="col-sm-6 col-form-label mt-3">Scaling factor for num. of holes</label>
+                                <div class="col-sm-6 mt-3">
+                                    <div class="input-group">
                                     <input type="text" class="form-control" id="ev_hole_scale" min="1" max="50" value="2" step="1" />
-
+                                    </div>
                                     <small id="hole_scale_help" class="form-text">
                                         The factor to multiply the number of holes by on each iteration - so if the first iteration has <output id="hole_scale_help_num">5</output> holes in it, the second iteration has <output id="hole_scale_help_mult">5x2=10</output> holes in it.
                                     </small>
                                 </div>
 
                                 <label for="ev_ratio" class="col-sm-6 col-form-label mt-3">Hole to solid ratio</label>
-                                <div class="input-group pl-0 pr-0 col-sm-6 mt-3">
-                                    <div class="input-group-prepend" style="display: inline;">
-                                        <span class="input-group-text" id="ev_ratio_prepend">1:</span>
-                                    </div>
+                                <div class="col-sm-6 mt-3">
+                                    <div class="input-group">
+                                    <span class="input-group-text" id="ev_ratio_prepend">1:</span>
                                     <input type="number" min="0" class="form-control" id="ev_ratio" value="1" />
+                                    </div>
                                 </div>
 
-                                <label for="ev_frame_percent" class="col-sm-6 col-form-label  mt-3">Frame size</label>
-                                <div class="input-group pl-0 pr-0 col-sm-6 mt-3">
+                                <label for="ev_frame_percent" class="col-sm-6 col-form-label mt-3">Frame size</label>
+                                <div class="col-sm-6 mt-3">
+                                    <div class="input-group">
                                     <input type="text" class="form-control" id="ev_frame_percent" min="0" max="50" value="10" />
-                                    <div class="input-group-append" style="display: inline;">
-                                        <span class="input-group-text" id="ev_frame_append">%</span>
+                                    <span class="input-group-text" id="ev_frame_append">%</span>
                                     </div>
                                     <small id="frame_factorHelp" class="form-text">
                                         Height of the solid top/bottom of a hole as a percentage of distance from one layer to the next.
@@ -537,8 +528,8 @@ G=>F-G-F
             </div>
         </div>
         <hr />
-        <div class="row ">
-            <div id="viewer-holder" class="col-sm-11 ">
+        <div class="row">
+            <div id="viewer-holder" class="col-sm-11">
                 <h5>Preview here:</h5>
                 <div id="viewer" class="mt-3"></div>
 

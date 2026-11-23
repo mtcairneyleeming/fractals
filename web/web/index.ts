@@ -1,5 +1,3 @@
-// custom css
-import "./index.css"
 // fractal work
 import { Simple3D as SimpleDevFract } from "../3d/simple"
 // ui components
@@ -10,9 +8,12 @@ import { fromQueryString } from "./ui/url-save"
 import { setupInteractions } from "./ui/form-interaction"
 import { setupDiagrams } from "./ui/diagrams"
 // styling
+// Bootstrap 5: ESM build (data-bs-* collapse behaviour registers itself on import; Popper comes with it)
 import 'bootstrap'
 import 'bootstrap/dist/css/bootstrap.css' // Import precompiled Bootstrap css
 import '@fortawesome/fontawesome-free/css/all.css'
+// custom css, after the libraries so it can override them
+import "./index.css"
 
 
 import { encode } from "@msgpack/msgpack"

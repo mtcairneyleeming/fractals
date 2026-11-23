@@ -1,20 +1,44 @@
-import * as CodeMirror from "codemirror"
-import "codemirror/lib/codemirror.css"
-import "codemirror/mode/javascript/javascript"
-import "codemirror/addon/display/autorefresh"
+import { EditorState } from "@codemirror/state"
+import { EditorView, lineNumbers, keymap, drawSelection } from "@codemirror/view"
+import { defaultKeymap, history, historyKeymap } from "@codemirror/commands"
+import { javascript } from "@codemirror/lang-javascript"
+import { syntaxHighlighting, defaultHighlightStyle } from "@codemirror/language"
 import { State } from "../../lsystems/tosvg"
 import { showPreview } from "./previews/controller";
+
+// Replace a <textarea> by a CodeMirror 6 editor holding the same text (the textarea stays in the DOM, hidden).
+// The editor is inserted just after the textarea, inside a `.cm-editor` element.
+function editorFromTextArea(textarea: HTMLTextAreaElement, readOnly: boolean, onChange?: () => void): EditorView {
+    const view = new EditorView({
+        parent: textarea.parentElement,
+        doc: textarea.value,
+        extensions: [
+            lineNumbers(),
+            history(),
+            drawSelection(),
+            keymap.of([...defaultKeymap, ...historyKeymap]),
+            javascript({ typescript: true }),
+            syntaxHighlighting(defaultHighlightStyle, { fallback: true }),
+            EditorState.readOnly.of(readOnly),
+            EditorView.updateListener.of((update) => {
+                if (update.docChanged && onChange) onChange()
+            }),
+        ],
+    })
+    textarea.after(view.dom)
+    textarea.style.display = "none"
+    return view
+}
+
+function editorIn(el: Element): EditorView | null {
+    const dom = el.querySelector(".cm-editor")
+    return dom ? EditorView.findFromDOM(dom as HTMLElement) : null
+}
+
 export function createAllEditors() {
     document.querySelectorAll("textarea.edit").forEach(element => {
         if ((element as HTMLTextAreaElement).style.display != "none") {
-            let code = CodeMirror.fromTextArea(element as HTMLTextAreaElement, {
-                lineNumbers: true,
-                mode: "text/typescript",
-                viewportMargin: Infinity
-            });
-            if (element.classList.contains("readonly-edit")) {
-                code.setOption("readOnly", true);
-            }
+            editorFromTextArea(element as HTMLTextAreaElement, element.classList.contains("readonly-edit"))
         }
     });
 }
@@ -27,7 +51,7 @@ export function addRow(symbol: string = "", func: string = "") {
         <td class="t-large"><textarea placeholder="Function" class="edit">${func}</textarea></td>
         <td class="t-small">
             <button class="btn btn-link delete-row-button">
-                <i class="fa fa-times" aria-hidden="true" aria-label="Delete row"></i>
+                <i class="fa-solid fa-xmark" aria-hidden="true" aria-label="Delete row"></i>
             </button>
         </td>
     </tr>
@@ -35,21 +59,17 @@ export function addRow(symbol: string = "", func: string = "") {
 
     var n = table.lastElementChild as HTMLTableRowElement
 
-    let code = CodeMirror.fromTextArea(n.querySelector("textarea.edit") as HTMLTextAreaElement, {
-        lineNumbers: true,
-        mode: "text/typescript",
-        viewportMargin: Infinity
-    });
+    editorFromTextArea(n.querySelector("textarea.edit") as HTMLTextAreaElement, false, showPreview)
     n.querySelector(".delete-row-button").addEventListener("click", deleteRow, false)
 
     n.querySelector(".symbol-input").addEventListener("input", showPreview, false)
-    code.on("changes", (editor, changes) => showPreview())
 }
 
 export function deleteRow(event: Event) {
     let btn = event.target as HTMLElement;
     if (btn.tagName == "I") btn = btn.parentElement
     let row = btn.parentElement.parentElement as HTMLTableRowElement
+    editorIn(row)?.destroy()
     row.parentElement.removeChild(row)
 }
 export function getDrawingCommands(ignoreErrors = false): [Map<string, string>, any[]] {
@@ -62,8 +82,7 @@ export function getDrawingCommands(ignoreErrors = false): [Map<string, string>, 
         if (symbol.length > 1 && !ignoreErrors) {
             throw new Error(`All symbols must be 1 character only - "${symbol}" is too long.`)
         }
-        // @ts-ignore 
-        let functionStr = child.querySelector(".CodeMirror").CodeMirror.getValue()
+        let functionStr = editorIn(child).state.doc.toString()
         try {
             let func = new Function("state", functionStr)
             // @ts-ignore - this is to avoid function typing issues
@@ -89,12 +108,7 @@ export function setupTables() {
     })
 
     document.querySelectorAll(".edit.readonly-edit").forEach((el: HTMLTextAreaElement) => {
-        CodeMirror.fromTextArea(el, {
-            lineNumbers: true,
-            mode: "text/typescript",
-            viewportMargin: Infinity,
-            autoRefresh: true
-        })
+        editorFromTextArea(el, true)
     })
 
 }

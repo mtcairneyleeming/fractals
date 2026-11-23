@@ -8,7 +8,8 @@
         "noEmit": true,
         "skipLibCheck": true,
         "esModuleInterop": true,
-        "allowJs": false
+        "allowJs": false,
+        "strict": false
     },
     "include": ["./web/**/*.ts", "./lsystems/*.ts", "./3d/**/*.ts", "./vite.config.ts"],
     "exclude": ["./web/old/**"]

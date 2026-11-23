@@ -3,9 +3,25 @@
     clip: rect(0, 0, 0, 0);
 }
 
-.CodeMirror {
-    height: auto !important;
+/* CodeMirror 6: grows with its content; look close to the CodeMirror 5 default theme */
+.cm-editor {
     font-size: 0.9rem;
+}
+
+.cm-editor.cm-focused {
+    outline: none;
+}
+
+.cm-editor .cm-gutters {
+    background-color: #f7f7f7;
+    color: #999;
+    border-right: 1px solid #ddd;
+}
+
+/* removed in Bootstrap 5 */
+.pre-scrollable {
+    max-height: 340px;
+    overflow-y: scroll;
 }
 
 .t-small {
@@ -42,4 +58,22 @@ td.iteration {
 
 .mono {
     font-family: Consolas, Monaco, Lucida Console, Liberation Mono, DejaVu Sans Mono, Bitstream Vera Sans Mono, Courier New, monospace;
+}
+/* Bootstrap 4 look: link buttons (collapse headers) are not underlined until hovered */
+.btn-link {
+    text-decoration: none;
+}
+
+.btn-link:hover {
+    text-decoration: underline;
+}
+
+/* Bootstrap 5 checkboxes/radios: darker unchecked border (closer to the BS4 native look) and aligned with
+   the text next to them in the d-flex rows */
+.form-check-input:not(:checked) {
+    border-color: rgba(0, 0, 0, 0.5);
+}
+
+.d-flex > input.form-check-input[type="checkbox"] {
+    margin-top: 0.55rem;
 }
