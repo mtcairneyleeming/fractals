@@ -27,7 +27,7 @@ export class Parser {
     }
 
 
-    iterateN(n: Number): Array<List> {
+    iterateN(n: number): Array<List> {
         let i = 0
         while (i < n) {
             this.iterate()

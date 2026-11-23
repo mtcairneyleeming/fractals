@@ -1,6 +1,10 @@
 use serde::{Deserialize, Serialize};
 
-#[derive(Deserialize, Debug, Serialize)]
+/// Hole options. The frontend sends these in the shape the old rmp-serde (0.13) used for enums,
+/// `[variant_index, [field, ...]]` (see `settings.ts`); modern rmp-serde would write
+/// `{"Variant": [fields]}` instead. Both are accepted when deserializing (see `HoleWire`).
+#[derive(Deserialize, Debug, Serialize, Clone, PartialEq)]
+#[serde(try_from = "HoleWire")]
 pub enum HoleOptions {
     None,
     ParallelOnly {
@@ -12,6 +16,64 @@ pub enum HoleOptions {
         scaling_factor: i64,
         frame_factor: f64,
     },
+}
+
+/// The two accepted encodings of `HoleOptions`.
+#[derive(Deserialize)]
+#[serde(untagged)]
+enum HoleWire {
+    /// `[variant_index, [fields...]]`, as the frontend sends it.
+    Legacy(u32, Vec<f64>),
+    /// serde's usual external tagging: `"None"`, `{"ParallelOnly": {...}}`, ...
+    Native(NativeHoleOptions),
+}
+
+#[derive(Deserialize)]
+enum NativeHoleOptions {
+    None,
+    ParallelOnly {
+        frame_factor: f64,
+    },
+    Everywhere {
+        num_holes: i64,
+        ratio: f64,
+        scaling_factor: i64,
+        frame_factor: f64,
+    },
+}
+
+impl TryFrom<HoleWire> for HoleOptions {
+    type Error = String;
+
+    fn try_from(wire: HoleWire) -> Result<Self, String> {
+        match wire {
+            HoleWire::Legacy(0, f) if f.is_empty() => Ok(HoleOptions::None),
+            HoleWire::Legacy(1, f) if f.len() == 1 => Ok(HoleOptions::ParallelOnly { frame_factor: f[0] }),
+            HoleWire::Legacy(2, f) if f.len() == 4 => {
+                let int = |x: f64| {
+                    if x.fract() == 0.0 && x.abs() < 9.0e15 {
+                        Ok(x as i64)
+                    } else {
+                        Err(format!("expected an integer, got {x}"))
+                    }
+                };
+                Ok(HoleOptions::Everywhere {
+                    num_holes: int(f[0])?,
+                    ratio: f[1],
+                    scaling_factor: int(f[2])?,
+                    frame_factor: f[3],
+                })
+            }
+            HoleWire::Legacy(i, f) => Err(format!("invalid hole options: variant {i} with {} fields", f.len())),
+            HoleWire::Native(NativeHoleOptions::None) => Ok(HoleOptions::None),
+            HoleWire::Native(NativeHoleOptions::ParallelOnly { frame_factor }) => {
+                Ok(HoleOptions::ParallelOnly { frame_factor })
+            }
+            HoleWire::Native(NativeHoleOptions::Everywhere { num_holes, ratio, scaling_factor, frame_factor }) => {
+                Ok(HoleOptions::Everywhere { num_holes, ratio, scaling_factor, frame_factor })
+            }
+        }
+    }
 }
 
 

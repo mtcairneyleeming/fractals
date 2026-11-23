@@ -28,7 +28,7 @@ export function showPreview() {
         clearTimeout(slowTimeout)
 
     }
-    worker = new Worker("worker.js")
+    worker = new Worker(new URL("./worker.js", import.meta.url), { type: "module" })
 
 
     worker.postMessage(parseSettings(true))
@@ -70,8 +70,8 @@ export function showPreview() {
 
         let maxY = max(correctedDims.map(d => d[1]))
         updateEstimatesFromPreviews(avgSF, maxX, maxY)
-        getInput("hidden_x_dim").value = maxX;
-        getInput("hidden_y_dim").value = maxY;
+        getInput("hidden_x_dim").value = String(maxX);
+        getInput("hidden_y_dim").value = String(maxY);
     }
 
 }

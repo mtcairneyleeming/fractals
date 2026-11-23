@@ -131,7 +131,7 @@ export function parseSettings(ignore3d = false): Object {
             case "Everywhere":
                 let holeStr = getInput("ev_hole_number").value
                 let num_holes = parseInt(holeStr, 10)
-                if (isNaN(num_holes) || !isFinite(num_holes) || val < 1) {
+                if (isNaN(num_holes) || !isFinite(num_holes) || num_holes < 1) {
                     throw new Error(`The number of holes you asked for, "${holeStr}" was not a valid, finite integer above 0`)
                 }
 

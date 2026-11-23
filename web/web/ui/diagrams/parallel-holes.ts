@@ -1,8 +1,8 @@
 import rough from "roughjs/bin/rough"
 import { RoughCanvas } from "roughjs/bin/canvas";
 import { getInput } from "./helpers"
-// @ts-ignore
-let Offset = require("polygon-offset")
+// @ts-ignore (CommonJS module without types)
+import Offset from "polygon-offset"
 
 
 let parallel: RoughCanvas = null

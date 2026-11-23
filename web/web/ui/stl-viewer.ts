@@ -1,8 +1,8 @@
 import * as THREE from "three"
 import { DirectionalLight, Scene } from "three";
-import { OrbitControls } from "three/examples/jsm/controls/OrbitControls"
-import { STLExporter } from "three/examples/jsm/exporters/STLExporter"
-import { STLLoader } from "three/examples/jsm/loaders/STLLoader"
+import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js"
+import { STLExporter } from "three/examples/jsm/exporters/STLExporter.js"
+import { STLLoader } from "three/examples/jsm/loaders/STLLoader.js"
 
 // TODO: autoresize
 

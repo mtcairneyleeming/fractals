@@ -1,1 +1,4 @@
+node_modules
+dist
 .cache/**
+e2e/smoke.png

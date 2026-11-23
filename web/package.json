@@ -1,27 +1,40 @@
 {
   "name": "fractals",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "author": "Max Cairney-Leeming <max@cairneyleeming.co.uk>",
   "license": "MIT",
-  "private": false,
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "check": "tsc --noEmit",
+    "audit": "npm audit --omit=dev --audit-level=high"
+  },
   "devDependencies": {
-    "@types/codemirror": "^0.0.96",
-    "cssnano": "^4.1.10",
-    "typescript": "^3.9.5"
+    "@types/codemirror": "^5.60.0",
+    "@types/jquery": "^3.5.0",
+    "@types/three": "^0.187.0",
+    "puppeteer-core": "^25.18.1",
+    "typescript": "^5.9.0",
+    "vite": "^7.0.0"
   },
   "dependencies": {
-    "@fortawesome/fontawesome-free": "^5.13.1",
-    "@msgpack/msgpack": "^1.12.2",
-    "@svgdotjs/svg.js": "^3.0.16",
-    "bootstrap": "^4.5.0",
-    "codemirror": "^5.55.0",
-    "jquery": "^3.5.1",
-    "mathjs": "^8.1.1",
-    "polygon-offset": "^0.3.1",
+    "@fortawesome/fontawesome-free": "^5.15.4",
+    "@msgpack/msgpack": "^3.1.0",
+    "@svgdotjs/svg.js": "^3.2.0",
+    "bootstrap": "^4.6.2",
+    "codemirror": "^5.65.0",
+    "jquery": "^3.7.1",
+    "mathjs": "^15.0.0",
+    "polygon-offset": "^0.3.2",
     "popper.js": "^1.16.1",
-    "regenerator-runtime": "^0.13.7",
-    "rough-notation": "^0.4.0",
-    "roughjs": "^4.3.1",
-    "three": "^0.118.3"
+    "rough-notation": "^0.5.1",
+    "roughjs": "^4.6.0",
+    "three": "^0.187.0"
   }
 }

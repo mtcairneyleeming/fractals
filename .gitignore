@@ -5,3 +5,6 @@ web/dist
 yarn-error.log
 pyserver/**
 .python-version
+# Server command log: contains server details.
+ops/ssh-log.md
+ops/.stage/

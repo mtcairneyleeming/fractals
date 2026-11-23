@@ -82,7 +82,7 @@ export function setupInteractions() {
 
     updateDrawingOptions()
 
-    setHoles(-1, true)
+    setHoles(-1 as HoleType, true)
 
     // Add event handlers
     document.querySelectorAll("input[type=radio][name=drawingRadio]").forEach((rad: HTMLInputElement) => {

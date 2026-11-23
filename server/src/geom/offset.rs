@@ -79,7 +79,7 @@ fn offset_end_point2(line: Line2d, next: Option<Line2d>, offset: f64) -> Point2d
 /// Offsets the point at the intersection of prev, next by `offset`.
 pub(super) fn offset_intersection2(prev: Line2d, next: Line2d, offset: f64) -> Point2d {
     match angle_bisector2(prev, next) {
-        Err(msg) => panic!(msg),
+        Err(msg) => panic!("{}", msg),
         // could equally be prev.end
         Ok((vect, angle)) => next.start.add(vect.scale(offset / angle.sin())),
     }

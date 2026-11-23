@@ -17,8 +17,6 @@ import '@fortawesome/fontawesome-free/css/all.css'
 
 import { encode } from "@msgpack/msgpack"
 
-// to fix parcel
-import 'regenerator-runtime/runtime'
 
 
 async function preview() {

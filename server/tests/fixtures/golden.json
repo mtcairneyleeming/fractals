@@ -1,0 +1,50 @@
+{
+ "thick_curve_parallel_holes": {
+  "triangles": 42446,
+  "bytes": 2122384,
+  "nan_floats": 0,
+  "sha256_nan_canonical": "a64e46a5d3fcc682ac355307c8ecb0f5fef93b95499e7c9a8cc4e4049bf7e28b",
+  "bbox_min": [
+   -1.1608173847198486,
+   -9.882903099060059,
+   -1.5
+  ],
+  "bbox_max": [
+   31.160818099975586,
+   27.203411102294922,
+   9.5
+  ]
+ },
+ "thick_everywhere_holes": {
+  "triangles": 3270,
+  "bytes": 163584,
+  "nan_floats": 144,
+  "sha256_nan_canonical": "345595c9dc8384f5189859daab76916a67bd9bcc117b5ac1fb00f3e94df5635d",
+  "bbox_min": [
+   -0.8660255670547485,
+   -9.660253524780273,
+   0.0
+  ],
+  "bbox_max": [
+   30.866025924682617,
+   26.980762481689453,
+   8.0
+  ]
+ },
+ "thin_plain": {
+  "triangles": 1752,
+  "bytes": 87684,
+  "nan_floats": 0,
+  "sha256_nan_canonical": "2ac6a68033b58be86f24362bd642698cae7ba392ae06eaa0d18beefa87b8b001",
+  "bbox_min": [
+   0.0,
+   -8.660253524780273,
+   0.0
+  ],
+  "bbox_max": [
+   30.0,
+   25.980762481689453,
+   8.0
+  ]
+ }
+}

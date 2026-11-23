@@ -514,6 +514,7 @@ impl Line2d {
         return self.end.sub(self.start).unit();
     }
 
+    #[allow(dead_code)]
     pub fn point(&self, pos: f64) -> Point2d {
         if pos < 1e-8 {
             self.start

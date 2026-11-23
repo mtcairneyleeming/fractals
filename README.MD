@@ -10,4 +10,8 @@ The generated developing fractals can have smooth curves on their corners, as we
 
 ## Build/setup
 
-To develop, you can use `cargo run` in the server directory and `parcel watch web/index.html` in the web directory, and the `update.sh` script will download changes and rebuild everything for production use. I've used caddy to setup HTTPS. Note that the rust server also serves the compiled files for the front end.
+`server` is a Rocket 0.5 app on stable Rust and `web` is a Vite + TypeScript frontend. To develop, run
+`cargo run` in `server/` and `npm run dev` in `web/`. `ops/update.sh` updates dependencies, builds, tests
+and audits (it never deploys), and `ops/deploy.sh` builds locally and deploys to the server. See
+[ops/README.md](ops/README.md). I've used caddy to setup HTTPS. Note that the rust server also serves the
+compiled files for the front end.

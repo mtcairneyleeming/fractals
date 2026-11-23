@@ -187,7 +187,7 @@ export function toSVG(commands: Array<string>, addTo: HTMLElement, iteration: nu
 
     draw.viewbox(bbox)
 
-    let scaleFactor = bbox.width / draw.width()
+    let scaleFactor = bbox.width / Number(draw.width())
     path.attr("stroke-width", `${strokeWidth * scaleFactor}px`)
     let text = draw.text(`#${iteration}`)
     text.move(bbox.x + 5, bbox.y + 5)
